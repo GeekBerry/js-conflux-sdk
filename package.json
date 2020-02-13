@@ -1,29 +1,20 @@
 {
-  "name": "js-conflux-sdk",
+  "name": "@geekberry/js-conflux-sdk",
   "description": "JavaScript Conflux Software Development Kit",
   "version": "0.7.2",
   "license": "LGPL-3.0",
   "author": "Haizhou@conflux-chain.org",
-  "homepage": "https://github.com/Conflux-Chain/js-conflux-sdk#readme",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Conflux-Chain/js-conflux-sdk.git"
-  },
-  "bugs": {
-    "url": "https://github.com/Conflux-Chain/js-conflux-sdk/issues"
-  },
+  "repository": "https://github.com/GeekBerry/js-conflux-sdk.git",
   "keywords": [
     "conflux",
-    "sdk"
+    "sdk",
+    "nodejs"
   ],
   "main": "src/index.js",
-  "module": "dist/js-conflux-sdk.esm.js",
   "files": [
     "mock",
-    "src",
-    "dist"
+    "src"
   ],
-  "browserslit": "cover 99.5%",
   "dependencies": {
     "keccak": "^2.0.0",
     "lodash": "^4.17.15",
@@ -31,24 +22,15 @@
     "superagent": "^5.1.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.8.4",
-    "@babel/preset-env": "^7.8.4",
-    "babelify": "^10.0.0",
-    "browserify": "^16.5.0",
-    "common-shakeify": "^0.6.2",
+    "@geekberry/jsdoc-to-md": "^0.0.3",
     "eslint": "^6.3.0",
     "eslint-config-airbnb-base": "^14.0.0",
     "eslint-plugin-import": "^2.18.2",
-    "esmify": "^2.1.1",
-    "exorcist": "^1.0.1",
-    "jest": "^24.9.0",
-    "tinyify": "^2.5.2"
+    "jest": "^24.9.0"
   },
   "scripts": {
     "eslint": "eslint ./src ./test ./mock",
-    "scope": "npm config set scope conflux-dev & npm config set access public",
-    "build": "node build.js",
-    "prepublishOnly": "npm run build",
-    "test": "jest"
+    "test": "jest",
+    "prepublishOnly": "node document.js"
   }
 }

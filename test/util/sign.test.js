@@ -1,5 +1,5 @@
 const format = require('../../src/util/format');
-const { util: { sign } } = require('../../src');
+const sign = require('../../src/util/sign');
 
 const {
   sha3,

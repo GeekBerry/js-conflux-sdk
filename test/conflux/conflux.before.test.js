@@ -1,4 +1,4 @@
-const { Conflux } = require('../../src');
+const Conflux = require('../../src');
 const { MockProvider } = require('../../mock');
 const format = require('../../src/util/format');
 

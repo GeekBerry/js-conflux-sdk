@@ -1,4 +1,4 @@
-const { Account } = require('../src');
+const Account = require('../src/Account');
 const { randomPrivateKey } = require('../src/util/sign');
 
 const KEY = '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';
