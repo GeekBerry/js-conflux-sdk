@@ -6,6 +6,9 @@ const Contract = require('./contract');
 const Account = require('./Account');
 const { PendingTransaction, LogIterator } = require('./subscribe');
 
+const MIN_GAS_PRICE = 1;
+const MAX_GAS_LIMIT = 100000000;
+
 /**
  * A sdk of conflux.
  */
@@ -13,9 +16,6 @@ class Conflux {
   /**
    * @param [options] {object} - Conflux and Provider constructor options.
    * @param [options.url=''] {string} - Url of provider to create.
-   * @param [options.defaultEpoch="latest_state"] {string|number} - Default epochNumber.
-   * @param [options.defaultGasPrice] {string|number} - The default gas price in drip to use for transactions.
-   * @param [options.defaultGas] {string|number} - The default maximum gas provided for a transaction.
    *
    * @example
    * > const Conflux = require('js-conflux-sdk');
@@ -24,53 +24,11 @@ class Conflux {
    * @example
    * > const cfx = new Conflux({
      url: 'http://localhost:8000',
-     defaultGasPrice: 100,
-     defaultGas: 100000,
      logger: console,
    });
    */
-  constructor({
-    url = '',
-    defaultEpoch = 'latest_state',
-    defaultGasPrice,
-    defaultGas,
-    ...rest
-  } = {}) {
+  constructor({ url = '', ...rest } = {}) {
     this.provider = this.setProvider(url, rest);
-
-    /**
-     * Default epoch number for following methods:
-     * - `Conflux.getBalance`
-     * - `Conflux.getTransactionCount`
-     * - `Conflux.getCode`
-     * - `Conflux.call`
-     *
-     * @deprecated
-     * @type {number|string}
-     */
-    this.defaultEpoch = defaultEpoch;
-
-    /**
-     * Default gas price for following methods:
-     * - `Conflux.sendTransaction`
-     * - `Conflux.call`
-     * - `Conflux.estimateGas`
-     *
-     * @deprecated
-     * @type {number|string}
-     */
-    this.defaultGasPrice = defaultGasPrice;
-
-    /**
-     * Default gas limit for following methods:
-     * - `Conflux.sendTransaction`
-     * - `Conflux.call`
-     * - `Conflux.estimateGas`
-     *
-     * @deprecated
-     * @type {number|string}
-     */
-    this.defaultGas = defaultGas;
 
     decorate(this, 'sendTransaction', (func, params) => {
       return new PendingTransaction(this, func, params);
@@ -287,7 +245,7 @@ class Conflux {
    * Get the balance of an address at a given epochNumber.
    *
    * @param address {string} - The address to get the balance of.
-   * @param [epochNumber=this.defaultEpoch] {string|number} - The end epochNumber to count balance of.
+   * @param [epochNumber='latest_state'] {string|number} - The end epochNumber to count balance of.
    * @return {Promise<BigInt>} Address balance number in drip.
    *
    * @example
@@ -299,7 +257,7 @@ class Conflux {
    * > balance.toString(10);
    "0"
    */
-  async getBalance(address, epochNumber = this.defaultEpoch) {
+  async getBalance(address, epochNumber = 'latest_state') {
     const result = await this.provider.call('cfx_getBalance',
       format.address(address), format.epochNumber(epochNumber),
     );
@@ -310,7 +268,7 @@ class Conflux {
    * Get the numbers of transactions sent from this address.
    *
    * @param address {string} - The address to get the numbers of transactions from.
-   * @param [epochNumber=this.defaultEpoch] {string|number} - The end epochNumber to count transaction of.
+   * @param [epochNumber='latest_state'] {string|number} - The end epochNumber to count transaction of.
    * @return {Promise<number>}
    *
    * @example
@@ -320,7 +278,7 @@ class Conflux {
    * > await cfx.getTransactionCount("0xbbd9e9be525ab967e633bcdaeac8bd5723ed4d6b", 0);
    0
    */
-  async getTransactionCount(address, epochNumber = this.defaultEpoch) {
+  async getTransactionCount(address, epochNumber = 'latest_state') {
     const result = await this.provider.call('cfx_getTransactionCount',
       format.address(address), format.epochNumber(epochNumber),
     );
@@ -685,11 +643,11 @@ class Conflux {
    */
   async sendTransaction(options) {
     if (options.gasPrice === undefined) {
-      options.gasPrice = this.defaultGasPrice;
+      options.gasPrice = await this.getGasPrice() || MIN_GAS_PRICE;
     }
 
     if (options.gas === undefined) {
-      options.gas = this.defaultGas;
+      options.gas = MAX_GAS_LIMIT;
     }
 
     if (options.nonce === undefined) {
@@ -725,14 +683,14 @@ class Conflux {
    * Get the code at a specific address.
    *
    * @param address {string} - The contract address to get the code from.
-   * @param [epochNumber=this.defaultEpoch] {string|number} - EpochNumber or string in ["latest_state", "latest_mined"]
+   * @param [epochNumber='latest_state'] {string|number} - EpochNumber or string in ["latest_state", "latest_mined"]
    * @return {Promise<string>} Code hex string
    *
    * @example
    * > await cfx.getCode('0xb385b84f08161f92a195953b980c8939679e906a');
    "0x6080604052348015600f57600080fd5b506004361060325760003560e01c806306661abd1460375780638..."
    */
-  async getCode(address, epochNumber = this.defaultEpoch) {
+  async getCode(address, epochNumber = 'latest_state') {
     return this.provider.call('cfx_getCode', format.address(address), format.epochNumber(epochNumber));
   }
 
@@ -741,18 +699,10 @@ class Conflux {
    * but never mined into the block chain.
    *
    * @param options {object} - See `format.sendTx`
-   * @param [epochNumber=this.defaultEpoch] {string|number} - The end epochNumber to execute call of.
+   * @param [epochNumber='latest_state'] {string|number} - The end epochNumber to execute call of.
    * @return {Promise<string>} Hex bytes the contract method return.
    */
-  async call(options, epochNumber = this.defaultEpoch) {
-    if (options.gasPrice === undefined) {
-      options.gasPrice = this.defaultGasPrice;
-    }
-
-    if (options.gas === undefined) {
-      options.gas = this.defaultGas;
-    }
-
+  async call(options, epochNumber = 'latest_state') {
     if (options.from && options.nonce === undefined) {
       options.nonce = await this.getTransactionCount(options.from);
     }
@@ -767,14 +717,6 @@ class Conflux {
    * @return {Promise<BigInt>} The used gas for the simulated call/transaction.
    */
   async estimateGas(options) {
-    if (options.gasPrice === undefined) {
-      options.gasPrice = this.defaultGasPrice;
-    }
-
-    if (options.gas === undefined) {
-      options.gas = this.defaultGas;
-    }
-
     if (options.from && options.nonce === undefined) {
       options.nonce = await this.getTransactionCount(options.from);
     }
