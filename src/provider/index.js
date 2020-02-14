@@ -1,6 +1,6 @@
 const BaseProvider = require('./BaseProvider');
 const HttpProvider = require('./HttpProvider');
-// const WebsocketProvider = require('./WebsocketProvider');
+const WebsocketProvider = require('./WebsocketProvider');
 
 function providerFactory(url, options) {
   let provider;
@@ -14,8 +14,7 @@ function providerFactory(url, options) {
   } else if (url.startsWith('http')) {
     provider = new HttpProvider(url, options);
   } else if (url.startsWith('ws')) {
-    throw new Error(`Invalid protocol or url "${url}"`); // FIXME: support ws in browser
-    // provider = new WebsocketProvider(url, options);
+    provider = new WebsocketProvider(url, options);
   } else {
     throw new Error(`Invalid protocol or url "${url}"`);
   }

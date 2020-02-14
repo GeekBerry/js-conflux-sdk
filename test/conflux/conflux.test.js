@@ -28,8 +28,8 @@ test('cfx.setProvider', () => {
   expect(cfx.provider.constructor.name).toEqual('HttpProvider');
   expect(cfx.provider.timeout).toEqual(30 * 1000);
 
-  cfx.setProvider('http://localhost:80', { timeout: 60 * 1000 });
-  expect(cfx.provider.constructor.name).toEqual('HttpProvider');
+  cfx.setProvider('ws://localhost:8080', { timeout: 60 * 1000 });
+  expect(cfx.provider.constructor.name).toEqual('WebsocketProvider');
   expect(cfx.provider.timeout).toEqual(60 * 1000);
 
   cfx.setProvider('');

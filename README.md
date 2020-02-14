@@ -7,7 +7,7 @@ Nodejs Conflux Software Development Kit
 > **BigInt** required, 
 > **CommonJS** style, 
 > **"ws"** lib, 
-> **Function** eavl.
+> **Function** eval.
 
 - Account.js
     - [Account](#Account.js/Account)
@@ -19,8 +19,12 @@ Nodejs Conflux Software Development Kit
 - Message.js
     - [Message](#Message.js/Message)
 - provider
+    - BaseProvider.js
+        - [BaseProvider](#provider/BaseProvider.js/BaseProvider)
     - HttpProvider.js
         - [HttpProvider](#provider/HttpProvider.js/HttpProvider)
+    - WebsocketProvider.js
+        - [WebsocketProvider](#provider/WebsocketProvider.js/WebsocketProvider)
 - Transaction.js
     - [Transaction](#Transaction.js/Transaction)
 - util
@@ -175,13 +179,10 @@ A sdk of conflux.
 
 * **Parameters**
 
-Name                    | Type            | Required | Default        | Description
-------------------------|-----------------|----------|----------------|-------------------------------------------------------
-options                 | `object`        | false    |                | Conflux and Provider constructor options.
-options.url             | `string`        | false    | ''             | Url of provider to create.
-options.defaultEpoch    | `string,number` | false    | "latest_state" | Default epochNumber.
-options.defaultGasPrice | `string,number` | false    |                | The default gas price in drip to use for transactions.
-options.defaultGas      | `string,number` | false    |                | The default maximum gas provided for a transaction.
+Name        | Type     | Required | Default | Description
+------------|----------|----------|---------|------------------------------------------
+options     | `object` | false    |         | Conflux and Provider constructor options.
+options.url | `string` | false    | ''      | Url of provider to create.
 
 * **Examples**
 
@@ -193,39 +194,9 @@ options.defaultGas      | `string,number` | false    |                | The defa
 ```
 > const cfx = new Conflux({
      url: 'http://localhost:8000',
-     defaultGasPrice: 100,
-     defaultGas: 100000,
      logger: console,
    });
 ```
-
-## ~~Conflux.prototype.defaultEpoch~~ <a id="Conflux.js/defaultEpoch"></a>
-
-`number,string`
-
-Default epoch number for following methods:
-- `Conflux.getBalance`
-- `Conflux.getTransactionCount`
-- `Conflux.getCode`
-- `Conflux.call`
-
-## ~~Conflux.prototype.defaultGasPrice~~ <a id="Conflux.js/defaultGasPrice"></a>
-
-`number,string`
-
-Default gas price for following methods:
-- `Conflux.sendTransaction`
-- `Conflux.call`
-- `Conflux.estimateGas`
-
-## ~~Conflux.prototype.defaultGas~~ <a id="Conflux.js/defaultGas"></a>
-
-`number,string`
-
-Default gas limit for following methods:
-- `Conflux.sendTransaction`
-- `Conflux.call`
-- `Conflux.estimateGas`
 
 ## Conflux.prototype.setProvider <a id="Conflux.js/setProvider"></a>
 
@@ -441,10 +412,10 @@ Get the balance of an address at a given epochNumber.
 
 * **Parameters**
 
-Name        | Type            | Required | Default           | Description
-------------|-----------------|----------|-------------------|-----------------------------------------
-address     | `string`        | true     |                   | The address to get the balance of.
-epochNumber | `string,number` | false    | this.defaultEpoch | The end epochNumber to count balance of.
+Name        | Type            | Required | Default        | Description
+------------|-----------------|----------|----------------|-----------------------------------------
+address     | `string`        | true     |                | The address to get the balance of.
+epochNumber | `string,number` | false    | 'latest_state' | The end epochNumber to count balance of.
 
 * **Returns**
 
@@ -467,10 +438,10 @@ Get the numbers of transactions sent from this address.
 
 * **Parameters**
 
-Name        | Type            | Required | Default           | Description
-------------|-----------------|----------|-------------------|-----------------------------------------------------
-address     | `string`        | true     |                   | The address to get the numbers of transactions from.
-epochNumber | `string,number` | false    | this.defaultEpoch | The end epochNumber to count transaction of.
+Name        | Type            | Required | Default        | Description
+------------|-----------------|----------|----------------|-----------------------------------------------------
+address     | `string`        | true     |                | The address to get the numbers of transactions from.
+epochNumber | `string,number` | false    | 'latest_state' | The end epochNumber to count transaction of.
 
 * **Returns**
 
@@ -898,10 +869,10 @@ Get the code at a specific address.
 
 * **Parameters**
 
-Name        | Type            | Required | Default           | Description
-------------|-----------------|----------|-------------------|----------------------------------------------------------
-address     | `string`        | true     |                   | The contract address to get the code from.
-epochNumber | `string,number` | false    | this.defaultEpoch | EpochNumber or string in ["latest_state", "latest_mined"]
+Name        | Type            | Required | Default        | Description
+------------|-----------------|----------|----------------|----------------------------------------------------------
+address     | `string`        | true     |                | The contract address to get the code from.
+epochNumber | `string,number` | false    | 'latest_state' | EpochNumber or string in ["latest_state", "latest_mined"]
 
 * **Returns**
 
@@ -921,10 +892,10 @@ but never mined into the block chain.
 
 * **Parameters**
 
-Name        | Type            | Required | Default           | Description
-------------|-----------------|----------|-------------------|----------------------------------------
-options     | `object`        | true     |                   | See `format.sendTx`
-epochNumber | `string,number` | false    | this.defaultEpoch | The end epochNumber to execute call of.
+Name        | Type            | Required | Default        | Description
+------------|-----------------|----------|----------------|----------------------------------------
+options     | `object`        | true     |                | See `format.sendTx`
+epochNumber | `string,number` | false    | 'latest_state' | The end epochNumber to execute call of.
 
 * **Returns**
 
@@ -1136,6 +1107,64 @@ Recover public key from signed Transaction.
 
 ----------------------------------------
 
+## BaseProvider <a id="provider/BaseProvider.js/BaseProvider"></a>
+
+*no description*
+
+## BaseProvider.prototype.constructor <a id="provider/BaseProvider.js/constructor"></a>
+
+*no description*
+
+* **Parameters**
+
+Name            | Type     | Required | Default | Description
+----------------|----------|----------|---------|-------------------------------
+url             | `string` | true     |         | Full json rpc http url
+options         | `object` | false    |         |
+options.timeout | `number` | false    | 60*1000 | Request time out in ms
+options.logger  | `object` | false    |         | Logger with `info` and `error`
+
+* **Returns**
+
+`BaseProvider` 
+
+## BaseProvider.prototype.requestId <a id="provider/BaseProvider.js/requestId"></a>
+
+Gen a random json rpc id.
+It is used in `call` method, overwrite it to gen your own id.
+
+* **Returns**
+
+`string` 
+
+## BaseProvider.prototype.call <a id="provider/BaseProvider.js/call"></a>
+
+Call a json rpc method with params
+
+* **Parameters**
+
+Name      | Type     | Required | Default | Description
+----------|----------|----------|---------|------------------------
+method    | `string` | true     |         | Json rpc method name.
+...params | `array`  | false    |         | Json rpc method params.
+
+* **Returns**
+
+`Promise.<*>` Json rpc method return value.
+
+* **Examples**
+
+```
+> await provider.call('cfx_epochNumber');
+> await provider.call('cfx_getBlockByHash', blockHash);
+```
+
+## BaseProvider.prototype.close <a id="provider/BaseProvider.js/close"></a>
+
+Disconnect
+
+----------------------------------------
+
 ## HttpProvider <a id="provider/HttpProvider.js/HttpProvider"></a>
 
 Http protocol json rpc provider.
@@ -1161,26 +1190,31 @@ options | `object` | false    |         | See `BaseProvider.constructor`
 > const provider = new HttpProvider('http://testnet-jsonrpc.conflux-chain.org:12537', {logger: console});
 ```
 
-## HttpProvider.prototype.call <a id="provider/HttpProvider.js/call"></a>
+----------------------------------------
 
-Call a json rpc method with params
+## WebsocketProvider <a id="provider/WebsocketProvider.js/WebsocketProvider"></a>
+
+Web socket protocol json rpc provider.
+
+## WebsocketProvider.prototype.constructor <a id="provider/WebsocketProvider.js/constructor"></a>
+
+*no description*
 
 * **Parameters**
 
-Name      | Type     | Required | Default | Description
-----------|----------|----------|---------|------------------------
-method    | `string` | true     |         | Json rpc method name.
-...params | `array`  | false    |         | Json rpc method params.
+Name    | Type     | Required | Default | Description
+--------|----------|----------|---------|-------------------------------
+url     | `string` | true     |         | Full json rpc web socket url
+options | `object` | false    |         | See `BaseProvider.constructor`
 
 * **Returns**
 
-`Promise.<*>` Json rpc method return value.
+`WebsocketProvider` 
 
 * **Examples**
 
 ```
-> await provider.call('cfx_epochNumber');
-> await provider.call('cfx_getBlockByHash', blockHash);
+> const provider = new WebsocketProvider('ws://testnet-jsonrpc.conflux-chain.org:8080', {logger: console});
 ```
 
 ----------------------------------------

@@ -18,17 +18,6 @@ class HttpProvider extends BaseProvider {
     super(url, options);
   }
 
-  /**
-   * Call a json rpc method with params
-   *
-   * @param method {string} - Json rpc method name.
-   * @param [params] {array} - Json rpc method params.
-   * @return {Promise<*>} Json rpc method return value.
-   *
-   * @example
-   * > await provider.call('cfx_epochNumber');
-   * > await provider.call('cfx_getBlockByHash', blockHash);
-   */
   async call(method, ...params) {
     const startTime = Date.now();
 

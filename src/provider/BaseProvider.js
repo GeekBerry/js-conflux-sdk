@@ -32,10 +32,24 @@ class BaseProvider {
     return `${Date.now()}${Math.random().toFixed(7).substring(2)}`; // 13+7=20 int string
   }
 
-  async call() {
-    throw new Error(`NotImplementError: ${this.constructor.name}.call not implement.`);
+  /**
+   * Call a json rpc method with params
+   *
+   * @param method {string} - Json rpc method name.
+   * @param [params] {array} - Json rpc method params.
+   * @return {Promise<*>} Json rpc method return value.
+   *
+   * @example
+   * > await provider.call('cfx_epochNumber');
+   * > await provider.call('cfx_getBlockByHash', blockHash);
+   */
+  async call(method, ...params) {
+    throw new Error(`NotImplementError: ${this.constructor.name}.call not implement. Send method=${method} params=${params} abort.`);
   }
 
+  /**
+   * Disconnect
+   */
   close() {}
 }
 

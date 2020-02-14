@@ -19,7 +19,8 @@
     "keccak": "^2.0.0",
     "lodash": "^4.17.15",
     "secp256k1": "^3.7.1",
-    "superagent": "^5.1.0"
+    "superagent": "^5.1.0",
+    "ws": "^7.2.1"
   },
   "devDependencies": {
     "@geekberry/jsdoc-to-md": "^0.0.3",
@@ -31,6 +32,7 @@
   "scripts": {
     "eslint": "eslint ./src ./test ./mock",
     "test": "jest",
-    "prepublishOnly": "node document.js"
+    "prepublishOnly": "node document.js",
+    "public": "yarn publish --access=public"
   }
 }
