@@ -312,7 +312,7 @@ class Conflux {
     const result = await this.provider.call('cfx_getBlockByEpochNumber',
       format.epochNumber(epochNumber), format.boolean(detail),
     );
-    return format.block.or(null)(result);
+    return format.block.$or(null)(result);
   }
 
   /**
@@ -434,7 +434,7 @@ class Conflux {
     const result = await this.provider.call('cfx_getBlockByHash',
       format.blockHash(blockHash), format.boolean(detail),
     );
-    return format.block.or(null)(result);
+    return format.block.$or(null)(result);
   }
 
   /**
@@ -507,7 +507,7 @@ class Conflux {
    */
   async getTransactionByHash(txHash) {
     const result = await this.provider.call('cfx_getTransactionByHash', format.txHash(txHash));
-    return format.transaction.or(null)(result);
+    return format.transaction.$or(null)(result);
   }
 
   /**
@@ -552,7 +552,7 @@ class Conflux {
    */
   async getTransactionReceipt(txHash) {
     const result = await this.provider.call('cfx_getTransactionReceipt', format.txHash(txHash));
-    return format.receipt.or(null)(result);
+    return format.receipt.$or(null)(result);
   }
 
   /**

@@ -38,16 +38,21 @@ class ParserError extends Error {
 }
 
 // ----------------------------------------------------------------------------
-function valueParser(schema) {
-  return value => {
-    if (!(value === schema)) {
-      throw new Error(`${value} not equal ${schema}`);
-    }
-    return value;
-  };
+function compile(schema) {
+  if (Array.isArray(schema)) {
+    return compileArray(schema);
+  } else if (lodash.isPlainObject(schema)) {
+    return compileObject(schema);
+  } else if (!lodash.isFunction(schema)) {
+    return compileValue(schema);
+  } else {
+    return schema;
+  }
 }
 
-function arrayParser(parser) {
+function compileArray(schema) {
+  const func = schema.length ? compile(schema[0]) : v => v;
+
   return array => {
     if (!Array.isArray(array)) {
       throw new Error(`expected array, got ${typeof array}`);
@@ -56,7 +61,7 @@ function arrayParser(parser) {
     const error = new ParserError(); // create Error here for shallow stack
     return array.map((v, i) => {
       try {
-        return parser(v);
+        return func(v);
       } catch (e) {
         throw error.set(e, `[${i}]`, array);
       }
@@ -64,16 +69,18 @@ function arrayParser(parser) {
   };
 }
 
-function objectParser(keyToParser) {
+function compileObject(schema) {
+  const keyToFunc = lodash.mapValues(schema, compile);
+
   return object => {
     if (!lodash.isObject(object)) {
       throw new Error(`expected plain object, got ${typeof object}`);
     }
 
     const error = new ParserError(); // create Error here for shallow stack
-    const picked = lodash.mapValues(keyToParser, (parser, key) => {
+    const picked = lodash.mapValues(keyToFunc, (func, key) => {
       try {
-        return parser(object[key]);
+        return func(object[key]);
       } catch (e) {
         throw error.set(e, `.${key}`, object);
       }
@@ -83,79 +90,124 @@ function objectParser(keyToParser) {
   };
 }
 
-// ----------------------------------------------------------------------------
-class Parser {
-  constructor(arg) {
-    if (Array.isArray(arg)) {
-      const parser = arg.length ? new this.constructor(arg[0]) : v => v;
-      arg = arrayParser(parser);
-    } else if (lodash.isPlainObject(arg)) {
-      const keyToParser = lodash.mapValues(arg, v => new this.constructor(v));
-      arg = objectParser(keyToParser);
-    } else if (!lodash.isFunction(arg)) {
-      arg = valueParser(arg);
+function compileValue(schema) {
+  return value => {
+    if (value !== schema) {
+      throw new Error(`${value} !== ${schema}`);
     }
-    return callable(this, arg);
+    return value;
+  };
+}
+
+// ============================================================================
+class Parser {
+  constructor({
+    andList = [],
+    orList = [],
+    defaultValue,
+  } = {}) {
+    this.andList = andList;
+    this.orList = orList;
+    this.defaultValue = defaultValue;
+    return callable(this, this.call.bind(this));
+  }
+
+  call(value) {
+    if (value === undefined) {
+      value = this.defaultValue;
+    }
+
+    try {
+      let result = value;
+
+      this.andList.forEach(({ type, func, name }) => {
+        switch (type) {
+          case 'parse':
+            result = func(result);
+            break;
+
+          case 'validate':
+            if (!func(result)) {
+              throw new Error(`${value} not match ${name}`);
+            }
+            break;
+
+          default:
+            throw new Error(`unknown type "${type}"`);
+        }
+      });
+
+      return result;
+    } catch (error) {
+      if (this.orList.length) {
+        const errorArray = [error instanceof ParserError ? error.msg : error.message];
+        for (const func of this.orList) {
+          try {
+            return func(value);
+          } catch (e) {
+            errorArray.push(e instanceof ParserError ? e.msg : e.message);
+          }
+        }
+        throw new Error(errorArray.map(e => `(${e})`).join(' && '));
+      }
+
+      throw error;
+    }
   }
 
   /**
    * @param defaultValue {*}
-   * @return {Parser}
+   * @return {function} Parser
    */
-  default(defaultValue) {
-    const inner = value => {
-      if (value === undefined) {
-        value = defaultValue;
-      }
-      return this(value);
-    };
-    return new this.constructor(inner);
-  }
-
-  parse(schema) {
-    const outer = new this.constructor(schema);
-    const inner = value => outer(this(value));
-    return new this.constructor(inner);
+  $default(defaultValue) {
+    return new Parser({
+      ...this,
+      defaultValue,
+    });
   }
 
   /**
    * @param func {function}
-   * @param [name] {string}
-   * @return {Parser}
+   * @param [name=func.name] {string}
+   * @return {function} Parser
    */
-  validate(func, name = func.name) {
-    const inner = value => {
-      value = this(value);
-      if (!func(value)) {
-        throw new Error(`${value} not match ${name}`);
-      }
-      return value;
-    };
-    return new this.constructor(inner);
+  $parse(func, name = func.name) {
+    return new Parser({
+      ...this,
+      andList: [...this.andList, { type: 'parse', func, name }],
+    });
+  }
+
+  /**
+   * @param func {function}
+   * @param [name=func.name] {string}
+   * @return {function} Parser
+   */
+  $validate(func, name = func.name) {
+    return new Parser({
+      ...this,
+      andList: [...this.andList, { type: 'validate', func, name }],
+    });
   }
 
   /**
    * @param schema {*}
-   * @return {Parser}
+   * @return {function} Parser
    */
-  or(schema) {
-    const other = new this.constructor(schema);
-    const parserArray = [this, other];
-
-    const inner = value => {
-      const errorArray = [];
-      for (const parser of parserArray) {
-        try {
-          return parser(value);
-        } catch (e) {
-          errorArray.push(e instanceof ParserError ? e.msg : e.message);
-        }
-      }
-
-      throw new Error(errorArray.map(e => `(${e})`).join(' && '));
-    };
-    return new this.constructor(inner);
+  $or(schema) {
+    return new Parser({
+      ...this,
+      orList: [...this.orList, compile(schema)],
+    });
   }
 }
 
-module.exports = callable.withoutNew(Parser);
+/**
+ * @param schema {*}
+ * @return {function}
+ */
+function parser(schema = v => v) {
+  return (new Parser()).$parse(compile(schema));
+}
+
+module.exports = parser;

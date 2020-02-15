@@ -95,7 +95,7 @@ test('epochNumber', () => {
   expect(format.epochNumber(10)).toEqual('0xa');
   expect(format.epochNumber('latest_mined')).toEqual('latest_mined');
   expect(format.epochNumber('latest_state')).toEqual('latest_state');
-  expect(() => format.epochNumber('LATEST_MINED')).toThrow('not equal latest_mined');
+  expect(() => format.epochNumber('LATEST_MINED')).toThrow('LATEST_MINED !== latest_mined');
 });
 
 test('hex64', () => {
