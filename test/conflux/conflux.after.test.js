@@ -23,7 +23,7 @@ test('getEpochNumber', async () => {
 });
 
 test('getLogs', async () => {
-  const eventLogs = await cfx.getLogs({});
+  const eventLogs = await cfx.getLogs({ fromEpoch: 0 }); // `fromEpoch` for mock parse
   expect(Array.isArray(eventLogs)).toEqual(true);
 
   const [eventLog] = eventLogs;
