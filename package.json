@@ -32,7 +32,7 @@
   "scripts": {
     "eslint": "eslint ./src ./test ./mock",
     "test": "jest",
-    "prepublishOnly": "node document.js",
+    "jsdoc": "node document.js",
     "public": "yarn publish --access=public"
   }
 }
