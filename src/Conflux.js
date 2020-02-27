@@ -6,9 +6,6 @@ const Contract = require('./contract');
 const Account = require('./Account');
 const { PendingTransaction, LogIterator } = require('./subscribe');
 
-const MIN_GAS_PRICE = 1;
-const MAX_GAS_LIMIT = 100000000;
-
 /**
  * A sdk of conflux.
  */
@@ -643,15 +640,15 @@ class Conflux {
    */
   async sendTransaction(options) {
     if (options.gasPrice === undefined) {
-      options.gasPrice = await this.getGasPrice() || MIN_GAS_PRICE;
-    }
-
-    if (options.gas === undefined) {
-      options.gas = MAX_GAS_LIMIT;
+      options.gasPrice = await this.getGasPrice() || 1; // MIN_GAS_PRICE
     }
 
     if (options.nonce === undefined) {
       options.nonce = await this.getTransactionCount(options.from);
+    }
+
+    if (options.gas === undefined) {
+      options.gas = await this.estimateGas(options);
     }
 
     if (options.from instanceof Account) {
