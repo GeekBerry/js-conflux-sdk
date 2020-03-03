@@ -1,9 +1,16 @@
 /* eslint-disable no-bitwise */
 
+/*
+TODO: `abi.encodePacked()`
+@see https://solidity.readthedocs.io/en/v0.5.13/abi-spec.html#encoding-of-indexed-event-parameters
+ */
+
 const lodash = require('lodash');
 const format = require('../util/format');
 const { assert } = require('../util');
+const { sha3 } = require('../util/sign');
 const namedTuple = require('../lib/namedTuple');
+const HexStream = require('./HexStream');
 
 const WORD_BYTES = 32; // byte number pre abi word
 const ZERO_BUFFER = format.buffer('0x0000000000000000000000000000000000000000000000000000000000000000');
@@ -116,6 +123,14 @@ class Coder {
    * @return {*}
    */
   decode(stream) {} // eslint-disable-line no-unused-vars
+
+  encodeIndex(value) {
+    return this.encode(value);
+  }
+
+  decodeIndex(hex) {
+    return this.decode(HexStream(hex));
+  }
 }
 
 class NullCoder extends Coder {
@@ -332,6 +347,14 @@ class BytesCoder extends Coder {
 
     return Buffer.from(stream.read(length * 2, true), 'hex');
   }
+
+  encodeIndex(value) {
+    return sha3(value);
+  }
+
+  decodeIndex(hex) {
+    return hex;
+  }
 }
 
 class StringCoder extends BytesCoder {
@@ -440,6 +463,18 @@ class ArrayCoder extends Coder {
     const coders = lodash.range(length).map(() => this.coder);
     return _unpack(coders, stream);
   }
+
+  encodeIndex(value) {
+    try {
+      return format.hex64(value);
+    } catch (e) {
+      throw new Error('not supported encode array to index');
+    }
+  }
+
+  decodeIndex(hex) {
+    return hex;
+  }
 }
 
 class TupleCoder extends Coder {
@@ -493,6 +528,18 @@ class TupleCoder extends Coder {
   decode(stream) {
     const array = _unpack(this.coders, stream);
     return new this.NamedTuple(...array);
+  }
+
+  encodeIndex(value) {
+    try {
+      return format.hex64(value);
+    } catch (e) {
+      throw new Error('not supported encode tuple to index');
+    }
+  }
+
+  decodeIndex(hex) {
+    return hex;
   }
 }
 

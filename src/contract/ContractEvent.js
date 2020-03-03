@@ -59,7 +59,7 @@ class ContractEvent {
 
   encode(params) {
     const topics = lodash.map(params, (param, index) => {
-      return param === undefined ? null : this.coder.encodeInputByIndex(param, index);
+      return param === undefined ? null : this.coder.encodeIndex(param, index);
     });
 
     return this.fragment.anonymous ? topics : [this.code, ...topics];
