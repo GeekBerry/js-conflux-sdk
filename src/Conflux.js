@@ -239,6 +239,31 @@ class Conflux {
 
   // ------------------------------- address ----------------------------------
   /**
+   * Get the account information of an address at a given epochNumber.
+   *
+   * @param address {string}
+   * @param [epochNumber='latest_state'] {string|number} - The end epochNumber to count balance of.
+   * @return {Promise<object>}
+   *
+   * @example
+   * > await cfx.getBalance("0xbbd9e9be525ab967e633bcdaeac8bd5723ed4d6b");
+    {
+      nonce: 13,
+      balance: 99650000050940044177n,
+      bankBalance: 250000000000000000n,
+      storageBalance: 250000000000000000n,
+      bankAr: 1984797543971706n,
+      codeHash: '0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470'
+    }
+   */
+  async getAccount(address, epochNumber = 'latest_state') {
+    const result = await this.provider.call('cfx_getAccount',
+      format.address(address), format.epochNumber(epochNumber),
+    );
+    return format.account(result);
+  }
+
+  /**
    * Get the balance of an address at a given epochNumber.
    *
    * @param address {string} - The address to get the balance of.

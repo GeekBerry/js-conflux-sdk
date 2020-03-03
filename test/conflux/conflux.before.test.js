@@ -51,6 +51,10 @@ test('getLogs', async () => {
   await expect(cfx.getLogs({ topics: [[null]] })).rejects.toThrow('not match hex');
 });
 
+test('getAccount', async () => {
+  // TODO
+});
+
 test('getBalance', async () => {
   await expect(cfx.getBalance()).rejects.toThrow('not match hex');
 

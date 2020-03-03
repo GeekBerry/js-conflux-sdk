@@ -248,6 +248,14 @@ format.buffer = parser(v => (Buffer.isBuffer(v) ? v : Buffer.from(format.hex(v).
 format.boolean = format.any.$validate(lodash.isBoolean, 'boolean');
 
 // ----------------------------- parse rpc returned ---------------------------
+format.account = parser({
+  nonce: format.uint,
+  balance: format.bigUInt,
+  bankBalance: format.bigUInt,
+  bankAr: format.bigUInt,
+  storageBalance: format.bigUInt,
+});
+
 format.transaction = parser({
   nonce: format.uint,
   value: format.bigUInt,
