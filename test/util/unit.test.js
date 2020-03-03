@@ -28,6 +28,10 @@ test('fromGDripToCFX', () => {
 
 test('fromCFXToDrip', () => {
   expect(unit.fromCFXToDrip(123)).toEqual(BigInt(123000000000000000000));
+  expect(unit.fromCFXToDrip('123')).toEqual(BigInt(123000000000000000000));
+
+  expect(() => unit.fromCFXToDrip(3.14)).toThrow('cannot be converted to a BigInt');
+  expect(() => unit.fromCFXToDrip('3.14')).toThrow('Cannot convert');
 });
 
 test('fromDripToCFX', () => {

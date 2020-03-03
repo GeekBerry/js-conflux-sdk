@@ -312,7 +312,7 @@ format.sendTx = parser({
   nonce: format.numberHex,
   gasPrice: format.numberHex,
   gas: format.numberHex,
-  to: format.address.$or(undefined),
+  to: format.address.$or(null).$or(undefined),
   value: format.numberHex.$or(undefined),
   data: format.hex.$or(undefined),
 });
@@ -332,7 +332,7 @@ format.estimateTx = parser({
   nonce: format.numberHex.$or(undefined),
   gasPrice: format.numberHex.$or(undefined),
   gas: format.numberHex.$or(undefined),
-  to: format.address.$or(undefined),
+  to: format.address.$or(null).$or(undefined),
   value: format.numberHex.$or(undefined),
   data: format.hex.$or(undefined),
 });
