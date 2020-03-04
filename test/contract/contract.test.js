@@ -3,6 +3,7 @@ const sign = require('../../src/util/sign');
 const format = require('../../src/util/format');
 const { MockProvider } = require('../../mock');
 const { abi, code, address } = require('./contract.json');
+const ContractConstructor = require('../../src/contract/ContractConstructor');
 
 const ADDRESS = '0xfcad0b19bb29d4674531d6f115237e16afce377c';
 const HEX_64 = '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';
@@ -21,8 +22,9 @@ test('without code', async () => {
   expect(() => contractWithoutCode.constructor(100)).toThrow('contract.constructor.code is empty');
 });
 
-test('without constructor', () => {
-  expect(() => cfx.Contract({ abi: [], address })).toThrow('contract "constructor" abi is missing');
+test('with empty abi', () => {
+  const contractWithEmptyABI = cfx.Contract({ abi: [], address });
+  expect(contractWithEmptyABI.constructor instanceof ContractConstructor).toEqual(true);
 });
 
 test('Contract', async () => {
