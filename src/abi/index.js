@@ -15,6 +15,7 @@ function formatSignature({ name, inputs }) {
   return `${name}(${inputs.map(param => getCoder(param).type).join(',')})`;
 }
 
+// ----------------------------------------------------------------------------
 class FunctionCoder {
   /**
    * Function coder
@@ -92,7 +93,16 @@ class FunctionCoder {
   decodeInputs(hex) {
     const coder = getCoder({ type: 'tuple', components: this.inputs });
     const stream = HexStream(hex);
-    return coder.decode(stream);
+    const result = coder.decode(stream);
+
+    assert(stream.eof(), {
+      message: 'hex length to large',
+      expect: `${stream.string.length}`,
+      got: stream.index,
+      coder: this,
+    });
+
+    return result;
   }
 
   /**
@@ -114,10 +124,20 @@ class FunctionCoder {
   decodeOutputs(hex) {
     const coder = getCoder({ type: 'tuple', components: this.outputs });
     const stream = HexStream(hex);
-    return coder.decode(stream);
+    const result = coder.decode(stream);
+
+    assert(stream.eof(), {
+      message: 'hex length to large',
+      expect: `${stream.string.length}`,
+      got: stream.index,
+      coder: this,
+    });
+
+    return result;
   }
 }
 
+// ----------------------------------------------------------------------------
 class EventCoder {
   /**
    * Event coder
@@ -262,8 +282,27 @@ class EventCoder {
 }
 
 // ----------------------------------------------------------------------------
+const ERROR_CODER = new FunctionCoder({
+  name: 'Error',
+  inputs: [
+    { type: 'string', name: 'message' },
+  ],
+});
+const ERROR_CODE = ERROR_CODER.signature();
+
+function decodeError(hex) {
+  if (!hex.startsWith(ERROR_CODE)) {
+    return undefined;
+  }
+
+  const params = ERROR_CODER.decodeInputs(hex.slice(ERROR_CODE.length));
+  return Error(params.message);
+}
+
+// ----------------------------------------------------------------------------
 module.exports = {
   formatSignature,
   FunctionCoder,
   EventCoder,
+  decodeError,
 };

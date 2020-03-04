@@ -1,4 +1,4 @@
-const { FunctionCoder } = require('../abi');
+const { FunctionCoder, decodeError } = require('../abi');
 const callable = require('../lib/callable');
 
 /**
@@ -66,7 +66,12 @@ class Called {
       },
       epochNumber,
     );
-    return this.method.decode(result);
+
+    try {
+      return this.method.decode(result);
+    } catch (e) {
+      throw decodeError(result) || e;
+    }
   }
 
   async then(resolve, reject) {

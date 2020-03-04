@@ -9,10 +9,7 @@ const ADDRESS = '0xfcad0b19bb29d4674531d6f115237e16afce377c';
 const HEX_64 = '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';
 
 // ----------------------------------------------------------------------------
-const cfx = new Conflux({
-  defaultGasPrice: 100,
-  defaultGas: 1000000,
-});
+const cfx = new Conflux();
 cfx.provider = new MockProvider();
 
 const contract = cfx.Contract({ abi, code, address });
@@ -55,6 +52,31 @@ test('Contract', async () => {
   expect(Boolean(await iter.next())).toEqual(true);
   expect(Boolean(await iter.next())).toEqual(true);
   expect(Boolean(await iter.next())).toEqual(false);
+});
+
+test('contract.call', async () => {
+  cfx.provider.call = async (method, tx, epochNumber) => {
+    expect(method).toEqual('cfx_call');
+    expect(tx.to).toEqual(address);
+    expect(epochNumber).toEqual('latest_state');
+    return '0x00000000000000000000000000000000000000000000000000000000000000ff';
+  };
+
+  const value = await contract.count();
+  expect(value.toString()).toEqual('255');
+
+  cfx.provider.call = async () => {
+    return '0x08c379a0' +
+      '0000000000000000000000000000000000000000000000000000000000000020' +
+      '0000000000000000000000000000000000000000000000000000000000000005' +
+      '4552524f52000000000000000000000000000000000000000000000000000000';
+  };
+  await expect(contract.count()).rejects.toThrow('ERROR');
+
+  cfx.provider.call = async () => {
+    return '0x0';
+  };
+  await expect(contract.count()).rejects.toThrow('length not match');
 });
 
 test('contract.StringEvent', () => {
