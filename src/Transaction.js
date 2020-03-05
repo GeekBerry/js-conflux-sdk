@@ -1,6 +1,30 @@
 const { sha3, ecdsaSign, ecdsaRecover, publicKeyToAddress, rlpEncode } = require('./util/sign');
 const format = require('./util/format');
 
+/**
+ * Recursion format buffer
+ * @private
+ * @param value {array|*}
+ * @return {array|Buffer}
+ *
+ * @example
+ * > rlpBuffer(1)
+ <Buffer 01>
+
+ * > rlpBuffer([1])
+ [ <Buffer 01> ]
+
+ * > rlpBuffer([1, [2, 3]])
+ [ <Buffer 01>, [ <Buffer 02>, <Buffer 03> ] ]
+ */
+function rlpBuffer(value) {
+  if (Array.isArray(value)) {
+    return value.map(rlpBuffer);
+  } else {
+    return format.buffer(value);
+  }
+}
+
 class Transaction {
   /**
    * Create a transaction.
@@ -87,10 +111,10 @@ class Transaction {
     const { nonce, gasPrice, gas, to, value, data, v, r, s } = format.signTx(this);
 
     const raw = includeSignature
-      ? [nonce, gasPrice, gas, to, value, data, v, r, s]
+      ? [[nonce, gasPrice, gas, to, value, data], v, r, s]
       : [nonce, gasPrice, gas, to, value, data];
 
-    return rlpEncode(raw.map(format.buffer));
+    return rlpEncode(rlpBuffer(raw));
   }
 
   /**
