@@ -406,6 +406,35 @@ options.limit       | `number`                | false    |         | Limit log n
    ...
 ```
 
+## Conflux.prototype.getAccount <a id="Conflux.js/getAccount"></a>
+
+Get the account information of an address at a given epochNumber.
+
+* **Parameters**
+
+Name        | Type            | Required | Default        | Description
+------------|-----------------|----------|----------------|-----------------------------------------
+address     | `string`        | true     |                |
+epochNumber | `string,number` | false    | 'latest_state' | The end epochNumber to count balance of.
+
+* **Returns**
+
+`Promise.<object>` 
+
+* **Examples**
+
+```
+> await cfx.getAccount("0xbbd9e9be525ab967e633bcdaeac8bd5723ed4d6b");
+    {
+      nonce: 13,
+      balance: 99650000050940044177n,
+      bankBalance: 250000000000000000n,
+      storageBalance: 250000000000000000n,
+      bankAr: 1984797543971706n,
+      codeHash: '0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470'
+    }
+```
+
 ## Conflux.prototype.getBalance <a id="Conflux.js/getBalance"></a>
 
 Get the balance of an address at a given epochNumber.

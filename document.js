@@ -1,6 +1,6 @@
 const fs = require('fs');
 const lodash = require('lodash');
-const jsdocToMd = require('@geekberry/jsdoc-to-md'); // eslint-disable-line import/no-extraneous-dependencies
+const jsdocToMd = require('@geekberry/jsdoc-to-md');
 
 const markdown = jsdocToMd(`${__dirname}/src`, {
   filter: filename => {

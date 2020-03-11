@@ -246,7 +246,7 @@ class Conflux {
    * @return {Promise<object>}
    *
    * @example
-   * > await cfx.getBalance("0xbbd9e9be525ab967e633bcdaeac8bd5723ed4d6b");
+   * > await cfx.getAccount("0xbbd9e9be525ab967e633bcdaeac8bd5723ed4d6b");
     {
       nonce: 13,
       balance: 99650000050940044177n,
