@@ -1944,8 +1944,8 @@ Unit converter factory
 
 Name | Type     | Required | Default | Description
 -----|----------|----------|---------|---------------------------------
-from | `string` | true     |         | Enum in ['cfx', 'gdrip', 'drip']
-to   | `string` | true     |         | Enum in ['cfx', 'gdrip', 'drip']
+from | `string` | true     |         | Enum in ['CFX', 'GDrip', 'Drip']
+to   | `string` | true     |         | Enum in ['CFX', 'GDrip', 'Drip']
 
 * **Returns**
 
@@ -1954,8 +1954,8 @@ to   | `string` | true     |         | Enum in ['cfx', 'gdrip', 'drip']
 * **Examples**
 
 ```
-> unit('cfx', 'drip')(1)
+> unit('CFX', 'Drip')(1)
  1000000000000000000n
-> unit('drip', 'cfx')(1000000000000000000)
+> unit('Drip', 'CFX')(1000000000000000000)
  1n
 ```

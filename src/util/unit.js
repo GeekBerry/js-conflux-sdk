@@ -1,21 +1,23 @@
+const Big = require('big.js');
+
 const UNIT_MATRIX = {
-  cfx: { cfx: 1, gdrip: 1e9, drip: 1e18 },
-  gdrip: { cfx: 1e-9, gdrip: 1, drip: 1e9 },
-  drip: { cfx: 1e-18, gdrip: 1e-9, drip: 1 },
+  CFX: { CFX: 1, GDrip: 1e9, Drip: 1e18 },
+  GDrip: { CFX: 1e-9, GDrip: 1, Drip: 1e9 },
+  Drip: { CFX: 1e-18, GDrip: 1e-9, Drip: 1 },
 };
 
 /**
  * Unit converter factory
  *
- * @param from {string} - Enum in ['cfx', 'gdrip', 'drip']
- * @param to {string} - Enum in ['cfx', 'gdrip', 'drip']
+ * @param from {string} - Enum in ['CFX', 'GDrip', 'Drip']
+ * @param to {string} - Enum in ['CFX', 'GDrip', 'Drip']
  * @return {function}
  *
  * @example
- * > unit('cfx', 'drip')(1)
+ * > unit('CFX', 'Drip')(1)
  1000000000000000000n
 
- * > unit('drip', 'cfx')(1000000000000000000)
+ * > unit('Drip', 'CFX')(1000000000000000000)
  1n
  */
 function unit(from, to) {
@@ -28,13 +30,8 @@ function unit(from, to) {
   }
 
   const multiple = UNIT_MATRIX[from][to];
-  const reciprocal = UNIT_MATRIX[to][from];
 
-  return function (value) {
-    return multiple > 1
-      ? BigInt(value) * BigInt(multiple)
-      : BigInt(value) / BigInt(reciprocal);
-  };
+  return value => BigInt(Big(value).times(multiple));
 }
 
 // ----------------------------------------------------------------------------
@@ -46,7 +43,7 @@ function unit(from, to) {
  * > fromCFXToGDrip(123)
  123000000000n
  */
-unit.fromCFXToGDrip = unit('cfx', 'gdrip');
+unit.fromCFXToGDrip = unit('CFX', 'GDrip');
 
 /**
  * @param value {number|BigInt|string}
@@ -56,17 +53,17 @@ unit.fromCFXToGDrip = unit('cfx', 'gdrip');
  * > fromCFXToDrip(123)
  123000000000000000000n
  */
-unit.fromCFXToDrip = unit('cfx', 'drip');
+unit.fromCFXToDrip = unit('CFX', 'Drip');
 
 /**
  * @param value {number|BigInt|string}
  * @return {BigInt}
  *
  * @example
- * > fromGDripToCFX(123456789012)
+ * > fromGDripToCFX(123000000000)
  123n
  */
-unit.fromGDripToCFX = unit('gdrip', 'cfx');
+unit.fromGDripToCFX = unit('GDrip', 'CFX');
 
 /**
  * @param value {number|BigInt|string}
@@ -76,26 +73,26 @@ unit.fromGDripToCFX = unit('gdrip', 'cfx');
  * > fromGDripToDrip(123)
  123000000000n
  */
-unit.fromGDripToDrip = unit('gdrip', 'drip');
+unit.fromGDripToDrip = unit('GDrip', 'Drip');
 
 /**
  * @param value {number|BigInt|string}
  * @return {BigInt}
  *
  * @example
- * > fromDripToCFX(123456789012345678901)
+ * > fromDripToCFX(123000000000000000000)
  123n
  */
-unit.fromDripToCFX = unit('drip', 'cfx');
+unit.fromDripToCFX = unit('Drip', 'CFX');
 
 /**
  * @param value {number|BigInt|string}
  * @return {BigInt}
  *
  * @example
- * > fromDripToGDrip(123456789012)
+ * > fromDripToGDrip(123000000000)
  123
  */
-unit.fromDripToGDrip = unit('drip', 'gdrip');
+unit.fromDripToGDrip = unit('Drip', 'GDrip');
 
 module.exports = unit;

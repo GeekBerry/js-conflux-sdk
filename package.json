@@ -16,6 +16,7 @@
     "src"
   ],
   "dependencies": {
+    "big.js": "^5.2.2",
     "keccak": "^2.0.0",
     "lodash": "^4.17.15",
     "secp256k1": "^3.7.1",
