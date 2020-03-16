@@ -1,4 +1,3 @@
-const lodash = require('lodash');
 const callable = require('../lib/callable');
 const { decorate } = require('../util');
 const { EventCoder } = require('../abi');
@@ -58,9 +57,7 @@ class ContractEvent {
   }
 
   encode(params) {
-    const topics = lodash.map(params, (param, index) => {
-      return param === undefined ? null : this.coder.encodeIndex(param, index);
-    });
+    const topics = this.coder.encodeTopics(params);
 
     return this.fragment.anonymous ? topics : [this.code, ...topics];
   }
