@@ -1,7 +1,7 @@
 {
   "name": "@geekberry/js-conflux-sdk",
   "description": "JavaScript Conflux Software Development Kit",
-  "version": "0.8.4",
+  "version": "0.8.5",
   "license": "LGPL-3.0",
   "author": "Haizhou@conflux-chain.org",
   "repository": "https://github.com/GeekBerry/js-conflux-sdk.git",
