@@ -68,26 +68,26 @@ entropy |      | true     |         |
    Account {
       privateKey: '0xd28edbdb7bbe75787b84c5f525f47666a3274bb06561581f00839645f3c26f66',
       publicKey: '0xc42b53ae2ef95fee489948d33df391c4a9da31b7a3e29cf772c24eb42f74e94ab3bfe00bf29a239c17786a5b921853b7c5344d36694db43aa849e401f91566a5',
-      address: '0xbcecb4a2922b7007e236daf0c797de6e55496e84'
+      address: '0x1cecb4a2922b7007e236daf0c797de6e55496e84'
     }
 > Account.random() // gen a different account from above
    Account {
       privateKey: '0x1b67150f56f49556ef7e3899024d83c125d84990d311ec08fa98aa1433bc0f53',
       publicKey: '0xd442207828ffd4dad918fea0d75d42dbea1fe5e3789c00a82e18ce8229714eae3f70b12f2f1abd795ad3e5c52a5a597289eb5096548438c233431f498b47b9a6',
-      address: '0xb6c25691aadc3363f5862d264072584f3ebf4613'
+      address: '0x16c25691aadc3363f5862d264072584f3ebf4613'
     }
 > Account.random('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff');
    Account {
       privateKey: '0x1d41e006afd28ea339922d8ab4be93154a14d4f1b6d0ad4e7aabf807e7536a5f',
       publicKey: '0x4c07c75d3fdc5b1d6afef6ec374b0eaac86bcaa771a1d536bc4ce6f111b1c60e414b370e4cf31bf7770ae6818a3518c485398a43857d9053153f6eb4f5644a90',
-      address: '0x613d49784c80d6f8fdbc0bef5a5ab0d9c9fee520'
+      address: '0x113d49784c80d6f8fdbc0bef5a5ab0d9c9fee520'
     }
 > Account.random('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff');
 // gen a different account from above, even use same entropy
    Account {
       privateKey: '0x5a34ff3318674c33209ce856218890e9a6ee3811e8a51e3094ed1e6a94bf58ef',
       publicKey: '0xe530d77c3ed6115cb46ba79821085bf67d2a7a8c808c1d52dec03fd7a82e569c2136dba84b21d40f46d90484722b21a9d5a8038495adf93f2eed564ababa2422',
-      address: '0x8f63fcef4aaa88c03cbb5c9fb34be69dee65d0a8'
+      address: '0x1f63fcef4aaa88c03cbb5c9fb34be69dee65d0a8'
     }
 ```
 
@@ -425,7 +425,7 @@ epochNumber | `string,number` | false    | 'latest_state' | The end epochNumber 
 
 ```
 > await cfx.getAccount("0xbbd9e9be525ab967e633bcdaeac8bd5723ed4d6b");
-    {
+   {
       nonce: 13,
       balance: 99650000050940044177n,
       bankBalance: 250000000000000000n,
@@ -930,7 +930,7 @@ epochNumber | `string,number` | false    | 'latest_state' | The end epochNumber 
 
 `Promise.<string>` Hex bytes the contract method return.
 
-## Conflux.prototype.estimateGas <a id="Conflux.js/estimateGas"></a>
+## Conflux.prototype.estimateGasAndCollateral <a id="Conflux.js/estimateGasAndCollateral"></a>
 
 Executes a message call or transaction and returns the amount of the gas used.
 
@@ -942,7 +942,9 @@ options | `object` | true     |         | See `format.estimateTx`
 
 * **Returns**
 
-`Promise.<BigInt>` The used gas for the simulated call/transaction.
+`Promise.<object>` The gas used and storage occupied for the simulated call/transaction.
+- `BigInt` gasUsed: The gas used in Drip
+- `BigInt` storageOccupied: The storage occupied in Drip
 
 ----------------------------------------
 
@@ -1258,18 +1260,21 @@ Create a transaction.
 
 * **Parameters**
 
-Name             | Type            | Required | Default | Description
------------------|-----------------|----------|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------
-options          | `object`        | true     |         |
-options.nonce    | `string,number` | true     |         | This allows to overwrite your own pending transactions that use the same nonce.
-options.gasPrice | `string,number` | true     |         | The price of gas for this transaction in drip.
-options.gas      | `string,number` | true     |         | The amount of gas to use for the transaction (unused gas is refunded).
-options.to       | `string`        | false    |         | The destination address of the message, left undefined for a contract-creation transaction.
-options.value    | `string,number` | false    | 0       | The value transferred for the transaction in drip, also the endowment if it’s a contract-creation transaction.
-options.data     | `string,Buffer` | false    | '0x'    | Either a ABI byte string containing the data of the function call on a contract, or in the case of a contract-creation transaction the initialisation code.
-options.r        | `string,Buffer` | false    |         | ECDSA signature r
-options.s        | `string,Buffer` | false    |         | ECDSA signature s
-options.v        | `number`        | false    |         | ECDSA recovery id
+Name                 | Type            | Required | Default | Description
+---------------------|-----------------|----------|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------
+options              | `object`        | true     |         |
+options.nonce        | `string,number` | true     |         | This allows to overwrite your own pending transactions that use the same nonce.
+options.gasPrice     | `string,number` | true     |         | The price of gas for this transaction in drip.
+options.gas          | `string,number` | true     |         | The amount of gas to use for the transaction (unused gas is refunded).
+options.to           | `string`        | false    |         | The destination address of the message, left undefined for a contract-creation transaction.
+options.value        | `string,number` | false    | 0       | The value transferred for the transaction in drip, also the endowment if it’s a contract-creation transaction.
+options.storageLimit | `string,number` | true     |         | TODO
+options.epochHeight  | `string,number` | true     |         | TODO
+options.chainId      | `string,number` | false    | 0       | TODO
+options.data         | `string,Buffer` | false    | '0x'    | Either a ABI byte string containing the data of the function call on a contract, or in the case of a contract-creation transaction the initialisation code.
+options.r            | `string,Buffer` | false    |         | ECDSA signature r
+options.s            | `string,Buffer` | false    |         | ECDSA signature s
+options.v            | `number`        | false    |         | ECDSA recovery id
 
 * **Returns**
 
@@ -1538,6 +1543,48 @@ arg  | `string,Buffer` | true     |         |
  "0x0123456789012345678901234567890123456789"
 > format.address('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
  Error("not match address")
+```
+
+## format.accountAddress (setter) <a id="util/format.js/accountAddress (setter)"></a>
+
+Account address starts with '0x1'
+
+* **Parameters**
+
+Name | Type            | Required | Default | Description
+-----|-----------------|----------|---------|------------
+arg  | `string,Buffer` | true     |         |
+
+* **Returns**
+
+`string` Hex string
+
+* **Examples**
+
+```
+> format.accountAddress('0x0123456789012345678901234567890123456789')
+ "0x1123456789012345678901234567890123456789"
+```
+
+## format.contractAddress (setter) <a id="util/format.js/contractAddress (setter)"></a>
+
+Contract address starts with '0x8'
+
+* **Parameters**
+
+Name | Type            | Required | Default | Description
+-----|-----------------|----------|---------|------------
+arg  | `string,Buffer` | true     |         |
+
+* **Returns**
+
+`string` Hex string
+
+* **Examples**
+
+```
+> format.contractAddress('0x0123456789012345678901234567890123456789')
+ "0x8123456789012345678901234567890123456789"
 ```
 
 ## format.publicKey (setter) <a id="util/format.js/publicKey (setter)"></a>

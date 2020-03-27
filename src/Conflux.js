@@ -664,27 +664,38 @@ class Conflux {
    }
    */
   async sendTransaction(options) {
-    if (options.gasPrice === undefined) {
-      options.gasPrice = await this.getGasPrice() || 1; // MIN_GAS_PRICE
-    }
-
     if (options.nonce === undefined) {
       options.nonce = await this.getTransactionCount(options.from);
     }
 
-    if (options.gas === undefined) {
-      const { gasUsed } = await this.estimateGasAndCollateral(options);
-      options.gas = gasUsed;
+    if (options.gasPrice === undefined) {
+      options.gasPrice = await this.getGasPrice() || 1; // MIN_GAS_PRICE
+    }
+
+    if (options.gas === undefined || options.storageLimit === undefined) {
+      const { gasUsed, storageOccupied } = await this.estimateGasAndCollateral(options);
+
+      if (options.gas === undefined) {
+        options.gas = gasUsed;
+      }
+
+      if (options.storageLimit === undefined) {
+        options.storageLimit = storageOccupied;
+      }
+    }
+
+    if (options.epochHeight === undefined) {
+      options.epochHeight = await this.getEpochNumber();
     }
 
     if (options.from instanceof Account) {
       // sign by local
       const tx = options.from.signTransaction(options);
       return this.sendRawTransaction(tx.serialize());
+    } else {
+      // sign by remote
+      return this.provider.call('cfx_sendTransaction', format.sendTx(options));
     }
-
-    // sign by remote
-    return this.provider.call('cfx_sendTransaction', format.sendTx(options));
   }
 
   /**

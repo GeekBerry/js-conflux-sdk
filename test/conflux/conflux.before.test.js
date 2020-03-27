@@ -314,7 +314,14 @@ test('sendTransaction by address', async () => {
   };
 
   cfx.estimateGasAndCollateral = async () => {
-    return { gasUsed: format.bigUInt(1024) };
+    return {
+      gasUsed: format.bigUInt(1024),
+      storageOccupied: format.bigUInt(2048),
+    };
+  };
+
+  cfx.getEpochNumber = async () => {
+    return 1000;
   };
 
   await expect(cfx.sendTransaction()).rejects.toThrow('Cannot read property');
@@ -364,7 +371,10 @@ test('sendTransaction by account', async () => {
   };
 
   cfx.estimateGasAndCollateral = async () => {
-    return { gasUsed: format.bigUInt(0) };
+    return {
+      gasUsed: format.bigUInt(0),
+      storageOccupied: format.bigUInt(2048),
+    };
   };
 
   cfx.provider.call = async (method, hex) => {
