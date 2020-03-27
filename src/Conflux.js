@@ -247,7 +247,7 @@ class Conflux {
    *
    * @example
    * > await cfx.getAccount("0xbbd9e9be525ab967e633bcdaeac8bd5723ed4d6b");
-    {
+   {
       nonce: 13,
       balance: 99650000050940044177n,
       bankBalance: 250000000000000000n,
@@ -673,7 +673,8 @@ class Conflux {
     }
 
     if (options.gas === undefined) {
-      options.gas = await this.estimateGas(options);
+      const { gasUsed } = await this.estimateGasAndCollateral(options);
+      options.gas = gasUsed;
     }
 
     if (options.from instanceof Account) {
@@ -736,15 +737,17 @@ class Conflux {
    * Executes a message call or transaction and returns the amount of the gas used.
    *
    * @param options {object} - See `format.estimateTx`
-   * @return {Promise<BigInt>} The used gas for the simulated call/transaction.
+   * @return {Promise<object>} The gas used and storage occupied for the simulated call/transaction.
+   * - `BigInt` gasUsed: The gas used in Drip
+   * - `BigInt` storageOccupied: The storage occupied in Drip
    */
-  async estimateGas(options) {
+  async estimateGasAndCollateral(options) {
     if (options.from && options.nonce === undefined) {
       options.nonce = await this.getTransactionCount(options.from);
     }
 
-    const result = await this.provider.call('cfx_estimateGas', format.estimateTx(options));
-    return format.bigUInt(result);
+    const result = await this.provider.call('cfx_estimateGasAndCollateral', format.estimateTx(options));
+    return format.estimate(result);
   }
 }
 
