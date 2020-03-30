@@ -1398,6 +1398,45 @@ arg  | `number,BigInt,string,Buffer,boolean,null` | true     |         |
  "0x0a"
 ```
 
+## format.uInt (setter) <a id="util/format.js/uInt (setter)"></a>
+
+*no description*
+
+* **Parameters**
+
+Name | Type                           | Required | Default | Description
+-----|--------------------------------|----------|---------|------------
+arg  | `number,BigInt,string,boolean` | true     |         |
+
+* **Returns**
+
+`Number` 
+
+* **Examples**
+
+```
+> format.uInt(-3.14)
+ Error("cannot be converted to a BigInt")
+> format.uInt(null)
+ Error("Cannot convert null to a BigInt")
+> format.uInt('0')
+ 0
+> format.uInt(1)
+ 1
+> format.uInt(BigInt(100))
+ 100
+> format.uInt('0x10')
+ 16
+> format.uInt('')
+ 0
+> format.uInt(true)
+ 1
+> format.uInt(false)
+ 0
+> format.uInt(Number.MAX_SAFE_INTEGER + 1) // unsafe integer
+ Error("not match uint")
+```
+
 ## format.bigUInt (setter) <a id="util/format.js/bigUInt (setter)"></a>
 
 *no description*
@@ -1415,56 +1454,17 @@ arg  | `number,BigInt,string,boolean` | true     |         |
 * **Examples**
 
 ```
-> format.uint(-3.14)
+> format.uInt(-3.14)
  Error("not match uint")
-> format.uint('0')
+> format.uInt('0')
  0n
-> format.uint(1)
+> format.uInt(1)
  1n
-> format.uint(BigInt(100))
+> format.uInt(BigInt(100))
  100n
-> format.uint('0x10')
+> format.uInt('0x10')
  16n
-> format.uint(Number.MAX_SAFE_INTEGER + 1) // unsafe integer
- Error("not match uint")
-```
-
-## format.uint (setter) <a id="util/format.js/uint (setter)"></a>
-
-*no description*
-
-* **Parameters**
-
-Name | Type                           | Required | Default | Description
------|--------------------------------|----------|---------|------------
-arg  | `number,BigInt,string,boolean` | true     |         |
-
-* **Returns**
-
-`Number` 
-
-* **Examples**
-
-```
-> format.uint(-3.14)
- Error("cannot be converted to a BigInt")
-> format.uint(null)
- Error("Cannot convert null to a BigInt")
-> format.uint('0')
- 0
-> format.uint(1)
- 1
-> format.uint(BigInt(100))
- 100
-> format.uint('0x10')
- 16
-> format.uint('')
- 0
-> format.uint(true)
- 1
-> format.uint(false)
- 0
-> format.uint(Number.MAX_SAFE_INTEGER + 1) // unsafe integer
+> format.uInt(Number.MAX_SAFE_INTEGER + 1) // unsafe integer
  Error("not match uint")
 ```
 

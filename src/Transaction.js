@@ -77,7 +77,7 @@ class Transaction {
     const publicKey = ecdsaRecover(sha3(this.encode(false)), {
       r: format.buffer(this.r),
       s: format.buffer(this.s),
-      v: format.uint(this.v),
+      v: format.uInt(this.v),
     });
     return format.publicKey(publicKey);
   }

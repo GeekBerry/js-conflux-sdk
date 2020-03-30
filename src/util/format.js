@@ -29,6 +29,22 @@ function toHex(value) {
   return hex.length % 2 ? `0x0${hex.slice(2)}` : hex;
 }
 
+function toNumber(value) {
+  if (value === null) {
+    throw new Error(`${value} not match number`);
+  } else if (Buffer.isBuffer(value)) {
+    value = `0x${value.toString('hex')}`;
+  }
+  return Number(value);
+}
+
+function toBigInt(value) {
+  if (Buffer.isBuffer(value)) {
+    value = `0x${value.toString('hex')}`;
+  }
+  return BigInt(value);
+}
+
 // ----------------------------------------------------------------------------
 const format = {};
 
@@ -67,51 +83,51 @@ format.hex64 = format.hex.$validate(v => v.length === 2 + 64, 'hex64');
 
 /**
  * @param arg {number|BigInt|string|boolean}
- * @return {BigInt}
- *
- * @example
- * > format.uint(-3.14)
- Error("not match uint")
- * > format.uint('0')
- 0n
- * > format.uint(1)
- 1n
- * > format.uint(BigInt(100))
- 100n
- * > format.uint('0x10')
- 16n
- * > format.uint(Number.MAX_SAFE_INTEGER + 1) // unsafe integer
- Error("not match uint")
- */
-format.bigUInt = parser(BigInt).$validate(v => v >= 0, 'bigUInt');
-
-/**
- * @param arg {number|BigInt|string|boolean}
  * @return {Number}
  *
  * @example
- * > format.uint(-3.14)
+ * > format.uInt(-3.14)
  Error("cannot be converted to a BigInt")
- * > format.uint(null)
+ * > format.uInt(null)
  Error("Cannot convert null to a BigInt")
- * > format.uint('0')
+ * > format.uInt('0')
  0
- * > format.uint(1)
+ * > format.uInt(1)
  1
- * > format.uint(BigInt(100))
+ * > format.uInt(BigInt(100))
  100
- * > format.uint('0x10')
+ * > format.uInt('0x10')
  16
- * > format.uint('')
+ * > format.uInt('')
  0
- * > format.uint(true)
+ * > format.uInt(true)
  1
- * > format.uint(false)
+ * > format.uInt(false)
  0
- * > format.uint(Number.MAX_SAFE_INTEGER + 1) // unsafe integer
+ * > format.uInt(Number.MAX_SAFE_INTEGER + 1) // unsafe integer
  Error("not match uint")
  */
-format.uint = format.bigUInt.$parse(Number).$validate(v => Number.isSafeInteger(v), 'uint');
+format.uInt = parser(toNumber).$validate(v => Number.isSafeInteger(v) && v >= 0, 'uint');
+
+/**
+ * @param arg {number|BigInt|string|boolean}
+ * @return {BigInt}
+ *
+ * @example
+ * > format.uInt(-3.14)
+ Error("not match uint")
+ * > format.uInt('0')
+ 0n
+ * > format.uInt(1)
+ 1n
+ * > format.uInt(BigInt(100))
+ 100n
+ * > format.uInt('0x10')
+ 16n
+ * > format.uInt(Number.MAX_SAFE_INTEGER + 1) // unsafe integer
+ Error("not match uint")
+ */
+format.bigUInt = parser(toBigInt).$validate(v => v >= BigInt(0), 'bigUInt');
 
 /**
  * When encoding QUANTITIES (integers, numbers): encode as hex, prefix with "0x", the most compact representation (slight exception: zero should be represented as "0x0")
@@ -273,7 +289,7 @@ format.boolean = format.any.$validate(lodash.isBoolean, 'boolean');
 
 // ----------------------------- parse rpc returned ---------------------------
 format.account = parser({
-  nonce: format.uint,
+  nonce: format.uInt,
   balance: format.bigUInt,
   bankBalance: format.bigUInt,
   bankAr: format.bigUInt,
@@ -281,13 +297,13 @@ format.account = parser({
 });
 
 format.transaction = parser({
-  nonce: format.uint,
+  nonce: format.uInt,
   value: format.bigUInt,
   gasPrice: format.bigUInt,
   gas: format.bigUInt,
-  v: format.uint,
-  transactionIndex: format.uint.$or(null),
-  status: format.uint.$or(null), // XXX: might be remove in rpc returned
+  v: format.uInt,
+  transactionIndex: format.uInt.$or(null),
+  status: format.uInt.$or(null), // XXX: might be remove in rpc returned
 });
 
 format.estimate = parser({
@@ -296,28 +312,28 @@ format.estimate = parser({
 });
 
 format.block = parser({
-  epochNumber: format.uint.$or(null), // null for getBlockByEpochNumber(0)
-  height: format.uint,
-  size: format.uint,
-  timestamp: format.uint,
+  epochNumber: format.uInt.$or(null), // null for getBlockByEpochNumber(0)
+  height: format.uInt,
+  size: format.uInt,
+  timestamp: format.uInt,
   gasLimit: format.bigUInt,
   difficulty: format.bigUInt,
   transactions: [(format.transaction).$or(format.txHash)],
 });
 
 format.receipt = parser({
-  index: format.uint, // XXX: number already in rpc return
-  epochNumber: format.uint, // XXX: number already in rpc return
-  outcomeStatus: format.uint.$or(null), // XXX: number already in rpc return
+  index: format.uInt, // XXX: number already in rpc return
+  epochNumber: format.uInt, // XXX: number already in rpc return
+  outcomeStatus: format.uInt.$or(null), // XXX: number already in rpc return
   gasUsed: format.bigUInt,
 });
 
 format.logs = parser([
   {
-    epochNumber: format.uint,
-    logIndex: format.uint,
-    transactionIndex: format.uint,
-    transactionLogIndex: format.uint,
+    epochNumber: format.uInt,
+    logIndex: format.uInt,
+    transactionIndex: format.uInt,
+    transactionLogIndex: format.uInt,
   },
 ]);
 
@@ -333,18 +349,18 @@ format.getLogs = parser({
 
 // FIXME: accept null ?
 format.signTx = parser({
-  nonce: format.uint.$parse(format.buffer),
+  nonce: format.uInt.$parse(format.buffer),
   gasPrice: format.bigUInt.$parse(format.buffer),
   gas: format.bigUInt.$parse(format.buffer),
   to: parser(format.address.$or(null).$default(null)).$parse(format.buffer),
   value: format.bigUInt.$default(0).$parse(format.buffer),
   storageLimit: format.numberHex.$parse(format.buffer),
-  epochHeight: format.uint.$parse(format.buffer),
-  chainId: format.uint.$default(0).$parse(format.buffer),
+  epochHeight: format.uInt.$parse(format.buffer),
+  chainId: format.uInt.$default(0).$parse(format.buffer),
   data: format.hex.$default('0x').$parse(format.buffer),
-  r: format.hex64.$parse(format.buffer).$or(undefined),
-  s: format.hex64.$parse(format.buffer).$or(undefined),
-  v: format.uint.$parse(format.buffer).$or(undefined),
+  r: format.numberHex.$parse(format.buffer).$or(undefined),
+  s: format.numberHex.$parse(format.buffer).$or(undefined),
+  v: format.uInt.$parse(format.buffer).$or(undefined),
 });
 
 format.sendTx = parser({
@@ -355,8 +371,8 @@ format.sendTx = parser({
   to: format.address.$or(null).$or(undefined),
   value: format.numberHex.$or(undefined),
   storageLimit: format.numberHex,
-  epochHeight: format.uint,
-  chainId: format.uint.$default(0),
+  epochHeight: format.uInt,
+  chainId: format.uInt.$default(0),
   data: format.hex.$or(undefined),
 });
 
@@ -368,8 +384,8 @@ format.callTx = parser({
   to: format.address.$or(null),
   value: format.numberHex.$or(undefined),
   storageLimit: format.numberHex.$or(undefined),
-  epochHeight: format.uint.$or(undefined),
-  chainId: format.uint.$or(undefined),
+  epochHeight: format.uInt.$or(undefined),
+  chainId: format.uInt.$or(undefined),
   data: format.hex.$or(undefined),
 });
 
@@ -381,8 +397,8 @@ format.estimateTx = parser({
   to: format.address.$or(null).$or(undefined),
   value: format.numberHex.$or(undefined),
   storageLimit: format.numberHex.$or(undefined),
-  epochHeight: format.uint.$or(undefined),
-  chainId: format.uint.$or(undefined),
+  epochHeight: format.uInt.$or(undefined),
+  chainId: format.uInt.$or(undefined),
   data: format.hex.$or(undefined),
 });
 
