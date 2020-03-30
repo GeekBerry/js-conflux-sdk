@@ -152,7 +152,7 @@ class MockProvider {
     return Number(epochNumber) ? randomHex(8) : '0x0';
   }
 
-  cfx_getTransactionCount(address, epochNumber) {
+  cfx_getNextNonce(address, epochNumber) {
     if (['latest_state', 'latest_mined'].includes(epochNumber)) {
       return toHex(Number.MAX_SAFE_INTEGER);
     }
@@ -279,7 +279,7 @@ class MockProvider {
   cfx_estimateGasAndCollateral() {
     return {
       gasUsed: randomHex(4),
-      storageOccupied: randomHex(4),
+      storageCollateralized: randomHex(4),
     };
   }
 }

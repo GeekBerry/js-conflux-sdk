@@ -44,7 +44,7 @@ test('Contract', async () => {
 
   value = await contract.count().estimateGasAndCollateral({ gasPrice: 101 });
   expect(value.gasUsed.constructor).toEqual(BigInt);
-  expect(value.storageOccupied.constructor).toEqual(BigInt);
+  expect(value.storageCollateralized.constructor).toEqual(BigInt);
 
   const logs = await contract.SelfEvent(ADDRESS, null).getLogs({ fromEpoch: 0 }); // `fromEpoch` for mock parse
   expect(logs.length).toEqual(2);

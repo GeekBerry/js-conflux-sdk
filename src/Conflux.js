@@ -287,21 +287,21 @@ class Conflux {
   }
 
   /**
-   * Get the numbers of transactions sent from this address.
+   * Get the address next transaction nonce.
    *
    * @param address {string} - The address to get the numbers of transactions from.
    * @param [epochNumber='latest_state'] {string|number} - The end epochNumber to count transaction of.
    * @return {Promise<number>}
    *
    * @example
-   * > await cfx.getTransactionCount("0xbbd9e9be525ab967e633bcdaeac8bd5723ed4d6b");
+   * > await cfx.getNextNonce("0xbbd9e9be525ab967e633bcdaeac8bd5723ed4d6b");
    61
 
-   * > await cfx.getTransactionCount("0xbbd9e9be525ab967e633bcdaeac8bd5723ed4d6b", 0);
+   * > await cfx.getNextNonce("0xbbd9e9be525ab967e633bcdaeac8bd5723ed4d6b", 0);
    0
    */
-  async getTransactionCount(address, epochNumber = 'latest_state') {
-    const result = await this.provider.call('cfx_getTransactionCount',
+  async getNextNonce(address, epochNumber = 'latest_state') {
+    const result = await this.provider.call('cfx_getNextNonce',
       format.address(address), format.epochNumber(epochNumber),
     );
     return format.uInt(result);
@@ -665,7 +665,7 @@ class Conflux {
    */
   async sendTransaction(options) {
     if (options.nonce === undefined) {
-      options.nonce = await this.getTransactionCount(options.from);
+      options.nonce = await this.getNextNonce(options.from);
     }
 
     if (options.gasPrice === undefined) {
@@ -673,14 +673,14 @@ class Conflux {
     }
 
     if (options.gas === undefined || options.storageLimit === undefined) {
-      const { gasUsed, storageOccupied } = await this.estimateGasAndCollateral(options);
+      const { gasUsed, storageCollateralized } = await this.estimateGasAndCollateral(options);
 
       if (options.gas === undefined) {
         options.gas = gasUsed;
       }
 
       if (options.storageLimit === undefined) {
-        options.storageLimit = storageOccupied;
+        options.storageLimit = storageCollateralized;
       }
     }
 
@@ -738,7 +738,7 @@ class Conflux {
    */
   async call(options, epochNumber = 'latest_state') {
     if (options.from && options.nonce === undefined) {
-      options.nonce = await this.getTransactionCount(options.from);
+      options.nonce = await this.getNextNonce(options.from);
     }
 
     return this.provider.call('cfx_call', format.callTx(options), format.epochNumber(epochNumber));
@@ -748,13 +748,13 @@ class Conflux {
    * Executes a message call or transaction and returns the amount of the gas used.
    *
    * @param options {object} - See `format.estimateTx`
-   * @return {Promise<object>} The gas used and storage occupied for the simulated call/transaction.
-   * - `BigInt` gasUsed: The gas used in Drip
-   * - `BigInt` storageOccupied: The storage occupied in Drip
+   * @return {Promise<object>} The gas used and storage collateralized for the simulated call/transaction.
+   * - `BigInt` gasUsed: The gas used.
+   * - `BigInt` storageCollateralized: The storage collateralized in bytes.
    */
   async estimateGasAndCollateral(options) {
     if (options.from && options.nonce === undefined) {
-      options.nonce = await this.getTransactionCount(options.from);
+      options.nonce = await this.getNextNonce(options.from);
     }
 
     const result = await this.provider.call('cfx_estimateGasAndCollateral', format.estimateTx(options));
