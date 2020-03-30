@@ -1545,48 +1545,6 @@ arg  | `string,Buffer` | true     |         |
  Error("not match address")
 ```
 
-## format.accountAddress (setter) <a id="util/format.js/accountAddress (setter)"></a>
-
-Account address starts with '0x1'
-
-* **Parameters**
-
-Name | Type            | Required | Default | Description
------|-----------------|----------|---------|------------
-arg  | `string,Buffer` | true     |         |
-
-* **Returns**
-
-`string` Hex string
-
-* **Examples**
-
-```
-> format.accountAddress('0x0123456789012345678901234567890123456789')
- "0x1123456789012345678901234567890123456789"
-```
-
-## format.contractAddress (setter) <a id="util/format.js/contractAddress (setter)"></a>
-
-Contract address starts with '0x8'
-
-* **Parameters**
-
-Name | Type            | Required | Default | Description
------|-----------------|----------|---------|------------
-arg  | `string,Buffer` | true     |         |
-
-* **Returns**
-
-`string` Hex string
-
-* **Examples**
-
-```
-> format.contractAddress('0x0123456789012345678901234567890123456789')
- "0x8123456789012345678901234567890123456789"
-```
-
 ## format.publicKey (setter) <a id="util/format.js/publicKey (setter)"></a>
 
 *no description*
@@ -1875,7 +1833,9 @@ privateKey | `Buffer` | true     |         |
 
 ## publicKeyToAddress <a id="util/sign.js/publicKeyToAddress"></a>
 
-Get address by public key.
+Get account address by public key.
+
+> Account address hex starts with '0x1'
 
 * **Parameters**
 
