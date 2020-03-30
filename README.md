@@ -139,24 +139,10 @@ message | `string` | true     |         |
 > const account = new Account('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
 > const msg = account.signMessage('Hello World!')
 > console.log(msg);
-   Message {
+    Message {
       message: 'Hello World',
-      hash: '0xa1de988600a42c4b4ab089b619297c17d53cffae5d5120d82d8a92d0bb3b78f2',
-      r: '0xe6bfbd768a421b9051fe86310f0f1eef9d5df65288b53f54d663f887a5b4bcd6',
-      s: '0x32efb64ccc67d7245545175953e811bc237fd83ab8722d8be0a66e92ec39da81',
-      v: 1
+      signature: '0x6e913e2b76459f19ebd269b82b51a70e912e909b2f5c002312efc27bcc280f3c29134d382aad0dbd3f0ccc9f0eb8f1dbe3f90141d81574ebb6504156b0d7b95f01'
     }
-```
-
-```
-> const msg = new Message({
-      hash: '0xa1de988600a42c4b4ab089b619297c17d53cffae5d5120d82d8a92d0bb3b78f2',
-      r: '0xe6bfbd768a421b9051fe86310f0f1eef9d5df65288b53f54d663f887a5b4bcd6',
-      s: '0x32efb64ccc67d7245545175953e811bc237fd83ab8722d8be0a66e92ec39da81',
-      v: 1
-    });
-> console.log(msg.form); // getter to recover address
-   "0xfcad0b19bb29d4674531d6f115237e16afce377c"
 ```
 
 ## Account.prototype.toString <a id="Account.js/toString"></a>
@@ -1051,21 +1037,65 @@ options.code    | `string`  | false    |         | The byte code of the contract
 
 *no description*
 
+## Message.sign <a id="Message.js/sign"></a>
+
+Signs the hash with the privateKey.
+
+* **Parameters**
+
+Name        | Type            | Required | Default | Description
+------------|-----------------|----------|---------|------------
+privateKey  | `string,Buffer` | true     |         |
+messageHash | `string,Buffer` | true     |         |
+
+* **Returns**
+
+`string` The signature as hex string.
+
+* **Examples**
+
+```
+> Message.sign(
+      '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef', // privateKey
+      '0x592fa743889fc7f92ac2a37bb1f5ba1daf2a5c84741ca0e0061d243a2e6707ba',
+    )
+   "0x6e913e2b76459f19ebd269b82b51a70e912e909b2f5c002312efc27bcc280f3c29134d382aad0dbd3f0ccc9f0eb8f1dbe3f90141d81574ebb6504156b0d7b95f01"
+```
+
+## Message.recover <a id="Message.js/recover"></a>
+
+Recovers the signers publicKey from the signature.
+
+* **Parameters**
+
+Name        | Type            | Required | Default | Description
+------------|-----------------|----------|---------|------------
+signature   | `string,Buffer` | true     |         |
+messageHash | `string,Buffer` | true     |         |
+
+* **Returns**
+
+`string` The publicKey as hex string.
+
+* **Examples**
+
+```
+> Message.recover(
+      '0x6e913e2b76459f19ebd269b82b51a70e912e909b2f5c002312efc27bcc280f3c29134d382aad0dbd3f0ccc9f0eb8f1dbe3f90141d81574ebb6504156b0d7b95f01',
+      '0x592fa743889fc7f92ac2a37bb1f5ba1daf2a5c84741ca0e0061d243a2e6707ba',
+    )
+   "0x4646ae5047316b4230d0086c8acec687f00b1cd9d1dc634f6cb358ac0a9a8ffffe77b4dd0a4bfb95851f3b7355c781dd60f8418fc8a65d14907aff47c903a559"
+```
+
 ## Message.prototype.constructor <a id="Message.js/constructor"></a>
 
 *no description*
 
 * **Parameters**
 
-Name              | Type            | Required | Default | Description
-------------------|-----------------|----------|---------|-----------------------------------------------
-options           | `string,object` | true     |         | The string or message object
-options.message   | `string,Buffer` | false    |         | The hashed message, will cover 'hash' fields
-options.hash      | `string,Buffer` | false    |         | The hashed message
-options.signature | `string,Buffer` | false    |         | ECDSA signature, will cover 'r','s','v' fields
-options.r         | `string,Buffer` | false    |         | ECDSA signature r
-options.s         | `string,Buffer` | false    |         | ECDSA signature s
-options.v         | `number`        | false    |         | ECDSA recovery id
+Name    | Type     | Required | Default | Description
+--------|----------|----------|---------|------------
+message | `string` | true     |         |
 
 * **Returns**
 
@@ -1074,27 +1104,38 @@ options.v         | `number`        | false    |         | ECDSA recovery id
 * **Examples**
 
 ```
-> msg = new Message({ message: 'Hello World' });
+> msg = new Message('Hello World');
    Message {
       message: 'Hello World',
-      hash: '0x592fa743889fc7f92ac2a37bb1f5ba1daf2a5c84741ca0e0061d243a2e6707ba',
-      r: undefined,
-      s: undefined,
-      v: undefined
     }
 > msg.sign('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef');
    Message {
       message: 'Hello World',
-      hash: '0x592fa743889fc7f92ac2a37bb1f5ba1daf2a5c84741ca0e0061d243a2e6707ba',
-      r: '0x6e913e2b76459f19ebd269b82b51a70e912e909b2f5c002312efc27bcc280f3c',
-      s: '0x29134d382aad0dbd3f0ccc9f0eb8f1dbe3f90141d81574ebb6504156b0d7b95f',
-      v: 1,
+      signature: '0x6e913e2b76459f19ebd269b82b51a70e912e909b2f5c002312efc27bcc280f3c29134d382aad0dbd3f0ccc9f0eb8f1dbe3f90141d81574ebb6504156b0d7b95f01'
     }
 > msg.signature
    "0x6e913e2b76459f19ebd269b82b51a70e912e909b2f5c002312efc27bcc280f3c29134d382aad0dbd3f0ccc9f0eb8f1dbe3f90141d81574ebb6504156b0d7b95f01"
+> msg.hash
+   "0x592fa743889fc7f92ac2a37bb1f5ba1daf2a5c84741ca0e0061d243a2e6707ba"
 > msg.from
-   "0xfcad0b19bb29d4674531d6f115237e16afce377c"
+   "0x1cad0b19bb29d4674531d6f115237e16afce377c"
+> msg.r
+   "0x6e913e2b76459f19ebd269b82b51a70e912e909b2f5c002312efc27bcc280f3c"
+> msg.s
+   "0x29134d382aad0dbd3f0ccc9f0eb8f1dbe3f90141d81574ebb6504156b0d7b95f"
+> msg.v
+   1
 ```
+
+## Message.prototype.hash (getter) <a id="Message.js/hash (getter)"></a>
+
+Getter of message hash include signature.
+
+> Note: calculate every time.
+
+* **Returns**
+
+`string` 
 
 ## Message.prototype.from (getter) <a id="Message.js/from (getter)"></a>
 
@@ -1105,14 +1146,6 @@ Getter of sender address.
 * **Returns**
 
 `string,undefined` If ECDSA recover success return address, else return undefined.
-
-## Message.prototype.signature (getter) <a id="Message.js/signature (getter)"></a>
-
-Getter signature of message r,s,v.
-
-* **Returns**
-
-`string` 
 
 ## Message.prototype.sign <a id="Message.js/sign"></a>
 
@@ -1127,14 +1160,6 @@ privateKey | `string` | true     |         | Private key hex string.
 * **Returns**
 
 `Message` 
-
-## Message.prototype.recover <a id="Message.js/recover"></a>
-
-Recover public key from signed Transaction.
-
-* **Returns**
-
-`string` 
 
 ----------------------------------------
 
