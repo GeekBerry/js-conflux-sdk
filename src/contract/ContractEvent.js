@@ -1,8 +1,9 @@
-const callable = require('../lib/callable');
-const { decorate } = require('../util');
+const lodash = require('lodash');
+const { assert, decorate } = require('../util');
 const { EventCoder } = require('../abi');
+const callable = require('../lib/callable');
 
-class EventLog {
+class Event {
   constructor(cfx, eventLog, { address, topics }) {
     this.cfx = cfx;
     this.eventLog = eventLog;
@@ -11,26 +12,26 @@ class EventLog {
   }
 
   getLogs(options = {}) {
-    const _decodeParams = log => {
+    const _decodeLog = log => {
       if (log !== undefined) {
-        log.params = this.eventLog.decode(log);
+        log.params = this.eventLog.decodeLog(log);
       }
       return log;
     };
 
     // new LogIterator and decorate for decode params
-    const iter = this.eventLog.cfx.getLogs({
+    const iter = this.cfx.getLogs({
       ...options,
       address: this.address,
       topics: this.topics,
     });
 
-    decorate(iter, 'next', async (func, params) => {
-      return _decodeParams(await func(...params));
+    decorate(iter, 'next', async (func, args) => {
+      return _decodeLog(await func(...args));
     });
 
     decorate(iter, 'then', (func, [resolve, reject]) => {
-      return func(logs => resolve(logs.map(_decodeParams)), reject);
+      return func(logs => resolve(logs.map(_decodeLog)), reject);
     });
 
     return iter;
@@ -38,33 +39,62 @@ class EventLog {
 }
 
 class ContractEvent {
-  constructor(cfx, contract, fragment) {
+  constructor(cfx, contract, name) {
     this.cfx = cfx;
     this.contract = contract;
-    this.fragment = fragment;
-
-    this.coder = new EventCoder(this.fragment);
-    this.code = this.coder.signature();
+    this.name = name;
+    this.signatureToCoder = {};
 
     return callable(this, this.call.bind(this));
   }
 
-  call(...params) {
-    return new EventLog(this.cfx, this, {
-      address: this.contract.address,
-      topics: this.encode(params),
+  add(fragment) {
+    const coder = new EventCoder(fragment);
+    this.signatureToCoder[coder.signature()] = coder;
+  }
+
+  call(...args) {
+    const matrix = [];
+    const types = [];
+
+    for (const [signature, coder] of Object.entries(this.signatureToCoder)) {
+      if (!coder.anonymous) {
+        try {
+          matrix.push([signature, ...coder.encodeTopics(args)]);
+        } catch (e) {
+          types.push(coder.type);
+        }
+      }
+    }
+
+    if (!matrix.length) {
+      throw new Error(`can not match "${types.join(',')}" with args (${args.join(',')})`);
+    }
+
+    // transpose matrix
+    const topics = lodash.zip(...matrix).map(array => {
+      array = array.filter(Boolean);
+      return array.length ? array : null;
     });
+
+    const address = this.contract.address;
+    return new Event(this.cfx, this, { address, topics });
   }
 
-  encode(params) {
-    const topics = this.coder.encodeTopics(params);
+  decodeLog(log) {
+    const topic = log.topics[0];
+    const coder = this.signatureToCoder[topic];
 
-    return this.fragment.anonymous ? topics : [this.code, ...topics];
-  }
+    assert(coder, {
+      message: 'ContractEvent.decodeLog topic missing',
+      expect: topic,
+      got: Object.keys(this.signatureToCoder),
+      coder: this,
+    });
 
-  decode(log) {
-    return this.coder.decodeLog(log);
+    return coder.decodeLog(log);
   }
 }
 
 module.exports = ContractEvent;
+module.exports.Event = Event;

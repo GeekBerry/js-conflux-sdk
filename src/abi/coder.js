@@ -176,7 +176,14 @@ class BoolCoder extends Coder {
    * @return {Buffer}
    */
   encode(value) {
-    return padBuffer(format.hex(Boolean(value)));
+    assert(lodash.isBoolean(value), {
+      message: 'unexpected type',
+      expect: 'boolean',
+      got: value,
+      coder: this,
+    });
+
+    return padBuffer(format.hex(value));
   }
 
   /**
@@ -249,6 +256,13 @@ class IntegerCoder extends Coder {
    * @return {Buffer}
    */
   encode(value) {
+    assert(Number.isInteger(value) || value.constructor === BigInt, {
+      message: 'unexpected type',
+      expect: 'int|bigInt',
+      got: value,
+      coder: this,
+    });
+
     let number = BigInt(value);
     let twosComplement = number;
 

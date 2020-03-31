@@ -72,7 +72,7 @@ function mockTxByHash(self, txHash) {
   };
 }
 
-function mockLogsByEpochNumber(self, epochNumber) {
+function mockLogsByEpochNumber(self, epochNumber, [topic] = []) {
   const [blockHash] = mockBlockHashArray(self, epochNumber);
   if (!blockHash) {
     return [];
@@ -92,7 +92,7 @@ function mockLogsByEpochNumber(self, epochNumber) {
       logIndex: randomHex(1),
       removed: false,
       topics: [
-        randomHex(64),
+        topic || randomHex(64),
         randomHex(64),
       ],
       transactionHash: txHash,
@@ -137,11 +137,11 @@ class MockProvider {
     return toHex(Number.MAX_SAFE_INTEGER);
   }
 
-  cfx_getLogs({ fromEpoch }) {
+  cfx_getLogs({ fromEpoch, topics }) {
     const epochNumber = Number(fromEpoch); // Number or NaN
 
     if (Number.isInteger(epochNumber)) {
-      return mockLogsByEpochNumber(this, epochNumber);
+      return mockLogsByEpochNumber(this, epochNumber, topics);
     }
 
     return [];
