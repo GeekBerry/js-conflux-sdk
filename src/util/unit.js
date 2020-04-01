@@ -15,10 +15,10 @@ const UNIT_MATRIX = {
  *
  * @example
  * > unit('CFX', 'Drip')(1)
- 1000000000000000000n
+ "1000000000000000000"
 
  * > unit('Drip', 'CFX')(1000000000000000000)
- 1n
+ "1"
  */
 function unit(from, to) {
   const keys = Object.keys(UNIT_MATRIX);
@@ -31,7 +31,7 @@ function unit(from, to) {
 
   const multiple = UNIT_MATRIX[from][to];
 
-  return value => BigInt(Big(value).times(multiple));
+  return value => Big(value).times(multiple).toFixed();
 }
 
 // ----------------------------------------------------------------------------
@@ -41,7 +41,7 @@ function unit(from, to) {
  *
  * @example
  * > fromCFXToGDrip(123)
- 123000000000n
+ "123000000000"
  */
 unit.fromCFXToGDrip = unit('CFX', 'GDrip');
 
@@ -51,7 +51,7 @@ unit.fromCFXToGDrip = unit('CFX', 'GDrip');
  *
  * @example
  * > fromCFXToDrip(123)
- 123000000000000000000n
+ "123000000000000000000"
  */
 unit.fromCFXToDrip = unit('CFX', 'Drip');
 
@@ -61,7 +61,7 @@ unit.fromCFXToDrip = unit('CFX', 'Drip');
  *
  * @example
  * > fromGDripToCFX(123000000000)
- 123n
+ "123"
  */
 unit.fromGDripToCFX = unit('GDrip', 'CFX');
 
@@ -71,7 +71,7 @@ unit.fromGDripToCFX = unit('GDrip', 'CFX');
  *
  * @example
  * > fromGDripToDrip(123)
- 123000000000n
+ "123000000000"
  */
 unit.fromGDripToDrip = unit('GDrip', 'Drip');
 
@@ -81,7 +81,7 @@ unit.fromGDripToDrip = unit('GDrip', 'Drip');
  *
  * @example
  * > fromDripToCFX(123000000000000000000)
- 123n
+ "123"
  */
 unit.fromDripToCFX = unit('Drip', 'CFX');
 
@@ -91,7 +91,7 @@ unit.fromDripToCFX = unit('Drip', 'CFX');
  *
  * @example
  * > fromDripToGDrip(123000000000)
- 123
+ "123"
  */
 unit.fromDripToGDrip = unit('Drip', 'GDrip');
 

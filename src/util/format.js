@@ -41,6 +41,8 @@ function toNumber(value) {
 function toBigInt(value) {
   if (Buffer.isBuffer(value)) {
     value = `0x${value.toString('hex')}`;
+  } else if (lodash.isString(value)) {
+    value = value.replace(/^(-?\d+)(.0+)?$/, '$1');
   }
   return BigInt(value);
 }

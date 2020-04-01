@@ -447,9 +447,9 @@ epochNumber | `string,number` | false    | 'latest_state' | The end epochNumber 
    "0"
 ```
 
-## Conflux.prototype.getTransactionCount <a id="Conflux.js/getTransactionCount"></a>
+## Conflux.prototype.getNextNonce <a id="Conflux.js/getNextNonce"></a>
 
-Get the numbers of transactions sent from this address.
+Get the address next transaction nonce.
 
 * **Parameters**
 
@@ -465,9 +465,9 @@ epochNumber | `string,number` | false    | 'latest_state' | The end epochNumber 
 * **Examples**
 
 ```
-> await cfx.getTransactionCount("0xbbd9e9be525ab967e633bcdaeac8bd5723ed4d6b");
+> await cfx.getNextNonce("0xbbd9e9be525ab967e633bcdaeac8bd5723ed4d6b");
    61
-> await cfx.getTransactionCount("0xbbd9e9be525ab967e633bcdaeac8bd5723ed4d6b", 0);
+> await cfx.getNextNonce("0xbbd9e9be525ab967e633bcdaeac8bd5723ed4d6b", 0);
    0
 ```
 
@@ -928,9 +928,9 @@ options | `object` | true     |         | See `format.estimateTx`
 
 * **Returns**
 
-`Promise.<object>` The gas used and storage occupied for the simulated call/transaction.
-- `BigInt` gasUsed: The gas used in Drip
-- `BigInt` storageOccupied: The storage occupied in Drip
+`Promise.<object>` The gas used and storage collateralized for the simulated call/transaction.
+- `BigInt` gasUsed: The gas used.
+- `BigInt` storageCollateralized: The storage collateralized in bytes.
 
 ----------------------------------------
 
@@ -944,13 +944,13 @@ Contract with all its methods and events defined in its abi.
 
 * **Parameters**
 
-Name            | Type      | Required | Default | Description
-----------------|-----------|----------|---------|-----------------------------------------------------------------------------------------------------
-cfx             | `Conflux` | true     |         | Conflux instance.
-options         | `object`  | true     |         |
-options.abi     | `array`   | true     |         | The json interface for the contract to instantiate
-options.address | `string`  | false    |         | The address of the smart contract to call, can be added later using `contract.address = '0x1234...'`
-options.code    | `string`  | false    |         | The byte code of the contract, can be added later using `contract.constructor.code = '0x1234...'`
+Name             | Type      | Required | Default | Description
+-----------------|-----------|----------|---------|-----------------------------------------------------------------------------------------------------
+cfx              | `Conflux` | true     |         | Conflux instance.
+options          | `object`  | true     |         |
+options.abi      | `array`   | true     |         | The json interface for the contract to instantiate
+options.address  | `string`  | false    |         | The address of the smart contract to call, can be added later using `contract.address = '0x1234...'`
+options.bytecode | `string`  | false    |         | The byte code of the contract, can be added later using `contract.constructor.code = '0x1234...'`
 
 * **Returns**
 
@@ -1493,7 +1493,7 @@ arg  | `number,BigInt,string,boolean` | true     |         |
  Error("not match uint")
 ```
 
-## format.numberHex (setter) <a id="util/format.js/numberHex (setter)"></a>
+## format.hexUInt (setter) <a id="util/format.js/hexUInt (setter)"></a>
 
 When encoding QUANTITIES (integers, numbers): encode as hex, prefix with "0x", the most compact representation (slight exception: zero should be represented as "0x0")
 
@@ -1510,15 +1510,15 @@ arg  | `number,string,boolean` | true     |         |
 * **Examples**
 
 ```
-> format.numberHex(100)
+> format.hexUInt(100)
  "0x64"
-> format.numberHex(10)
+> format.hexUInt(10)
  "0xa"
-> format.numberHex(3.50)
+> format.hexUInt(3.50)
  "0x4"
-> format.numberHex(3.49)
+> format.hexUInt(3.49)
  "0x3"
-> format.numberHex(-1))
+> format.hexUInt(-1))
  Error("not match uintHex")
 ```
 
@@ -1987,7 +1987,7 @@ to   | `string` | true     |         | Enum in ['CFX', 'GDrip', 'Drip']
 
 ```
 > unit('CFX', 'Drip')(1)
- 1000000000000000000n
+ "1000000000000000000"
 > unit('Drip', 'CFX')(1000000000000000000)
- 1n
+ "1"
 ```
