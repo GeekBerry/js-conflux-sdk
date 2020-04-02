@@ -51,7 +51,7 @@ test('getBalance', async () => {
 test('getNextNonce', async () => {
   const txCount = await cfx.getNextNonce(ADDRESS);
 
-  expect(Number.isInteger(txCount)).toEqual(true);
+  expect(txCount.constructor).toEqual(BigInt);
 });
 
 test('getBestBlockHash', async () => {

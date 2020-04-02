@@ -1,13 +1,17 @@
-const { FunctionCoder } = require('../abi');
+const { ConstructorCoder } = require('../abi');
 const ContractMethod = require('./ContractMethod');
 
 class ContractConstructor extends ContractMethod {
-  constructor(cfx, contract, fragment, bytecode) {
+  constructor(cfx, contract) {
     super(cfx, contract, 'constructor');
-    this.bytecode = bytecode;
+    this.bytecode = undefined;
 
-    this.coder = new FunctionCoder(fragment);
-    this.coder.decodeOutputs = hex => hex; // FIXME: unknown constructor call return hex mean, just return it
+    this.coder = new ConstructorCoder();
+  }
+
+  async add(fragment) {
+    // constructor can not be override
+    this.coder = new ConstructorCoder(fragment);
   }
 
   call(...args) {
@@ -22,7 +26,16 @@ class ContractConstructor extends ContractMethod {
 
   decodeData(hex) {
     const data = hex.slice(this.bytecode.length);
-    return this.coder.decodeInputs(data);
+
+    const namedTuple = this.coder.decodeInputs(data);
+    return {
+      name: this.name,
+      fullName: this.coder.fullName,
+      type: this.coder.type,
+      signature: null,
+      array: [...namedTuple],
+      object: namedTuple.toObject(),
+    };
   }
 }
 

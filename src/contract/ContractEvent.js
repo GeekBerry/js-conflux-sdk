@@ -92,7 +92,15 @@ class ContractEvent {
       coder: this,
     });
 
-    return coder.decodeLog(log);
+    const namedTuple = coder.decodeLog(log);
+    return {
+      name: this.name,
+      fullName: coder.fullName,
+      type: coder.type,
+      signature: topic,
+      array: [...namedTuple],
+      object: namedTuple.toObject(),
+    };
   }
 }
 
