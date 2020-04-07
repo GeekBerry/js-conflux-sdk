@@ -135,6 +135,9 @@ test('getTransactionByHash', async () => {
   expect(transaction.gas.constructor).toEqual(BigInt);
   expect(transaction.gasPrice.constructor).toEqual(BigInt);
   expect(transaction.value.constructor).toEqual(BigInt);
+  expect(transaction.storageLimit.constructor).toEqual(BigInt);
+  expect(Number.isInteger(transaction.chainId)).toEqual(true);
+  expect(Number.isInteger(transaction.epochHeight)).toEqual(true);
 });
 
 test('getTransactionReceipt', async () => {
