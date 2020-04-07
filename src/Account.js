@@ -1,5 +1,6 @@
+const lodash = require('lodash');
 const format = require('./util/format');
-const { randomPrivateKey, privateKeyToAddress, privateKeyToPublicKey } = require('./util/sign'); // and decrypt, encrypt
+const { randomPrivateKey, privateKeyToAddress, privateKeyToPublicKey, decrypt, encrypt } = require('./util/sign');
 const Transaction = require('./Transaction');
 const Message = require('./Message');
 
@@ -54,28 +55,30 @@ class Account {
     this.address = format.address(privateKeyToAddress(format.buffer(privateKey)));
   }
 
-  // /**
-  //  * Decrypt account encrypt info.
-  //  *
-  //  * @param info {object}
-  //  * @param password {string}
-  //  * @return {Account}
-  //  */
-  // static decrypt(info, password) {
-  //   const privateKeyBuffer = decrypt(lodash.mapValues(info, format.buffer), Buffer.from(password));
-  //   return new this(privateKeyBuffer);
-  // }
-  //
-  // /**
-  //  * Encrypt account privateKey to object.
-  //  *
-  //  * @param password {string}
-  //  * @return {object}
-  //  */
-  // encrypt(password) {
-  //   const info = encrypt(format.buffer(this.privateKey), Buffer.from(password));
-  //   return lodash.mapValues(info, format.hex);
-  // }
+  /**
+   * Decrypt account encrypt info.
+   *
+   * @param password {string}
+   * @param info {object}
+   * @return {Account}
+   */
+  static decrypt(password, info) {
+    const privateKeyBuffer = decrypt(Buffer.from(password), format.decrypt(info));
+    return new this(privateKeyBuffer);
+  }
+
+  /**
+   * Encrypt account privateKey to object.
+   *
+   * @param password {string}
+   * @return {object}
+   */
+  encrypt(password) {
+    const info = encrypt(format.buffer(this.privateKey), Buffer.from(password));
+    info.id = `${Date.now()}-${lodash.random(100000, 999999)}`;
+    info.address = this.address;
+    return format.encrypt(info);
+  }
 
   /**
    * Sign a transaction.
@@ -102,7 +105,7 @@ class Account {
    * > const account = new Account('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
    * > const msg = account.signMessage('Hello World!')
    * > console.log(msg);
-    Message {
+   Message {
       message: 'Hello World',
       signature: '0x6e913e2b76459f19ebd269b82b51a70e912e909b2f5c002312efc27bcc280f3c29134d382aad0dbd3f0ccc9f0eb8f1dbe3f90141d81574ebb6504156b0d7b95f01'
     }
