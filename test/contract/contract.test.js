@@ -71,10 +71,12 @@ test('contract.call', async () => {
   expect(value.toString()).toEqual('255');
 
   cfx.provider.call = async () => {
-    return '0x08c379a0' +
+    const error = new Error();
+    error.data = '0x08c379a0' +
       '0000000000000000000000000000000000000000000000000000000000000020' +
       '0000000000000000000000000000000000000000000000000000000000000005' +
       '4552524f52000000000000000000000000000000000000000000000000000000';
+    throw error;
   };
   await expect(contract.count()).rejects.toThrow('ERROR');
 

@@ -307,10 +307,18 @@ class EventCoder {
 class ErrorCoder {
   constructor(fragment = { name: 'Error', inputs: [{ type: 'string', name: 'message' }] }) {
     this.coder = new FunctionCoder(fragment);
-    this.signature = this.coder.signature();
+    this.signature = this.coder.signature(); // 0x08c379a0
   }
 
-  decodeError(hex) {
+  decodeError(error) {
+    try {
+      return new Error(this.decodeMessage(error.data));
+    } catch (e) {
+      return error;
+    }
+  }
+
+  decodeMessage(hex) {
     const signature = hex.slice(0, 10); // '0x' + 8 hex
     const data = hex.slice(10);
 
@@ -318,8 +326,8 @@ class ErrorCoder {
       return undefined;
     }
 
-    const params = this.coder.decodeInputs(data);
-    return Error(params.message);
+    const [message] = this.coder.decodeInputs(data);
+    return message;
   }
 }
 

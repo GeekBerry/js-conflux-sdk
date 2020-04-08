@@ -39,12 +39,12 @@ class Called {
    * @param options {object} - See `format.estimateTx`
    * @return {Promise<object>} The gas used and storage occupied for the simulated call/transaction.
    */
-  estimateGasAndCollateral(options) {
-    return this.cfx.estimateGasAndCollateral({
-      to: this.to,
-      data: this.data,
-      ...options,
-    });
+  async estimateGasAndCollateral(options) {
+    try {
+      return await this.cfx.estimateGasAndCollateral({ to: this.to, data: this.data, ...options });
+    } catch (e) {
+      throw errorCoder.decodeError(e);
+    }
   }
 
   /**
@@ -59,20 +59,12 @@ class Called {
    * @return {Promise<*>} Decoded contact call return.
    */
   async call(options, epochNumber) {
-    const hex = await this.cfx.call(
-      {
-        to: this.to,
-        data: this.data,
-        ...options,
-      },
-      epochNumber,
-    );
-
     try {
+      const hex = await this.cfx.call({ to: this.to, data: this.data, ...options }, epochNumber);
       const namedTuple = this.coder.decodeOutputs(hex);
       return namedTuple.length <= 1 ? namedTuple[0] : namedTuple;
     } catch (e) {
-      throw errorCoder.decodeError(hex) || e;
+      throw errorCoder.decodeError(e);
     }
   }
 
