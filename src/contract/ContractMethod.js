@@ -1,9 +1,10 @@
+const lodash = require('lodash');
 const { assert } = require('../util');
 const { FunctionCoder, errorCoder } = require('../abi');
 const callable = require('../lib/callable');
 
 /**
- * @memberOf Contract
+ * @memberOf ContractMethod
  */
 class Called {
   constructor(cfx, coder, { to, data }) {
@@ -79,31 +80,65 @@ class Called {
 }
 
 class ContractMethod {
-  constructor(cfx, contract, name) {
+  constructor(cfx, contract, fragment) {
     this.cfx = cfx;
     this.contract = contract;
-    this.name = name;
-    this.signatureToCoder = {};
+
+    this.coder = new FunctionCoder(fragment);
+    this.name = fragment.name; // example: "add"
+    this.type = this.coder.type; // example: "add(uint,uint)"
+    this.signature = this.coder.signature(); // example: "0xb8966352"
 
     return callable(this, this.call.bind(this));
   }
 
-  add(fragment) {
-    const coder = new FunctionCoder(fragment);
-    this.signatureToCoder[coder.signature()] = coder;
+  call(...args) {
+    const to = this.contract.address;
+    const data = `${this.signature}${this.coder.encodeInputs(args).substring(2)}`;
+    return new Called(this.cfx, this.coder, { to, data });
+  }
+
+  decodeData(hex) {
+    const signature = hex.slice(0, 10); // '0x' + 8 hex
+    const data = hex.slice(10);
+
+    assert(signature === this.signature, {
+      message: 'unexpected decodeData signature',
+      expect: this.signature,
+      got: signature,
+      coder: this.coder,
+    });
+
+    const namedTuple = this.coder.decodeInputs(data);
+    return {
+      name: this.name,
+      fullName: this.coder.fullName,
+      type: this.coder.type,
+      signature,
+      array: [...namedTuple],
+      object: namedTuple.toObject(),
+    };
+  }
+}
+
+/**
+ * @memberOf ContractMethod
+ */
+class ContractMethodOverride extends ContractMethod {
+  constructor(cfx, contract, methods) {
+    super(cfx, contract, {});
+
+    this.signatureToMethod = lodash.keyBy(methods, 'signature');
   }
 
   call(...args) {
     const types = [];
 
-    for (const [signature, coder] of Object.entries(this.signatureToCoder)) {
+    for (const method of Object.values(this.signatureToMethod)) {
       try {
-        const to = this.contract.address;
-        const data = `${signature}${coder.encodeInputs(args).substring(2)}`;
-
-        return new Called(this.cfx, coder, { to, data });
+        return method(...args);
       } catch (e) {
-        types.push(coder.type);
+        types.push(method.type);
       }
     }
 
@@ -112,27 +147,11 @@ class ContractMethod {
 
   decodeData(hex) {
     const signature = hex.slice(0, 10); // '0x' + 8 hex
-    const data = hex.slice(10);
-    const coder = this.signatureToCoder[signature];
-
-    assert(coder, {
-      message: 'ContractMethod.decodeData signature missing',
-      expect: signature,
-      got: coder,
-      coder: this,
-    });
-
-    const namedTuple = coder.decodeInputs(data);
-    return {
-      name: this.name,
-      fullName: coder.fullName,
-      type: coder.type,
-      signature,
-      array: [...namedTuple],
-      object: namedTuple.toObject(),
-    };
+    const method = this.signatureToMethod[signature];
+    return method.decodeData(hex);
   }
 }
 
 module.exports = ContractMethod;
+module.exports.ContractMethodOverride = ContractMethodOverride;
 module.exports.Called = Called;

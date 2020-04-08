@@ -2,16 +2,13 @@ const { ConstructorCoder } = require('../abi');
 const ContractMethod = require('./ContractMethod');
 
 class ContractConstructor extends ContractMethod {
-  constructor(cfx, contract) {
-    super(cfx, contract, 'constructor');
-    this.bytecode = undefined;
+  constructor(cfx, contract, fragment) {
+    super(cfx, contract, {});
 
-    this.coder = new ConstructorCoder();
-  }
-
-  async add(fragment) {
-    // constructor can not be override
     this.coder = new ConstructorCoder(fragment);
+    this.name = 'constructor'; // example: "add"
+    this.type = this.coder.type; // example: "add(uint,uint)"
+    this.signature = this.coder.signature(); // example: "0xb8966352"
   }
 
   call(...args) {

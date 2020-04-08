@@ -1,3 +1,4 @@
+const lodash = require('lodash');
 const ContractABICoder = require('./ContractABICoder');
 const ContractConstructor = require('./ContractConstructor');
 const ContractMethod = require('./ContractMethod');
@@ -96,27 +97,22 @@ class Contract {
     }
    */
   constructor(cfx, { abi, address, bytecode }) {
-    this.constructor = new ContractConstructor(cfx, this); // cover this.constructor
-    this.constructor.bytecode = bytecode;
+    let constructorFragment = {};
+    const methodArray = [];
+    const eventArray = [];
 
     abi.forEach(fragment => {
       switch (fragment.type) {
         case 'constructor':
-          this.constructor.add(fragment);
+          constructorFragment = fragment;
           break;
 
         case 'function':
-          if (!(this[fragment.name] instanceof ContractMethod)) {
-            this[fragment.name] = new ContractMethod(cfx, this, fragment.name);
-          }
-          this[fragment.name].add(fragment);
+          methodArray.push(new ContractMethod(cfx, this, fragment));
           break;
 
         case 'event':
-          if (!(this[fragment.name] instanceof ContractEvent)) {
-            this[fragment.name] = new ContractEvent(cfx, this, fragment.name);
-          }
-          this[fragment.name].add(fragment);
+          eventArray.push(new ContractEvent(cfx, this, fragment));
           break;
 
         default:
@@ -124,6 +120,25 @@ class Contract {
           break;
       }
     });
+
+    this.constructor = new ContractConstructor(cfx, this, constructorFragment);
+    this.constructor.bytecode = bytecode;
+
+    for (const [name, methods] of Object.entries(lodash.groupBy(methodArray, 'name'))) {
+      this[name] = new ContractMethod.ContractMethodOverride(cfx, this, methods);
+      for (const method of methods) {
+        this[method.type] = method;
+        this[method.signature] = method;
+      }
+    }
+
+    for (const [name, events] of Object.entries(lodash.groupBy(eventArray, 'name'))) {
+      this[name] = new ContractEvent.ContractEventOverride(cfx, this, events);
+      for (const event of events) {
+        this[event.type] = event;
+        this[event.signature] = event;
+      }
+    }
 
     this.abi = new ContractABICoder(this); // XXX: Create a method named `abi` in solidity is a `Warning`.
     this.address = address; // XXX: Create a method named `address` in solidity is a `ParserError`

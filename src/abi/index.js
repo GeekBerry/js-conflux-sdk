@@ -145,7 +145,7 @@ class FunctionCoder {
 }
 
 class ConstructorCoder extends FunctionCoder {
-  constructor({ inputs = [] } = {}) {
+  constructor({ inputs = [] }) {
     super({ name: 'constructor', inputs });
   }
 
@@ -193,7 +193,7 @@ class EventCoder {
       NamedTuple: [Function: NamedTuple(account,number)]
     }
    */
-  constructor({ anonymous, name, inputs }) {
+  constructor({ anonymous, name, inputs = [] }) {
     this.anonymous = anonymous;
     this.name = name;
     this.fullName = formatFullName({ name, inputs });

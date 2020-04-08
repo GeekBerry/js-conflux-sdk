@@ -209,6 +209,9 @@ test('decodeData.constructor', () => {
 test('decodeData.function', () => {
   const data = contract.inc(100).data;
 
+  expect(data).toEqual(contract['inc(uint256)'](100).data);
+  expect(data).toEqual(contract['0x812600df'](100).data);
+
   const result = contract.abi.decodeData(data);
   expect(result).toEqual({
     name: 'inc',
