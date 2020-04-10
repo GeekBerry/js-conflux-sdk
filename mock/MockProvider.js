@@ -87,7 +87,7 @@ function mockLogsByEpochNumber(self, epochNumber, [topic] = []) {
   return lodash.range(self.txLogCount)
     .map(index => ({
       address: randomHex(40),
-      blockHash: randomHex(64),
+      blockHash,
       data: randomHex(64),
       epochNumber: toHex(epochNumber),
       logIndex: randomHex(1),
