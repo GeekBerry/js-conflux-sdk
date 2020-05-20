@@ -1,3 +1,4 @@
+const Big = require('big.js');
 const { decorate } = require('./util');
 const format = require('./util/format');
 
@@ -5,6 +6,8 @@ const providerFactory = require('./provider');
 const Contract = require('./contract');
 const Account = require('./Account');
 const { PendingTransaction, LogIterator } = require('./subscribe');
+
+const MAX_UINT_256 = format.bigUInt('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff');
 
 /**
  * A sdk of conflux.
@@ -314,6 +317,23 @@ class Conflux {
     // FIXME rpc not implement yet.
     // const result = await this.provider.call('cfx_getRiskCoefficient', format.epochNumber(epochNumber));
     return 0;
+  }
+
+  /**
+   * 返回值是一个大整数，risk=return_value/(2^256-1)
+   let eps = 1e-6
+   if risk > 1e-4*(1+eps) => 最低等级
+   elseif  risk > 1e-6*(1+eps) => 次低
+   elseif  risk > 1e-8*(1+eps) => 第三低
+   * @param blockHash {string}
+   * @return {Promise<number|null>}
+   */
+  async getConfirmationRiskByHash(blockHash) {
+    const result = await this.provider.call('cfx_getConfirmationRiskByHash', format.blockHash(blockHash));
+    if (!result) {
+      return result;
+    }
+    return Number(Big(format.bigUInt(result)).div(MAX_UINT_256));
   }
 
   /**
