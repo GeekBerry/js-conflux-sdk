@@ -610,6 +610,19 @@ class Conflux {
     return format.fixed64.$or(null)(result);
   }
 
+  /**
+   * Get block trace
+   *
+   * @param blockHash {string} - Hash of a block
+   * @return {Promise<object>|null}
+   */
+  async traceBlock(blockHash) {
+    const result = await this.provider.call('trace_block',
+      format.blockHash(blockHash),
+    );
+    return format.traceBlock.$or(null)(result);
+  }
+
   // ----------------------------- transaction --------------------------------
   /**
    * Returns the information about a transaction requested by transaction hash.

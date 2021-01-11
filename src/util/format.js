@@ -526,6 +526,23 @@ format.depositList = format([
   },
 ]);
 
+format.traceBlock = format({
+  transactionTraces: [
+    {
+      traces: [
+        {
+          action: {
+            init: format.hex.$parse(Buffer.from, Array.isArray),
+            input: format.hex.$parse(Buffer.from, Array.isArray),
+            value: format.bigUInt,
+            gas: format.bigUInt,
+          },
+        },
+      ],
+    },
+  ],
+});
+
 // ---------------------------- parse subscribe event -------------------------
 format.head = format({
   difficulty: format.bigUInt,

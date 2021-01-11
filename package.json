@@ -69,6 +69,7 @@
     "document": "node scripts/document.js",
     "prepublishOnly": "npm run build",
     "test": "jest --coverage",
-    "react": "npm run build & cd react & yarn build & yarn start"
+    "react": "npm run build & cd test-react & yarn build & yarn start",
+    "public": "yarn publish"
   }
 }
