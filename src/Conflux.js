@@ -15,8 +15,6 @@ class Conflux {
   /**
    * @param [options] {object} - Conflux and Provider constructor options.
    * @param [options.defaultGasPrice] {string|number} - The default gas price in drip to use for transactions.
-   * @param [options.defaultGasRatio=1.1] {number} - The ratio to multiply by gas.
-   * @param [options.defaultStorageRatio=1.1] {number} - The ratio to multiply by storageLimit.
    * @param [options.url] {string} - Url of Conflux node to connect.
    * @param [options.timeout] {number} - Request time out in ms
    * @param [options.logger] {Object} - Logger object with 'info' and 'error' method.
@@ -33,8 +31,6 @@ class Conflux {
    */
   constructor({
     defaultGasPrice,
-    defaultGasRatio = 1.1,
-    defaultStorageRatio = 1.1,
     ...rest
   } = {}) {
     /**
@@ -59,34 +55,6 @@ class Conflux {
      * @type {number|string}
      */
     this.defaultGasPrice = defaultGasPrice;
-
-    /**
-     * If transaction.gas is undefined, gas will be set by estimate,
-     * cause gas used might be change during `estimateGasAndCollateral` and `sendTransaction`,
-     * estimate value need to multiply by defaultGasRatio (>1.0) in case of gas not enough.
-     *
-     * > transaction.gas = estimate.gasUsed * defaultGasRatio
-     *
-     * Default gas price for following methods:
-     * - `Conflux.sendTransaction`
-     *
-     * @type {number}
-     */
-    this.defaultGasRatio = defaultGasRatio;
-
-    /**
-     * If transaction.storageLimit is undefined, storageLimit will be set by estimate,
-     * cause storage limit might be change during `estimateGasAndCollateral` and `sendTransaction`,
-     * estimate value need to multiply by defaultStorageRatio (>1.0) in case of storageLimit not enough.
-     *
-     * > transaction.storageLimit = estimate.storageCollateralized * defaultStorageRatio
-     *
-     * Default gas price for following methods:
-     * - `Conflux.sendTransaction`
-     *
-     * @type {number}
-     */
-    this.defaultStorageRatio = defaultStorageRatio;
 
     this.sendRawTransaction = this._decoratePendingTransaction(this.sendRawTransaction);
     this.sendTransaction = this._decoratePendingTransaction(this.sendTransaction);
@@ -161,30 +129,6 @@ class Conflux {
    */
   async getClientVersion() {
     return this.provider.call('cfx_clientVersion');
-  }
-
-  /**
-   * Get supply info
-   *
-   * @param [epochNumber='latest_state'] {string|number} - See [format.epochNumber](#util/format.js/format/(static)epochNumber)
-   * @return {Promise<object>} Return supply info
-   * - totalIssued `BigInt`: Total issued balance in `Drip`
-   * - totalStaking `BigInt`: Total staking balance in `Drip`
-   * - totalCollateral `BigInt`: Total collateral balance in `Drip`
-   *
-   * @example
-   * > await conflux.getSupplyInfo()
-   {
-     totalCollateral: 28953062500000000000000n,
-     totalIssued: 5033319899279074765657343554n,
-     totalStaking: 25026010834970490328077641n
-   }
-   */
-  async getSupplyInfo(epochNumber) {
-    const result = await this.provider.call('cfx_getSupplyInfo',
-      format.epochNumber.$or(undefined)(epochNumber),
-    );
-    return format.supplyInfo(result);
   }
 
   /**
@@ -794,9 +738,9 @@ class Conflux {
       let storageLimit;
 
       if (options.data) {
-        const { gasUsed, storageCollateralized } = await this.estimateGasAndCollateral(options);
-        gas = format.big(gasUsed).times(this.defaultGasRatio).toFixed(0);
-        storageLimit = format.big(storageCollateralized).times(this.defaultStorageRatio).toFixed(0);
+        const { gasLimit, storageCollateralized } = await this.estimateGasAndCollateral(options);
+        gas = gasLimit;
+        storageLimit = storageCollateralized;
       } else {
         gas = CONST.TRANSACTION_GAS;
         storageLimit = CONST.TRANSACTION_STORAGE_LIMIT;
