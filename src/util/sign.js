@@ -1,7 +1,109 @@
+/* eslint-disable no-bitwise */
+
 const crypto = require('crypto');
 const keccak = require('keccak');
 const secp256k1 = require('secp256k1');
 const { syncScrypt: scrypt } = require('scrypt-js');
+const JSBI = require('./jsbi');
+
+/**
+ * convert inBits buffer  to outBits uint array
+ *
+ * @param buffer {Buffer}
+ * @param inBits {number}
+ * @param outBits {number}
+ * @param [pad] {boolean}
+ * @return {number[]}
+ *
+ * @example
+ * > convertBit(Buffer.from([1, 1]), 8, 5, true)
+ * [0, 4, 0, 16]
+ */
+function convertBit(buffer, inBits, outBits, pad) {
+  const mask = (1 << outBits) - 1;
+  const array = [];
+
+  let bits = 0;
+  let value = 0;
+  for (const byte of buffer) {
+    bits += inBits;
+    value = (value << inBits) | byte;
+
+    while (bits >= outBits) {
+      bits -= outBits;
+      array.push((value >>> bits) & mask);
+    }
+  }
+  value = (value << (outBits - bits)) & mask;
+
+  if (bits && pad) {
+    array.push(value);
+  } else if (value && !pad) {
+    throw new Error(`not zero suffix value ${value} need to be pad`);
+  } else if (bits >= inBits && !pad) {
+    throw new Error(`excess ${bits} bits need to be pad`);
+  }
+
+  return array;
+}
+
+/**
+ * @see https://github.com/bitcoincashorg/bitcoincash.org/blob/master/spec/cashaddr.md#checksum
+ *
+ * @param buffer {Buffer}
+ * @return {BigInt}
+ *
+ * > polyMod([])
+ 0n
+ * > polyMod([0,0])
+ 1025n
+ */
+function polyMod(buffer) {
+  // pre defined BigInt could be faster about 40 percent
+  const BIGINT_1 = JSBI.BigInt(1);
+  const BIGINT_5 = JSBI.BigInt(5);
+  const BIGINT_35 = JSBI.BigInt(35);
+  const BIGINT_0B00001 = JSBI.BigInt(0b00001);
+  const BIGINT_0B00010 = JSBI.BigInt(0b00010);
+  const BIGINT_0B00100 = JSBI.BigInt(0b00100);
+  const BIGINT_0B01000 = JSBI.BigInt(0b01000);
+  const BIGINT_0B10000 = JSBI.BigInt(0b10000);
+  const BIGINT_0X07FFFFFFFF = JSBI.BigInt(0x07ffffffff);
+  const BIGINT_0X98F2BC8E61 = JSBI.BigInt(0x98f2bc8e61);
+  const BIGINT_0X79B76D99E2 = JSBI.BigInt(0x79b76d99e2);
+  const BIGINT_0XF33E5FB3C4 = JSBI.BigInt(0xf33e5fb3c4);
+  const BIGINT_0XAE2EABE2A8 = JSBI.BigInt(0xae2eabe2a8);
+  const BIGINT_0X1E4F43E470 = JSBI.BigInt(0x1e4f43e470);
+
+  let checksumBigInt = BIGINT_1;
+  for (const byte of buffer) {
+    // c0 = c >> 35;
+    const high = JSBI.signedRightShift(checksumBigInt, BIGINT_35); // XXX: checksumBigInt must be positive, signedRightShift is ok
+
+    // c = ((c & 0x07ffffffff) << 5) ^ d;
+    checksumBigInt = JSBI.bitwiseAnd(checksumBigInt, BIGINT_0X07FFFFFFFF);
+    checksumBigInt = JSBI.leftShift(checksumBigInt, BIGINT_5);
+    checksumBigInt = byte ? JSBI.bitwiseXor(checksumBigInt, JSBI.BigInt(byte)) : checksumBigInt; // bit ^ 0 = bit
+
+    if (JSBI.bitwiseAnd(high, BIGINT_0B00001)) {
+      checksumBigInt = JSBI.bitwiseXor(checksumBigInt, BIGINT_0X98F2BC8E61);
+    }
+    if (JSBI.bitwiseAnd(high, BIGINT_0B00010)) {
+      checksumBigInt = JSBI.bitwiseXor(checksumBigInt, BIGINT_0X79B76D99E2);
+    }
+    if (JSBI.bitwiseAnd(high, BIGINT_0B00100)) {
+      checksumBigInt = JSBI.bitwiseXor(checksumBigInt, BIGINT_0XF33E5FB3C4);
+    }
+    if (JSBI.bitwiseAnd(high, BIGINT_0B01000)) {
+      checksumBigInt = JSBI.bitwiseXor(checksumBigInt, BIGINT_0XAE2EABE2A8);
+    }
+    if (JSBI.bitwiseAnd(high, BIGINT_0B10000)) {
+      checksumBigInt = JSBI.bitwiseXor(checksumBigInt, BIGINT_0X1E4F43E470);
+    }
+  }
+
+  return JSBI.bitwiseXor(checksumBigInt, BIGINT_1);
+}
 
 // ----------------------------------------------------------------------------
 /**
@@ -16,29 +118,6 @@ const { syncScrypt: scrypt } = require('scrypt-js');
  */
 function keccak256(buffer) {
   return keccak('keccak256').update(buffer).digest();
-}
-
-/**
- * Makes a checksum address
- *
- * > Note: support [EIP-55](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-55.md)
- * > Note: not support [RSKIP60](https://github.com/rsksmart/RSKIPs/blob/master/IPs/RSKIP60.md) yet
- *
- * @param address {string} - Hex string
- * @return {string}
- *
- * @example
- * > checksumAddress('0x1b716c51381e76900ebaa7999a488511a4e1fd0a')
- "0x1B716c51381e76900EBAA7999A488511A4E1fD0a"
- */
-function checksumAddress(address) {
-  const string = address.toLowerCase().replace('0x', '');
-
-  const hash = keccak256(Buffer.from(string)).toString('hex');
-  const sequence = Object.entries(string).map(([index, char]) => {
-    return parseInt(hash[index], 16) >= 8 ? char.toUpperCase() : char;
-  });
-  return `0x${sequence.join('')}`;
 }
 
 // ----------------------------------------------------------------------------
@@ -108,7 +187,7 @@ function privateKeyToPublicKey(privateKey) {
  * @return {Buffer}
  *
  * @example
- * > privateKeyToAddress(Buffer.from([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1]))
+ * > publicKeyToAddress(Buffer.from([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1]))
  <Buffer 4c 6f a3 22 12 5f a3 1a 42 cb dd a8 73 0d 4c f0 20 0d 72 db>
  */
 function publicKeyToAddress(publicKey) {
@@ -307,8 +386,9 @@ function decrypt({
 }
 
 module.exports = {
+  convertBit,
+  polyMod,
   keccak256,
-  checksumAddress,
 
   randomBuffer,
   randomPrivateKey,

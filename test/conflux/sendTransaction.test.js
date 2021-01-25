@@ -1,3 +1,4 @@
+const JSBI = require('../../src/util/jsbi');
 const { Conflux, format, CONST } = require('../../src');
 const { MockProvider } = require('../../mock');
 
@@ -140,7 +141,7 @@ test('sendTransaction auto', async () => {
 
   const estimateGasAndCollateral = jest.spyOn(conflux, 'estimateGasAndCollateral');
   estimateGasAndCollateral.mockReturnValue({
-    gasUsed: format.bigUInt(1024),
+    gasLimit: format.bigUInt(1024),
     storageCollateralized: format.bigUInt(2048),
   });
 
@@ -180,10 +181,10 @@ test('sendTransaction auto', async () => {
     chainId: 1,
     epochHeight: 1000,
     from: account.address,
-    gas: Math.round(1024 * 1.1).toString(),
+    gas: JSBI.BigInt(1024),
     gasPrice: '10',
     nonce: '100',
-    storageLimit: Math.round(2048 * 1.1).toString(),
+    storageLimit: JSBI.BigInt(2048),
     data: '0xabcd',
   });
 
@@ -200,7 +201,7 @@ test('sendTransaction auto', async () => {
     gas: 1000,
     gasPrice: '10',
     nonce: '100',
-    storageLimit: Math.round(2048 * 1.1).toString(),
+    storageLimit: JSBI.BigInt(2048),
     data: '0xabcd',
   });
 
@@ -214,7 +215,7 @@ test('sendTransaction auto', async () => {
     chainId: 1,
     epochHeight: 1000,
     from: account.address,
-    gas: Math.round(1024 * 1.1).toString(),
+    gas: JSBI.BigInt(1024),
     gasPrice: '10',
     nonce: '100',
     storageLimit: 2000,

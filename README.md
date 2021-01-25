@@ -7,12 +7,9 @@
         - [provider](#Conflux.js/Conflux/provider)
         - [wallet](#Conflux.js/Conflux/wallet)
         - [defaultGasPrice](#Conflux.js/Conflux/defaultGasPrice)
-        - [defaultGasRatio](#Conflux.js/Conflux/defaultGasRatio)
-        - [defaultStorageRatio](#Conflux.js/Conflux/defaultStorageRatio)
         - [Contract](#Conflux.js/Conflux/Contract)
         - [InternalContract](#Conflux.js/Conflux/InternalContract)
         - [close](#Conflux.js/Conflux/close)
-        - [getSupplyInfo](#Conflux.js/Conflux/getSupplyInfo)
         - [getStatus](#Conflux.js/Conflux/getStatus)
         - [getGasPrice](#Conflux.js/Conflux/getGasPrice)
         - [getInterestRate](#Conflux.js/Conflux/getInterestRate)
@@ -30,6 +27,7 @@
         - [getBestBlockHash](#Conflux.js/Conflux/getBestBlockHash)
         - [getBlockByHash](#Conflux.js/Conflux/getBlockByHash)
         - [getConfirmationRiskByHash](#Conflux.js/Conflux/getConfirmationRiskByHash)
+        - [traceBlock](#Conflux.js/Conflux/traceBlock)
         - [getTransactionByHash](#Conflux.js/Conflux/getTransactionByHash)
         - [getTransactionReceipt](#Conflux.js/Conflux/getTransactionReceipt)
         - [sendRawTransaction](#Conflux.js/Conflux/sendRawTransaction)
@@ -48,6 +46,7 @@
         - [subscribeLogs](#Conflux.js/Conflux/subscribeLogs)
         - [unsubscribe](#Conflux.js/Conflux/unsubscribe)
 - CONST.js
+    - [ADDRESS_TYPE](#CONST.js/ADDRESS_TYPE)
     - [EPOCH_NUMBER](#CONST.js/EPOCH_NUMBER)
     - [MIN_GAS_PRICE](#CONST.js/MIN_GAS_PRICE)
     - [TRANSACTION_GAS](#CONST.js/TRANSACTION_GAS)
@@ -115,7 +114,6 @@
             - [(static)epochNumber](#util/format.js/format/(static)epochNumber)
             - [(static)hex](#util/format.js/format/(static)hex)
             - [(static)address](#util/format.js/format/(static)address)
-            - [(static)checksumAddress](#util/format.js/format/(static)checksumAddress)
             - [(static)blockHash](#util/format.js/format/(static)blockHash)
             - [(static)transactionHash](#util/format.js/format/(static)transactionHash)
             - [(static)privateKey](#util/format.js/format/(static)privateKey)
@@ -125,8 +123,9 @@
             - [(static)boolean](#util/format.js/format/(static)boolean)
             - [(static)keccak256](#util/format.js/format/(static)keccak256)
     - sign.js
+        - [convertBit](#util/sign.js/convertBit)
+        - [polyMod](#util/sign.js/polyMod)
         - [keccak256](#util/sign.js/keccak256)
-        - [checksumAddress](#util/sign.js/checksumAddress)
         - [randomBuffer](#util/sign.js/randomBuffer)
         - [randomPrivateKey](#util/sign.js/randomPrivateKey)
         - [privateKeyToPublicKey](#util/sign.js/privateKeyToPublicKey)
@@ -166,15 +165,13 @@ A sdk of conflux.
 
 * **Parameters**
 
-Name                        | Type            | Required | Default | Description
-----------------------------|-----------------|----------|---------|-------------------------------------------------------
-options                     | `object`        | false    |         | Conflux and Provider constructor options.
-options.defaultGasPrice     | `string,number` | false    |         | The default gas price in drip to use for transactions.
-options.defaultGasRatio     | `number`        | false    | 1.1     | The ratio to multiply by gas.
-options.defaultStorageRatio | `number`        | false    | 1.1     | The ratio to multiply by storageLimit.
-options.url                 | `string`        | false    |         | Url of Conflux node to connect.
-options.timeout             | `number`        | false    |         | Request time out in ms
-options.logger              | `Object`        | false    |         | Logger object with 'info' and 'error' method.
+Name                    | Type            | Required | Default | Description
+------------------------|-----------------|----------|---------|-------------------------------------------------------
+options                 | `object`        | false    |         | Conflux and Provider constructor options.
+options.defaultGasPrice | `string,number` | false    |         | The default gas price in drip to use for transactions.
+options.url             | `string`        | false    |         | Url of Conflux node to connect.
+options.timeout         | `number`        | false    |         | Request time out in ms
+options.logger          | `Object`        | false    |         | Logger object with 'info' and 'error' method.
 
 * **Examples**
 
@@ -206,32 +203,6 @@ Wallet for `sendTransaction` to get `Account` by `from` field
 ### ~~Conflux.prototype.defaultGasPrice~~ <a id="Conflux.js/Conflux/defaultGasPrice"></a>
 
 `number,string`
-
-Default gas price for following methods:
-- `Conflux.sendTransaction`
-
-### Conflux.prototype.defaultGasRatio <a id="Conflux.js/Conflux/defaultGasRatio"></a>
-
-`number`
-
-If transaction.gas is undefined, gas will be set by estimate,
-cause gas used might be change during `estimateGasAndCollateral` and `sendTransaction`,
-estimate value need to multiply by defaultGasRatio (>1.0) in case of gas not enough.
-
-> transaction.gas = estimate.gasUsed * defaultGasRatio
-
-Default gas price for following methods:
-- `Conflux.sendTransaction`
-
-### Conflux.prototype.defaultStorageRatio <a id="Conflux.js/Conflux/defaultStorageRatio"></a>
-
-`number`
-
-If transaction.storageLimit is undefined, storageLimit will be set by estimate,
-cause storage limit might be change during `estimateGasAndCollateral` and `sendTransaction`,
-estimate value need to multiply by defaultStorageRatio (>1.0) in case of storageLimit not enough.
-
-> transaction.storageLimit = estimate.storageCollateralized * defaultStorageRatio
 
 Default gas price for following methods:
 - `Conflux.sendTransaction`
@@ -296,34 +267,6 @@ close connection.
 
 ```
 > conflux.close();
-```
-
-### Conflux.prototype.getSupplyInfo <a id="Conflux.js/Conflux/getSupplyInfo"></a>
-
-Get supply info
-
-* **Parameters**
-
-Name        | Type            | Required | Default        | Description
-------------|-----------------|----------|----------------|---------------------------------------------------------------------
-epochNumber | `string,number` | false    | 'latest_state' | See [format.epochNumber](#util/format.js/format/(static)epochNumber)
-
-* **Returns**
-
-`Promise.<object>` Return supply info
-- totalIssued `BigInt`: Total issued balance in `Drip`
-- totalStaking `BigInt`: Total staking balance in `Drip`
-- totalCollateral `BigInt`: Total collateral balance in `Drip`
-
-* **Examples**
-
-```
-> await conflux.getSupplyInfo()
-   {
-     totalCollateral: 28953062500000000000000n,
-     totalIssued: 5033319899279074765657343554n,
-     totalStaking: 25026010834970490328077641n
-   }
 ```
 
 ### Conflux.prototype.getStatus <a id="Conflux.js/Conflux/getStatus"></a>
@@ -738,6 +681,20 @@ blockHash | `string` | true     |         | Hash of a block
 > await conflux.getConfirmationRiskByHash('0xaf4136d04e9e2cc470703251ec46f5913ab7955d526feed43771705e89c77390')
    1e-8
 ```
+
+### Conflux.prototype.traceBlock <a id="Conflux.js/Conflux/traceBlock"></a>
+
+Get block trace
+
+* **Parameters**
+
+Name      | Type     | Required | Default | Description
+----------|----------|----------|---------|----------------
+blockHash | `string` | true     |         | Hash of a block
+
+* **Returns**
+
+`Promise.<object>,null` 
 
 ### Conflux.prototype.getTransactionByHash <a id="Conflux.js/Conflux/getTransactionByHash"></a>
 
@@ -1392,6 +1349,17 @@ id   | `string,Subscription` | true     |         | Subscription id
 > await conflux.unsubscribe(subscription);
    true
 ```
+
+----------------------------------------
+
+## ADDRESS_TYPE <a id="CONST.js/ADDRESS_TYPE"></a>
+
+address type
+
+- `null` 'NULL': full zero address
+- `builtin` 'BUILTIN': starts with 0x0
+- `user` 'USER': starts with 0x1
+- `contract` 'CONTRACT': starts with 0x8
 
 ----------------------------------------
 
@@ -2317,33 +2285,6 @@ arg  | `string,Buffer` | true     |         |
 ```
 > format.address('0x0123456789012345678901234567890123456789')
  "0x0123456789012345678901234567890123456789"
-> format.address('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
- Error("not match address")
-```
-
-#### format.checksumAddress <a id="util/format.js/format/(static)checksumAddress"></a>
-
-Will convert an upper or lowercase address to a checksum address.
-
-* **Parameters**
-
-Name | Type            | Required | Default | Description
------|-----------------|----------|---------|------------
-arg  | `string,Buffer` | true     |         |
-
-* **Returns**
-
-`string` Checksum address hex string
-
-* **Examples**
-
-```
-> format.checksumAddress('0x1b716c51381e76900ebaa7999a488511a4e1fd0a')
- "0x1B716c51381e76900EBAA7999A488511A4E1fD0a"
-> format.checksumAddress('0X1B716C51381E76900EBAA7999A488511A4E1FD0A')
- "0x1B716c51381e76900EBAA7999A488511A4E1fD0a"
-> format.checksumAddress('0x1B716c51381e76900EBAA7999A488511A4E1fD0A')
- "0x1B716c51381e76900EBAA7999A488511A4E1fD0a"
 ```
 
 #### format.blockHash <a id="util/format.js/format/(static)blockHash"></a>
@@ -2532,6 +2473,49 @@ arg  | `string,Buffer` | true     |         |
 
 ----------------------------------------
 
+### convertBit <a id="util/sign.js/convertBit"></a>
+
+convert inBits buffer  to outBits uint array
+
+* **Parameters**
+
+Name    | Type      | Required | Default | Description
+--------|-----------|----------|---------|------------
+buffer  | `Buffer`  | true     |         |
+inBits  | `number`  | true     |         |
+outBits | `number`  | true     |         |
+pad     | `boolean` | false    |         |
+
+* **Returns**
+
+`Array.<number>` 
+
+* **Examples**
+
+```
+> convertBit(Buffer.from([1, 1]), 8, 5, true)
+[0, 4, 0, 16]
+```
+
+----------------------------------------
+
+### polyMod <a id="util/sign.js/polyMod"></a>
+
+* **Parameters**
+
+Name   | Type     | Required | Default | Description
+-------|----------|----------|---------|------------
+buffer | `Buffer` | true     |         |
+
+* **Returns**
+
+`BigInt` > polyMod([])
+ 0n
+> polyMod([0,0])
+ 1025n
+
+----------------------------------------
+
 ### keccak256 <a id="util/sign.js/keccak256"></a>
 
 keccak 256
@@ -2551,32 +2535,6 @@ buffer | `Buffer` | true     |         |
 ```
 > keccak256(Buffer.from(''))
  <Buffer c5 d2 46 01 86 f7 23 3c 92 7e 7d b2 dc c7 03 c0 e5 00 b6 53 ca 82 27 3b 7b fa d8 04 5d 85 a4 70>
-```
-
-----------------------------------------
-
-### checksumAddress <a id="util/sign.js/checksumAddress"></a>
-
-Makes a checksum address
-
-> Note: support [EIP-55](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-55.md)
-> Note: not support [RSKIP60](https://github.com/rsksmart/RSKIPs/blob/master/IPs/RSKIP60.md) yet
-
-* **Parameters**
-
-Name    | Type     | Required | Default | Description
---------|----------|----------|---------|------------
-address | `string` | true     |         | Hex string
-
-* **Returns**
-
-`string` 
-
-* **Examples**
-
-```
-> checksumAddress('0x1b716c51381e76900ebaa7999a488511a4e1fd0a')
- "0x1B716c51381e76900EBAA7999A488511A4E1fD0a"
 ```
 
 ----------------------------------------
@@ -2676,7 +2634,7 @@ publicKey | `Buffer` | true     |         |
 * **Examples**
 
 ```
-> privateKeyToAddress(Buffer.from([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1]))
+> publicKeyToAddress(Buffer.from([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1]))
  <Buffer 4c 6f a3 22 12 5f a3 1a 42 cb dd a8 73 0d 4c f0 20 0d 72 db>
 ```
 

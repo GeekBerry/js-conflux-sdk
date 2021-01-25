@@ -11,6 +11,21 @@ const UINT_BOUND = JSBI.leftShift(JSBI.BigInt(1), JSBI.BigInt(WORD_BYTES * 8)); 
 const MAX_UINT = JSBI.subtract(UINT_BOUND, JSBI.BigInt(1)); // 2**256-1
 
 /**
+ * address type
+ *
+ * - `null` 'NULL': full zero address
+ * - `builtin` 'BUILTIN': starts with 0x0
+ * - `user` 'USER': starts with 0x1
+ * - `contract` 'CONTRACT': starts with 0x8
+ */
+const ADDRESS_TYPE = {
+  NULL: 'NULL',
+  BUILTIN: 'BUILTIN',
+  USER: 'USER',
+  CONTRACT: 'CONTRACT',
+};
+
+/**
  * epochNumber label
  *
  * - `LATEST_MINED` 'latest_mined': latest epoch.
@@ -61,6 +76,8 @@ module.exports = {
   WORD_CHARS,
   UINT_BOUND,
   MAX_UINT,
+
+  ADDRESS_TYPE,
   EPOCH_NUMBER,
   MIN_GAS_PRICE,
   TRANSACTION_GAS,

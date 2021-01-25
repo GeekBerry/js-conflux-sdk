@@ -2,7 +2,7 @@ const lodash = require('lodash');
 const { format, sign } = require('../../src');
 
 const {
-  checksumAddress,
+  convertBit,
   randomBuffer,
   randomPrivateKey,
 
@@ -21,12 +21,12 @@ const PUBLIC = '0x4646ae5047316b4230d0086c8acec687f00b1cd9d1dc634f6cb358ac0a9a8f
 const ADDRESS = '0x1cad0b19bb29d4674531d6f115237e16afce377c';
 const PASSWORD = 'password';
 
-test('checksumAddress', () => {
-  expect(checksumAddress('0XFB6916095CA1DF60BB79CE92CE3EA74C37C5D359'))
-    .toEqual('0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359');
+test('convertBit', async () => {
+  expect(convertBit(Buffer.from([1, 1]), 8, 5, true)).toEqual([0, 4, 0, 16]);
+  expect(() => convertBit(Buffer.from([1, 1]), 8, 5)).toThrow('not zero suffix');
 
-  expect(checksumAddress('0xfb6916095ca1df60bb79ce92ce3ea74c37c5d359'))
-    .toEqual('0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359');
+  expect(convertBit(Buffer.from([]), 5, 8)).toEqual([]);
+  expect(() => convertBit(Buffer.from([0]), 5, 8)).toThrow('excess 5 bits');
 });
 
 test('randomBuffer', () => {

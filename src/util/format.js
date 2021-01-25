@@ -242,35 +242,8 @@ format.hex40 = format.hex.$validate(v => v.length === 2 + 40, 'hex40');
  * @example
  * > format.address('0x0123456789012345678901234567890123456789')
  "0x0123456789012345678901234567890123456789"
- * > format.address('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
- Error("not match address")
  */
-format.address = format.hex40.$before(address => {
-  if (lodash.isString(address)
-    && address !== address.toLowerCase()
-    && address !== address.toUpperCase()
-    && address !== sign.checksumAddress(address)
-  ) {
-    throw new Error(`address "${address}" checksum error`);
-  }
-  return address;
-});
-
-/**
- * Will convert an upper or lowercase address to a checksum address.
- *
- * @param arg {string|Buffer}
- * @return {string} Checksum address hex string
- *
- * @example
- * > format.checksumAddress('0x1b716c51381e76900ebaa7999a488511a4e1fd0a')
- "0x1B716c51381e76900EBAA7999A488511A4E1fD0a"
- * > format.checksumAddress('0X1B716C51381E76900EBAA7999A488511A4E1FD0A')
- "0x1B716c51381e76900EBAA7999A488511A4E1fD0a"
- * > format.checksumAddress('0x1B716c51381e76900EBAA7999A488511A4E1fD0A')
- "0x1B716c51381e76900EBAA7999A488511A4E1fD0a"
- */
-format.checksumAddress = format.hex40.$after(sign.checksumAddress);
+format.address = format.hex40; // alias
 
 format.hex64 = format.hex.$validate(v => v.length === 2 + 64, 'hex64');
 
