@@ -4,7 +4,7 @@ const { MockProvider } = require('../../mock');
 const { abi, bytecode, address } = require('./contract.json');
 const ContractConstructor = require('../../src/contract/method/ContractConstructor');
 
-const ADDRESS = '0xfcad0b19bb29d4674531d6f115237e16afce377c';
+const ADDRESS = '0x1cad0b19bb29d4674531d6f115237e16afce377c';
 const HEX64 = '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';
 
 // ----------------------------------------------------------------------------
@@ -60,7 +60,7 @@ test('contract.call', async () => {
   expect(value.toString()).toEqual('255');
 
   expect(call).toHaveBeenLastCalledWith('cfx_call', {
-    to: address,
+    to: conflux.ChecksumAddress(address),
     data: '0x06661abd',
   }, undefined);
 
@@ -121,7 +121,7 @@ test('contract.estimateGasAndCollateral', async () => {
   await contract.count().estimateGasAndCollateral({});
 
   expect(call).toHaveBeenLastCalledWith('cfx_estimateGasAndCollateral', {
-    to: address,
+    to: conflux.ChecksumAddress(address),
     data: '0x06661abd',
   }, undefined);
 
@@ -134,8 +134,8 @@ test('contract.sendTransaction', async () => {
   await contract.count().sendTransaction({ from: ADDRESS, gasPrice: 0, gas: 0, storageLimit: 0 });
 
   expect(call).toHaveBeenLastCalledWith('cfx_sendTransaction', {
-    from: ADDRESS,
-    to: address,
+    from: conflux.ChecksumAddress(ADDRESS),
+    to: conflux.ChecksumAddress(address),
     data: '0x06661abd',
     gasPrice: '0x0',
     gas: '0x0',
@@ -163,7 +163,10 @@ test('contract.getLogs', async () => {
   const result = await contract.StringEvent('string').getLogs();
   expect(result[0].arguments).toEqual([topics[1]]);
 
-  expect(call).toHaveBeenLastCalledWith('cfx_getLogs', { address, topics });
+  expect(call).toHaveBeenLastCalledWith('cfx_getLogs', {
+    address: conflux.ChecksumAddress(address),
+    topics,
+  });
 
   call.mockRestore();
 });

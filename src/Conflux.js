@@ -1,9 +1,11 @@
+const lodash = require('lodash');
 const CONST = require('./CONST');
 const { assert } = require('./util');
 const format = require('./util/format');
 const providerFactory = require('./provider');
 const Wallet = require('./wallet');
 const Contract = require('./contract');
+const ChecksumAddress = require('./ChecksumAddress');
 const internalContract = require('./contract/internal');
 const PendingTransaction = require('./subscribe/PendingTransaction');
 const Subscription = require('./subscribe/Subscription');
@@ -30,6 +32,7 @@ class Conflux {
    });
    */
   constructor({
+    netName = CONST.NET_NAME.CFX,
     defaultGasPrice,
     ...rest
   } = {}) {
@@ -46,6 +49,13 @@ class Conflux {
      * @type {Wallet}
      */
     this.wallet = new Wallet();
+
+    /**
+     * Default net name
+     *
+     * @type {string}
+     */
+    this.netName = netName;
 
     /**
      * Default gas price for following methods:
@@ -108,6 +118,35 @@ class Conflux {
     const options = internalContract[name];
     assert(options, `can not find internal contract named "${name}"`);
     return this.Contract(options);
+  }
+
+  /**
+   * A shout cut for `ChecksumAddress(string)`, `ChecksumAddress.fromSimple(string)` or `ChecksumAddress.fromHex(string, conflux.netName)`
+   *
+   * @param string {string|null} - Hex, checksum address or simple checksum address
+   * @return ChecksumAddress
+   *
+   * @example
+   * > conflux.ChecksumAddress('0x0000000000000000000000000000000000000000');
+   [String (ChecksumAddress): 'CFX:TYPE.NULL:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0SFBNJM2']
+
+   > conflux.ChecksumAddress('cfx:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa0sfbnjm2');
+   [String (ChecksumAddress): 'CFX:TYPE.NULL:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0SFBNJM2']
+
+   > conflux.ChecksumAddress('CFX:TYPE.NULL:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0SFBNJM2');
+   [String (ChecksumAddress): 'CFX:TYPE.NULL:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0SFBNJM2']
+   */
+  ChecksumAddress(string) {
+    string = lodash.isString(string) ? string : `${string}`;
+    if (string.startsWith('0x')) {
+      return ChecksumAddress.fromHex(string, this.netName);
+    }
+
+    try {
+      return new ChecksumAddress(string);
+    } catch (e) {
+      return ChecksumAddress.fromSimple(string);
+    }
   }
 
   /**
@@ -226,13 +265,13 @@ class Conflux {
       collateralForStorage: 174187500000000000000n,
       nonce: 1449n,
       stakingBalance: 0n,
-      admin: '0x0000000000000000000000000000000000000000',
+      admin: 'NET1921:TYPE.NULL:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE1FWAT0M',
       codeHash: '0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470'
    }
    */
   async getAccount(address, epochNumber) {
     const result = await this.provider.call('cfx_getAccount',
-      format.address(address),
+      this.ChecksumAddress(address),
       format.epochNumber.$or(undefined)(epochNumber),
     );
     return format.account(result);
@@ -251,7 +290,7 @@ class Conflux {
    */
   async getBalance(address, epochNumber) {
     const result = await this.provider.call('cfx_getBalance',
-      format.address(address),
+      this.ChecksumAddress(address),
       format.epochNumber.$or(undefined)(epochNumber),
     );
     return format.bigUInt(result);
@@ -270,7 +309,7 @@ class Conflux {
    */
   async getStakingBalance(address, epochNumber) {
     const result = await this.provider.call('cfx_getStakingBalance',
-      format.address(address),
+      this.ChecksumAddress(address),
       format.epochNumber.$or(undefined)(epochNumber),
     );
     return format.bigUInt(result);
@@ -289,7 +328,7 @@ class Conflux {
    */
   async getNextNonce(address, epochNumber) {
     const result = await this.provider.call('cfx_getNextNonce',
-      format.address(address),
+      this.ChecksumAddress(address),
       format.epochNumber.$or(undefined)(epochNumber),
     );
     return format.bigUInt(result);
@@ -304,11 +343,11 @@ class Conflux {
    *
    * @example
    * > conflux.getAdmin('0x8e2f2e68eb75bb8b18caafe9607242d4748f8d98')
-   "0x1c1e72f0c37968557b3d85a3f32747792798bbde"
+   'NET1921:TYPE.NULL:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE1FWAT0M'
    */
   async getAdmin(address, epochNumber) {
     return this.provider.call('cfx_getAdmin',
-      format.address(address),
+      this.ChecksumAddress(address),
       format.epochNumber.$or(undefined)(epochNumber),
     );
   }
@@ -325,7 +364,7 @@ class Conflux {
    */
   async getVoteList(address, epochNumber) {
     const result = await this.provider.call('cfx_getVoteList',
-      format.address(address),
+      this.ChecksumAddress(address),
       format.epochNumber.$or(undefined)(epochNumber),
     );
     return format.voteList(result);
@@ -343,7 +382,7 @@ class Conflux {
    */
   async getDepositList(address, epochNumber) {
     const result = await this.provider.call('cfx_getDepositList',
-      format.address(address),
+      this.ChecksumAddress(address),
       format.epochNumber.$or(undefined)(epochNumber),
     );
     return format.depositList(result);
@@ -421,14 +460,14 @@ class Conflux {
       baseReward: 6993700000000000000n,
       totalReward: 6993700031741486703n,
       txFee: 0n,
-      author: '0x1f323dccb24606b061db9e3a1277b8db99f1c1b2',
+      author: 'NET1921:TYPE.USER:AAJAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPT701CZ2Z',
       blockHash: '0x73cd891aea310e2c0b8644de91746c7353cebfffb780126bc06101b20689c893'
     },
    {
       baseReward: 6997200000000000000n,
       totalReward: 6997200031760371742n,
       txFee: 3000000n,
-      author: '0x1f323dccb24606b061db9e3a1277b8db99f1c1b2',
+      author: 'NET1921:TYPE.USER:AATXETSP0KDARPDB5STDYEX11DR3X6SB0JABGHCD8E',
       blockHash: '0xaf4136d04e9e2cc470703251ec46f5913ab7955d526feed43771705e89c77390'
     }
    ]
@@ -500,7 +539,7 @@ class Conflux {
       deferredReceiptsRoot: '0x09f8709ea9f344a810811a373b30861568f5686e649d6177fd92ea2db7477508',
       deferredStateRoot: '0x50c0fcbc5bafa7d1dba7b19c87629830106a6be8d0adf505cdc656bb43535d69',
       hash: '0xaf4136d04e9e2cc470703251ec46f5913ab7955d526feed43771705e89c77390',
-      miner: '0x1f323dccb24606b061db9e3a1277b8db99f1c1b2',
+      miner: 'NET1921:TYPE.USER:AATXETSP0KDARPDB5STDYEX11DR3X6SB0JABGHCD8E',
       nonce: '0x17d86f2f6',
       parentHash: '0xc8a412b4b77b48d61f694975f032d109f26bb0f9fc02e4b221d67a382fab386b',
       powQuality: '0x5a0f86a6f4',
@@ -608,11 +647,11 @@ class Conflux {
       blockHash: '0xaf4136d04e9e2cc470703251ec46f5913ab7955d526feed43771705e89c77390',
       contractCreated: null,
       data: '0xfebe49090000000000000000000000000000000000000000000000000000000000000000000000000000000000000000162788589c8e386863f217faef78840919fb2854',
-      from: '0x108b8b1333523a79ac363d8f41805e81b085d55d',
+      from: 'NET1921:TYPE.USER:AAP9KTHVCTUNVF030RBKK9K7ZBZYZ12DAJYFD4DBC8',
       hash: '0xbf7110474779ba2404433ef39a24cb5b277186ef1e6cb199b0b60907b029a1ce',
       r: '0x495da01ae9f445847022a8bc7df0198577ba75f88b26699f61afb435bb9c50bc',
       s: '0x2291051b1c53db1d6bfe2fb29be1bf512d063e726dc6b98aaf0f2259b7456be0',
-      to: '0x83bf953c8b687f0d1b8d2243a3e0654ec1f70d1b'
+      to: 'NET1921:TYPE.CONTRACT:ACB59FK6VRYH8DJ5VYVEHJ9APZHPD72RDPA1CTUUZH'
     }
    */
   async getTransactionByHash(transactionHash) {
@@ -656,18 +695,18 @@ class Conflux {
       gasFee: 1500000n,
       blockHash: '0xaf4136d04e9e2cc470703251ec46f5913ab7955d526feed43771705e89c77390',
       contractCreated: null,
-      from: '0x108b8b1333523a79ac363d8f41805e81b085d55d',
+      from: 'NET1921:TYPE.USER:AAP9KTHVCTUNVF030RBKK9K7ZBZYZ12DAJYFD4DBC8',
       logs: [],
       logsBloom: '0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
       stateRoot: '0xd6a7c2c14cb0d1233010acca98e114db5a10e0b94803d23b01a6777b7fd3b2fd',
-      to: '0x83bf953c8b687f0d1b8d2243a3e0654ec1f70d1b',
+      to: 'NET1921:TYPE.CONTRACT:ACB59FK6VRYH8DJ5VYVEHJ9APZHPD72RDPA1CTUUZH'
       transactionHash: '0xbf7110474779ba2404433ef39a24cb5b277186ef1e6cb199b0b60907b029a1ce',
       txExecErrorMsg: null,
       gasCoveredBySponsor: false,
       storageCoveredBySponsor: false,
       storageCollateralized: 0n,
       storageReleased: [
-        address: '0x0000000000000000000000000000000000000001',
+        address: 'NET1921:TYPE.BUILTIN:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE45419DJS',
         collaterals: 640n,
       ],
     }
@@ -709,7 +748,7 @@ class Conflux {
    * @return {Promise<Transaction>}
    */
   async _signTransaction(options) {
-    const account = await this.wallet.get(`${options.from}`);
+    const account = await this.wallet.get(options.from);
 
     if (options.nonce === undefined) {
       options.nonce = await this.getNextNonce(account);
@@ -854,7 +893,15 @@ class Conflux {
    }
    */
   async sendTransaction(options, password) {
-    if (this.wallet.has(`${options.from}`)) {
+    if (options.from !== undefined) {
+      options.from = this.ChecksumAddress(options.from);
+    }
+
+    if (options.to !== undefined && options.to !== null) {
+      options.to = this.ChecksumAddress(options.to);
+    }
+
+    if (this.wallet.has(options.from)) {
       const transaction = await this._signTransaction(options);
       return this.sendRawTransaction(transaction.serialize());
     }
@@ -879,7 +926,7 @@ class Conflux {
    */
   async getCode(address, epochNumber) {
     return this.provider.call('cfx_getCode',
-      format.address(address),
+      this.ChecksumAddress(address),
       format.epochNumber.$or(undefined)(epochNumber),
     );
   }
@@ -898,7 +945,7 @@ class Conflux {
    */
   async getStorageAt(address, position, epochNumber) {
     return this.provider.call('cfx_getStorageAt',
-      format.address(address),
+      this.ChecksumAddress(address),
       format.hex64(position),
       format.epochNumber.$or(undefined)(epochNumber),
     );
@@ -924,7 +971,7 @@ class Conflux {
    */
   async getStorageRoot(address, epochNumber) {
     return this.provider.call('cfx_getStorageRoot',
-      format.address(address),
+      this.ChecksumAddress(address),
       format.epochNumber.$or(undefined)(epochNumber),
     );
   }
@@ -953,7 +1000,7 @@ class Conflux {
    */
   async getSponsorInfo(address, epochNumber) {
     const result = await this.provider.call('cfx_getSponsorInfo',
-      format.address(address),
+      this.ChecksumAddress(address),
       format.epochNumber.$or(undefined)(epochNumber),
     );
     return format.sponsorInfo(result);
@@ -972,7 +1019,7 @@ class Conflux {
    */
   async getCollateralForStorage(address, epochNumber) {
     const result = await this.provider.call('cfx_getCollateralForStorage',
-      format.address(address),
+      this.ChecksumAddress(address),
       format.epochNumber.$or(undefined)(epochNumber),
     );
     return format.bigUInt(result);
@@ -986,6 +1033,14 @@ class Conflux {
    * @return {Promise<string>} The output data.
    */
   async call(options, epochNumber) {
+    if (options.from !== undefined) {
+      options.from = this.ChecksumAddress(options.from);
+    }
+
+    if (options.to !== undefined && options.to !== null) {
+      options.to = this.ChecksumAddress(options.to);
+    }
+
     try {
       return await this.provider.call('cfx_call',
         format.callTx(options),
@@ -1007,6 +1062,14 @@ class Conflux {
    * - `BigInt` storageCollateralized: The storage collateralized in Byte.
    */
   async estimateGasAndCollateral(options, epochNumber) {
+    if (options.from !== undefined) {
+      options.from = this.ChecksumAddress(options.from);
+    }
+
+    if (options.to !== undefined && options.to !== null) {
+      options.to = this.ChecksumAddress(options.to);
+    }
+
     try {
       const result = await this.provider.call('cfx_estimateGasAndCollateral',
         format.callTx(options),
@@ -1069,6 +1132,10 @@ class Conflux {
   async getLogs(options) {
     if (options.blockHashes !== undefined && (options.fromEpoch !== undefined || options.toEpoch !== undefined)) {
       throw new Error('OverrideError, do not use `blockHashes` with `fromEpoch` or `toEpoch`, cause only `blockHashes` will take effect');
+    }
+
+    if (options.address !== undefined) {
+      options.address = Array.isArray(options.address) ? options.address.map(v => this.ChecksumAddress(v)) : this.ChecksumAddress(options.address);
     }
 
     const result = await this.provider.call('cfx_getLogs', format.getLogs(options));
@@ -1138,7 +1205,7 @@ class Conflux {
     const subscription = new Subscription(id);
 
     this.provider.on(id, data => {
-      subscription.emit('data', format.epoch(data));
+      subscription.emit('data', format.subscribeEpoch(data));
     });
 
     return subscription;
@@ -1178,7 +1245,7 @@ class Conflux {
     const subscription = new Subscription(id);
 
     this.provider.on(id, data => {
-      subscription.emit('data', format.head(data));
+      subscription.emit('data', format.subscribeHead(data));
     });
 
     return subscription;
@@ -1220,13 +1287,17 @@ class Conflux {
    { revertTo: 568230 }
    { revertTo: 568231 }
    */
-  async subscribeLogs({ address, topics } = {}) {
-    const id = await this.subscribe('logs', format.getLogs({ address, topics }));
+  async subscribeLogs(options = {}) {
+    if (options.address !== undefined) {
+      options.address = Array.isArray(options.address) ? options.address.map(v => this.ChecksumAddress(v)) : this.ChecksumAddress(options.address);
+    }
+
+    const id = await this.subscribe('logs', format.getLogs(options));
 
     const subscription = new Subscription(id);
     this.provider.on(id, data => {
       if (data.revertTo) {
-        subscription.emit('revert', format.revert(data));
+        subscription.emit('revert', format.subscribeRevert(data));
       } else {
         subscription.emit('data', format.log(data));
       }

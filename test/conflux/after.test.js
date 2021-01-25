@@ -2,7 +2,7 @@ const lodash = require('lodash');
 const { Conflux, format } = require('../../src');
 const { MockProvider } = require('../../mock');
 
-const ADDRESS = '0xfcad0b19bb29d4674531d6f115237e16afce377c';
+const ADDRESS = '0x1cad0b19bb29d4674531d6f115237e16afce377c';
 const BLOCK_HASH = '0xe1b0000000000000000000000000000000000000000000000000000000000001';
 const TX_HASH = '0xb0a0000000000000000000000000000000000000000000000000000000000000';
 const HEX64 = '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';

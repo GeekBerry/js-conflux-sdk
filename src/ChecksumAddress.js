@@ -71,9 +71,10 @@ class ChecksumAddress extends String {
 
   constructor(string) {
     assert(lodash.isString(string), `expected a string, got ${string}`);
-    string = string.toUpperCase();
-    assert(REGEX.test(string), `string "${string}" not match regex ${REGEX}`);
-    super(string);
+
+    const uppercase = string.toUpperCase();
+    assert(REGEX.test(uppercase), `string "${string}" not match regex ${REGEX}`);
+    super(uppercase);
   }
 
   isValid() {

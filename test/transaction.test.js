@@ -1,4 +1,4 @@
-const { Transaction } = require('../src');
+const { CONST, Transaction, ChecksumAddress } = require('../src');
 
 const KEY = '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';
 const ADDRESS = '0x1cad0b19bb29d4674531d6f115237e16afce377c';
@@ -8,7 +8,7 @@ test('Transaction', () => {
     nonce: 0,
     gasPrice: 1,
     gas: 21000,
-    to: '0x0123456789012345678901234567890123456789',
+    to: ChecksumAddress.fromHex('0x0123456789012345678901234567890123456789', CONST.NET_NAME.CFX),
     value: 0,
     storageLimit: 0,
     epochHeight: 0,
@@ -18,7 +18,7 @@ test('Transaction', () => {
   expect(transaction.nonce).toEqual(0);
   expect(transaction.gasPrice).toEqual(1);
   expect(transaction.gas).toEqual(21000);
-  expect(transaction.to).toEqual('0x0123456789012345678901234567890123456789');
+  expect(transaction.to).toEqual(ChecksumAddress.fromHex('0x0123456789012345678901234567890123456789', CONST.NET_NAME.CFX));
   expect(transaction.value).toEqual(0);
   expect(transaction.storageLimit).toEqual(0);
   expect(transaction.epochHeight).toEqual(0);
@@ -46,7 +46,7 @@ test('s starts with 0x00', () => {
     nonce: 127,
     gasPrice: 1,
     gas: 21000,
-    to: '0x0123456789012345678901234567890123456789',
+    to: ChecksumAddress.fromHex('0x0123456789012345678901234567890123456789', CONST.NET_NAME.CFX),
     value: 0,
     storageLimit: 0,
     epochHeight: 0,

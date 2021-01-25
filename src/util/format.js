@@ -1,9 +1,10 @@
 const Big = require('big.js');
 const lodash = require('lodash');
-const CONST = require('../CONST');
 const JSBI = require('./jsbi');
 const parser = require('./parser');
 const sign = require('./sign');
+const CONST = require('../CONST');
+const ChecksumAddress = require('../ChecksumAddress');
 
 // ----------------------------------------------------------------------------
 function toHex(value) {
@@ -233,6 +234,20 @@ format.hex = format(toHex);
 format.hex40 = format.hex.$validate(v => v.length === 2 + 40, 'hex40');
 
 /**
+ * @param arg {string}
+ * @return {string} Checksum address
+ *
+ * @example
+ * > format.checksumAddress('CFX:TYPE.USER:AAR1C5CVHATHREAS1MX3XGWJUYJ4K2T7BJTZ1R2N2N')
+ 'CFX:TYPE.USER:AAR1C5CVHATHREAS1MX3XGWJUYJ4K2T7BJTZ1R2N2N'
+
+ * > format.checksumAddress('cfx:aar1c5cvhathreas1mx3xgwjuyj4k2t7bjtz1r2n2n')
+ 'CFX:TYPE.USER:AAR1C5CVHATHREAS1MX3XGWJUYJ4K2T7BJTZ1R2N2N'
+
+ */
+format.checksumAddress = format(ChecksumAddress).$or(v => ChecksumAddress.fromSimple(v));
+
+/**
  * Checks if a given string is a valid address.
  * It will also check the checksum, if the address has upper and lowercase letters.
  *
@@ -242,8 +257,14 @@ format.hex40 = format.hex.$validate(v => v.length === 2 + 40, 'hex40');
  * @example
  * > format.address('0x0123456789012345678901234567890123456789')
  "0x0123456789012345678901234567890123456789"
+
+ * > format.address('CFX:TYPE.USER:AAR1C5CVHATHREAS1MX3XGWJUYJ4K2T7BJTZ1R2N2N')
+ "0x1b716c51381e76900ebaa7999a488511a4e1fd0a"
+
+ * > format.address('cfx:aar1c5cvhathreas1mx3xgwjuyj4k2t7bjtz1r2n2n')
+ "0x1b716c51381e76900ebaa7999a488511a4e1fd0a"
  */
-format.address = format.hex40; // alias
+format.address = format.hex40.$or(format.checksumAddress.$after(v => v.toHex()));
 
 format.hex64 = format.hex.$validate(v => v.length === 2 + 64, 'hex64');
 
@@ -366,7 +387,7 @@ format.getLogs = format({
   fromEpoch: format.epochNumber,
   toEpoch: format.epochNumber,
   blockHashes: format.blockHash.$or([format.blockHash]),
-  address: format.address.$or([format.address]),
+  address: format.checksumAddress.$or([format.checksumAddress]),
   topics: format([format.hex64.$or([format.hex64]).$or(null)]),
 }, { pick: true });
 
@@ -374,7 +395,7 @@ format.signTx = format({
   nonce: format.bigUInt.$after(format.hexBuffer),
   gasPrice: format.bigUInt.$after(format.hexBuffer),
   gas: format.bigUInt.$after(format.hexBuffer),
-  to: format(format.address.$or(null).$default(null)).$after(format.hexBuffer),
+  to: format(format.checksumAddress.$or(null).$default(null)).$after(v => (v ? v.toHex() : v)).$after(format.hexBuffer),
   value: format.bigUInt.$default(0).$after(format.hexBuffer),
   storageLimit: format.bigUInt.$after(format.hexBuffer),
   epochHeight: format.uInt.$after(format.hexBuffer),
@@ -386,11 +407,11 @@ format.signTx = format({
 }, { strict: true, pick: true });
 
 format.callTx = format({
-  from: format.address,
+  from: format.checksumAddress,
   nonce: format.bigUIntHex,
   gasPrice: format.bigUIntHex,
   gas: format.bigUIntHex,
-  to: format.address.$or(null),
+  to: format.checksumAddress.$or(null),
   value: format.bigUIntHex,
   storageLimit: format.bigUIntHex,
   epochHeight: format.bigUIntHex,
@@ -517,7 +538,7 @@ format.traceBlock = format({
 });
 
 // ---------------------------- parse subscribe event -------------------------
-format.head = format({
+format.subscribeHead = format({
   difficulty: format.bigUInt,
   epochNumber: format.uInt.$or(null),
   gasLimit: format.bigUInt,
@@ -525,11 +546,11 @@ format.head = format({
   timestamp: format.uInt,
 });
 
-format.revert = format({
+format.subscribeRevert = format({
   revertTo: format.uInt,
 });
 
-format.epoch = format({
+format.subscribeEpoch = format({
   epochNumber: format.uInt,
 });
 

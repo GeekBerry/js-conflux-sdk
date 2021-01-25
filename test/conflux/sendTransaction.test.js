@@ -31,7 +31,7 @@ test('sendTransaction remote', async () => {
   }, PASSWORD);
 
   expect(call).toHaveBeenLastCalledWith('cfx_sendTransaction', {
-    from: ADDRESS,
+    from: conflux.ChecksumAddress(ADDRESS),
     gasPrice: '0xa',
     gas: '0x400',
     storageLimit: '0x800',
@@ -77,7 +77,7 @@ test('sendTransaction defaultGasPrice', async () => {
   });
 
   expect(signTransaction).toHaveBeenLastCalledWith({
-    from: account,
+    from: conflux.ChecksumAddress(account),
     nonce: 100,
     gasPrice: conflux.defaultGasPrice,
     gas: format.bigUInt(1024),
@@ -110,7 +110,7 @@ test('sendTransaction MIN_GAS_PRICE', async () => {
   });
 
   expect(signTransaction).toHaveBeenLastCalledWith({
-    from: account,
+    from: conflux.ChecksumAddress(account),
     nonce: 100,
     gasPrice: CONST.MIN_GAS_PRICE,
     gas: format.bigUInt(1024),
@@ -160,8 +160,8 @@ test('sendTransaction auto', async () => {
   expect(signTransaction).toHaveBeenLastCalledWith({
     chainId: 1,
     epochHeight: 1000,
-    from: account.address,
-    to: account.address,
+    from: conflux.ChecksumAddress(account.address),
+    to: conflux.ChecksumAddress(account.address),
     gas: CONST.TRANSACTION_GAS,
     gasPrice: '10',
     nonce: '100',
@@ -180,7 +180,7 @@ test('sendTransaction auto', async () => {
   expect(signTransaction).toHaveBeenLastCalledWith({
     chainId: 1,
     epochHeight: 1000,
-    from: account.address,
+    from: conflux.ChecksumAddress(account.address),
     gas: JSBI.BigInt(1024),
     gasPrice: '10',
     nonce: '100',
@@ -197,7 +197,7 @@ test('sendTransaction auto', async () => {
   expect(signTransaction).toHaveBeenLastCalledWith({
     chainId: 1,
     epochHeight: 1000,
-    from: account.address,
+    from: conflux.ChecksumAddress(account.address),
     gas: 1000,
     gasPrice: '10',
     nonce: '100',
@@ -214,7 +214,7 @@ test('sendTransaction auto', async () => {
   expect(signTransaction).toHaveBeenLastCalledWith({
     chainId: 1,
     epochHeight: 1000,
-    from: account.address,
+    from: conflux.ChecksumAddress(account.address),
     gas: JSBI.BigInt(1024),
     gasPrice: '10',
     nonce: '100',

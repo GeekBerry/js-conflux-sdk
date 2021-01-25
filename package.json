@@ -70,6 +70,6 @@
     "prepublishOnly": "npm run build",
     "test": "jest --coverage",
     "react": "npm run build & cd test-react & yarn build & yarn start",
-    "public": "yarn publish"
+    "public": "yarn publish --access=public"
   }
 }

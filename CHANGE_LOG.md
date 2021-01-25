@@ -1,5 +1,9 @@
 # change log
 
+## v2.0.0
+
+* address => checksumAddress
+
 ## v1.1.6
 
 * export `Contract`

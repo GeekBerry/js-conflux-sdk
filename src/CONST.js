@@ -11,6 +11,18 @@ const UINT_BOUND = JSBI.leftShift(JSBI.BigInt(1), JSBI.BigInt(WORD_BYTES * 8)); 
 const MAX_UINT = JSBI.subtract(UINT_BOUND, JSBI.BigInt(1)); // 2**256-1
 
 /**
+ * Conflux net name
+ * > others named `NET${chainId}`
+ *
+ * - `CFXTEST` 'CFX': conflux main-net
+ * - `CFXTEST` 'CFXTEST': conflux test-net
+ */
+const NET_NAME = {
+  CFX: 'CFX',
+  CFXTEST: 'CFXTEST',
+};
+
+/**
  * address type
  *
  * - `null` 'NULL': full zero address
@@ -77,6 +89,7 @@ module.exports = {
   UINT_BOUND,
   MAX_UINT,
 
+  NET_NAME,
   ADDRESS_TYPE,
   EPOCH_NUMBER,
   MIN_GAS_PRICE,

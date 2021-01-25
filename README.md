@@ -6,9 +6,11 @@
         - [**constructor**](#Conflux.js/Conflux/**constructor**)
         - [provider](#Conflux.js/Conflux/provider)
         - [wallet](#Conflux.js/Conflux/wallet)
+        - [netName](#Conflux.js/Conflux/netName)
         - [defaultGasPrice](#Conflux.js/Conflux/defaultGasPrice)
         - [Contract](#Conflux.js/Conflux/Contract)
         - [InternalContract](#Conflux.js/Conflux/InternalContract)
+        - [ChecksumAddress](#Conflux.js/Conflux/ChecksumAddress)
         - [close](#Conflux.js/Conflux/close)
         - [getStatus](#Conflux.js/Conflux/getStatus)
         - [getGasPrice](#Conflux.js/Conflux/getGasPrice)
@@ -46,6 +48,7 @@
         - [subscribeLogs](#Conflux.js/Conflux/subscribeLogs)
         - [unsubscribe](#Conflux.js/Conflux/unsubscribe)
 - CONST.js
+    - [NET_NAME](#CONST.js/NET_NAME)
     - [ADDRESS_TYPE](#CONST.js/ADDRESS_TYPE)
     - [EPOCH_NUMBER](#CONST.js/EPOCH_NUMBER)
     - [MIN_GAS_PRICE](#CONST.js/MIN_GAS_PRICE)
@@ -113,6 +116,7 @@
             - [(static)fixed64](#util/format.js/format/(static)fixed64)
             - [(static)epochNumber](#util/format.js/format/(static)epochNumber)
             - [(static)hex](#util/format.js/format/(static)hex)
+            - [(static)checksumAddress](#util/format.js/format/(static)checksumAddress)
             - [(static)address](#util/format.js/format/(static)address)
             - [(static)blockHash](#util/format.js/format/(static)blockHash)
             - [(static)transactionHash](#util/format.js/format/(static)transactionHash)
@@ -200,6 +204,12 @@ Provider for rpc call
 
 Wallet for `sendTransaction` to get `Account` by `from` field
 
+### Conflux.prototype.netName <a id="Conflux.js/Conflux/netName"></a>
+
+`string`
+
+Default net name
+
 ### ~~Conflux.prototype.defaultGasPrice~~ <a id="Conflux.js/Conflux/defaultGasPrice"></a>
 
 `number,string`
@@ -257,6 +267,33 @@ name | `"AdminControl","SponsorWhitelistControl","Staking"` | true     |        
     'setAdmin(address,address)': [Function: bound call],
     '0xc55b6bb7': [Function: bound call]
   }
+```
+
+### Conflux.prototype.ChecksumAddress <a id="Conflux.js/Conflux/ChecksumAddress"></a>
+
+A shout cut for `ChecksumAddress(string)`, `ChecksumAddress.fromSimple(string)` or `ChecksumAddress.fromHex(string, conflux.netName)`
+
+* **Parameters**
+
+Name   | Type          | Required | Default | Description
+-------|---------------|----------|---------|-------------------------------------------------
+string | `string,null` | true     |         | Hex, checksum address or simple checksum address
+
+* **Returns**
+
+ ChecksumAddress
+
+* **Examples**
+
+```
+> conflux.ChecksumAddress('0x0000000000000000000000000000000000000000');
+   [String (ChecksumAddress): 'CFX:TYPE.NULL:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0SFBNJM2']
+
+   > conflux.ChecksumAddress('cfx:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa0sfbnjm2');
+   [String (ChecksumAddress): 'CFX:TYPE.NULL:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0SFBNJM2']
+
+   > conflux.ChecksumAddress('CFX:TYPE.NULL:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0SFBNJM2');
+   [String (ChecksumAddress): 'CFX:TYPE.NULL:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0SFBNJM2']
 ```
 
 ### Conflux.prototype.close <a id="Conflux.js/Conflux/close"></a>
@@ -384,7 +421,7 @@ epochNumber | `string,number` | false    | 'latest_state' | See [format.epochNum
       collateralForStorage: 174187500000000000000n,
       nonce: 1449n,
       stakingBalance: 0n,
-      admin: '0x0000000000000000000000000000000000000000',
+      admin: 'NET1921:TYPE.NULL:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE1FWAT0M',
       codeHash: '0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470'
    }
 ```
@@ -474,7 +511,7 @@ epochNumber | `string,number` | false    | 'latest_state' | See [format.epochNum
 
 ```
 > conflux.getAdmin('0x8e2f2e68eb75bb8b18caafe9607242d4748f8d98')
-   "0x1c1e72f0c37968557b3d85a3f32747792798bbde"
+   'NET1921:TYPE.NULL:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE1FWAT0M'
 ```
 
 ### Conflux.prototype.getVoteList <a id="Conflux.js/Conflux/getVoteList"></a>
@@ -649,7 +686,7 @@ detail    | `boolean` | false    | false   | If `true` it returns the full trans
       deferredReceiptsRoot: '0x09f8709ea9f344a810811a373b30861568f5686e649d6177fd92ea2db7477508',
       deferredStateRoot: '0x50c0fcbc5bafa7d1dba7b19c87629830106a6be8d0adf505cdc656bb43535d69',
       hash: '0xaf4136d04e9e2cc470703251ec46f5913ab7955d526feed43771705e89c77390',
-      miner: '0x1f323dccb24606b061db9e3a1277b8db99f1c1b2',
+      miner: 'NET1921:TYPE.USER:AATXETSP0KDARPDB5STDYEX11DR3X6SB0JABGHCD8E',
       nonce: '0x17d86f2f6',
       parentHash: '0xc8a412b4b77b48d61f694975f032d109f26bb0f9fc02e4b221d67a382fab386b',
       powQuality: '0x5a0f86a6f4',
@@ -746,11 +783,11 @@ transactionHash | `string` | true     |         | hash of a transaction
       blockHash: '0xaf4136d04e9e2cc470703251ec46f5913ab7955d526feed43771705e89c77390',
       contractCreated: null,
       data: '0xfebe49090000000000000000000000000000000000000000000000000000000000000000000000000000000000000000162788589c8e386863f217faef78840919fb2854',
-      from: '0x108b8b1333523a79ac363d8f41805e81b085d55d',
+      from: 'NET1921:TYPE.USER:AAP9KTHVCTUNVF030RBKK9K7ZBZYZ12DAJYFD4DBC8',
       hash: '0xbf7110474779ba2404433ef39a24cb5b277186ef1e6cb199b0b60907b029a1ce',
       r: '0x495da01ae9f445847022a8bc7df0198577ba75f88b26699f61afb435bb9c50bc',
       s: '0x2291051b1c53db1d6bfe2fb29be1bf512d063e726dc6b98aaf0f2259b7456be0',
-      to: '0x83bf953c8b687f0d1b8d2243a3e0654ec1f70d1b'
+      to: 'NET1921:TYPE.CONTRACT:ACB59FK6VRYH8DJ5VYVEHJ9APZHPD72RDPA1CTUUZH'
     }
 ```
 
@@ -798,18 +835,18 @@ transactionHash | `string` | true     |         | Hash of a transaction
       gasFee: 1500000n,
       blockHash: '0xaf4136d04e9e2cc470703251ec46f5913ab7955d526feed43771705e89c77390',
       contractCreated: null,
-      from: '0x108b8b1333523a79ac363d8f41805e81b085d55d',
+      from: 'NET1921:TYPE.USER:AAP9KTHVCTUNVF030RBKK9K7ZBZYZ12DAJYFD4DBC8',
       logs: [],
       logsBloom: '0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
       stateRoot: '0xd6a7c2c14cb0d1233010acca98e114db5a10e0b94803d23b01a6777b7fd3b2fd',
-      to: '0x83bf953c8b687f0d1b8d2243a3e0654ec1f70d1b',
+      to: 'NET1921:TYPE.CONTRACT:ACB59FK6VRYH8DJ5VYVEHJ9APZHPD72RDPA1CTUUZH'
       transactionHash: '0xbf7110474779ba2404433ef39a24cb5b277186ef1e6cb199b0b60907b029a1ce',
       txExecErrorMsg: null,
       gasCoveredBySponsor: false,
       storageCoveredBySponsor: false,
       storageCollateralized: 0n,
       storageReleased: [
-        address: '0x0000000000000000000000000000000000000001',
+        address: 'NET1921:TYPE.BUILTIN:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE45419DJS',
         collaterals: 640n,
       ],
     }
@@ -1349,6 +1386,16 @@ id   | `string,Subscription` | true     |         | Subscription id
 > await conflux.unsubscribe(subscription);
    true
 ```
+
+----------------------------------------
+
+## NET_NAME <a id="CONST.js/NET_NAME"></a>
+
+Conflux net name
+> others named `NET${chainId}`
+
+- `CFXTEST` 'CFX': conflux main-net
+- `CFXTEST` 'CFXTEST': conflux test-net
 
 ----------------------------------------
 
@@ -2265,6 +2312,27 @@ arg  | `number,BigInt,string,Buffer,boolean,null` | true     |         |
  "0x0a"
 ```
 
+#### format.checksumAddress <a id="util/format.js/format/(static)checksumAddress"></a>
+
+* **Parameters**
+
+Name | Type     | Required | Default | Description
+-----|----------|----------|---------|------------
+arg  | `string` | true     |         |
+
+* **Returns**
+
+`string` Checksum address
+
+* **Examples**
+
+```
+> format.checksumAddress('CFX:TYPE.USER:AAR1C5CVHATHREAS1MX3XGWJUYJ4K2T7BJTZ1R2N2N')
+ 'CFX:TYPE.USER:AAR1C5CVHATHREAS1MX3XGWJUYJ4K2T7BJTZ1R2N2N'
+> format.checksumAddress('cfx:aar1c5cvhathreas1mx3xgwjuyj4k2t7bjtz1r2n2n')
+ 'CFX:TYPE.USER:AAR1C5CVHATHREAS1MX3XGWJUYJ4K2T7BJTZ1R2N2N'
+```
+
 #### format.address <a id="util/format.js/format/(static)address"></a>
 
 Checks if a given string is a valid address.
@@ -2285,6 +2353,10 @@ arg  | `string,Buffer` | true     |         |
 ```
 > format.address('0x0123456789012345678901234567890123456789')
  "0x0123456789012345678901234567890123456789"
+> format.address('CFX:TYPE.USER:AAR1C5CVHATHREAS1MX3XGWJUYJ4K2T7BJTZ1R2N2N')
+ "0x1b716c51381e76900ebaa7999a488511a4e1fd0a"
+> format.address('cfx:aar1c5cvhathreas1mx3xgwjuyj4k2t7bjtz1r2n2n')
+ "0x1b716c51381e76900ebaa7999a488511a4e1fd0a"
 ```
 
 #### format.blockHash <a id="util/format.js/format/(static)blockHash"></a>
