@@ -1,5 +1,5 @@
 const lodash = require('lodash');
-const { Conflux } = require('../../src');
+const { Conflux, ChecksumAddress } = require('../../src');
 const { MockProvider } = require('../../mock');
 
 const ADDRESS = '0x1cad0b19bb29d4674531d6f115237e16afce377c';
@@ -12,6 +12,21 @@ const conflux = new Conflux({
   defaultGasPrice: lodash.random(0, 1000),
 });
 conflux.provider = new MockProvider();
+
+test('ChecksumAddress', () => {
+  expect(() => conflux.ChecksumAddress(null)).toThrow('not match regex');
+  expect(() => conflux.ChecksumAddress(TX_HASH)).toThrow('not match regex');
+  expect(() => conflux.ChecksumAddress(ADDRESS.toUpperCase())).toThrow('not match regex');
+
+  expect(conflux.ChecksumAddress(ADDRESS))
+    .toEqual(ChecksumAddress('CFX:TYPE.USER:AASM4C231PY7J34FGHNTCFKDT2NM9XV1TU0DUKN7M1'));
+
+  expect(conflux.ChecksumAddress('cfx:aasm4c231py7j34fghntcfkdt2nm9xv1tu0dukn7m1'))
+    .toEqual(ChecksumAddress('CFX:TYPE.USER:AASM4C231PY7J34FGHNTCFKDT2NM9XV1TU0DUKN7M1'));
+
+  expect(conflux.ChecksumAddress('CFX:TYPE.USER:AASM4C231PY7J34FGHNTCFKDT2NM9XV1TU0DUKN7M1'))
+    .toEqual(ChecksumAddress('CFX:TYPE.USER:AASM4C231PY7J34FGHNTCFKDT2NM9XV1TU0DUKN7M1'));
+});
 
 // ------------------------------- address ----------------------------------
 test('getBalance', async () => {

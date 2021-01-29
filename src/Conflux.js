@@ -1,4 +1,3 @@
-const lodash = require('lodash');
 const CONST = require('./CONST');
 const { assert } = require('./util');
 const format = require('./util/format');
@@ -123,7 +122,7 @@ class Conflux {
   /**
    * A shout cut for `ChecksumAddress(string)`, `ChecksumAddress.fromSimple(string)` or `ChecksumAddress.fromHex(string, conflux.netName)`
    *
-   * @param string {string|null} - Hex, checksum address or simple checksum address
+   * @param string {string} - Hex, checksum address or simple checksum address
    * @return ChecksumAddress
    *
    * @example
@@ -137,16 +136,21 @@ class Conflux {
    [String (ChecksumAddress): 'CFX:TYPE.NULL:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0SFBNJM2']
    */
   ChecksumAddress(string) {
-    string = lodash.isString(string) ? string : `${string}`;
-    if (string.startsWith('0x')) {
+    string = `${string}`;
+
+    try {
       return ChecksumAddress.fromHex(string, this.netName);
+    } catch (e) {
+      // pass
     }
 
     try {
-      return new ChecksumAddress(string);
-    } catch (e) {
       return ChecksumAddress.fromSimple(string);
+    } catch (e) {
+      // pass
     }
+
+    return new ChecksumAddress(string);
   }
 
   /**

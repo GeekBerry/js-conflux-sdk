@@ -275,9 +275,9 @@ A shout cut for `ChecksumAddress(string)`, `ChecksumAddress.fromSimple(string)` 
 
 * **Parameters**
 
-Name   | Type          | Required | Default | Description
--------|---------------|----------|---------|-------------------------------------------------
-string | `string,null` | true     |         | Hex, checksum address or simple checksum address
+Name   | Type     | Required | Default | Description
+-------|----------|----------|---------|-------------------------------------------------
+string | `string` | true     |         | Hex, checksum address or simple checksum address
 
 * **Returns**
 
