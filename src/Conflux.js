@@ -213,6 +213,28 @@ class Conflux {
   }
 
   /**
+   * Get CFX total supply info
+   *
+   * @param [epochNumber='latest_state'] {string|number} - See [format.epochNumber](#util/format.js/format/(static)epochNumber)
+   * @return {Promise<object>} Supply info
+   *
+   * @example
+   * > await conflux.getSupplyInfo();
+   {
+    totalCirculating: 10000000061346204857053386048036690n,
+    totalCollateral: 109158125000000000000000n,
+    totalIssued: 10000005061346154857053386048036690n,
+    totalStaking: 41923206238928855616779914n
+  }
+   */
+  async getSupplyInfo(epochNumber) {
+    const result = await this.provider.call('cfx_getSupplyInfo',
+      format.epochNumber.$or(undefined)(epochNumber),
+    );
+    return format.supplyInfo(result);
+  }
+
+  /**
    * Returns the interest rate of given parameter.
    *
    * @param [epochNumber='latest_state'] {string|number} - See [format.epochNumber](#util/format.js/format/(static)epochNumber)

@@ -140,6 +140,7 @@ class MockProvider extends EventEmitter {
       totalIssued: randomHex(20),
       totalStaking: randomHex(18),
       totalCollateral: randomHex(18),
+      totalCirculating: randomHex(18),
     };
   }
 

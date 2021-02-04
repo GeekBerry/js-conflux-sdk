@@ -491,6 +491,7 @@ format.supplyInfo = format({
   totalIssued: format.bigUInt,
   totalStaking: format.bigUInt,
   totalCollateral: format.bigUInt,
+  totalCirculating: format.bigUInt,
 });
 
 format.sponsorInfo = format({
