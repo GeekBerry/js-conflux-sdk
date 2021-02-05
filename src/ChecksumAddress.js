@@ -53,8 +53,12 @@ class ChecksumAddress extends String {
 
     const netName5Bits = Buffer.from(netName).map(byte => byte & 0b11111);
     const payload5Bits = convertBit([VERSION_BYTE, ...buffer], 8, 5, true);
+
     const checksumBigInt = polyMod([...netName5Bits, 0, ...payload5Bits, 0, 0, 0, 0, 0, 0, 0, 0]);
-    const checksumBytes = Buffer.from(lodash.padStart(checksumBigInt.toString(16), 10, '0'), 'hex'); // 10 hex == 5bytes == 40 bits
+    const checksumBuffer = Buffer.allocUnsafe(8); // unsafe is enough
+    checksumBuffer.writeBigUInt64BE(checksumBigInt);
+    const checksumBytes = checksumBuffer.slice(-5);
+
     const checksum5Bits = convertBit(checksumBytes, 8, 5, true);
 
     const payload = payload5Bits.map(byte => BYTE_TO_BASE32[byte]).join('');

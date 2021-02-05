@@ -6,6 +6,22 @@ const secp256k1 = require('secp256k1');
 const { syncScrypt: scrypt } = require('scrypt-js');
 const JSBI = require('./jsbi');
 
+// pre defined BigInt could faster about 40 percent
+const BIGINT_1 = JSBI.BigInt(1);
+const BIGINT_5 = JSBI.BigInt(5);
+const BIGINT_35 = JSBI.BigInt(35);
+const BIGINT_0B00001 = JSBI.BigInt(0b00001);
+const BIGINT_0B00010 = JSBI.BigInt(0b00010);
+const BIGINT_0B00100 = JSBI.BigInt(0b00100);
+const BIGINT_0B01000 = JSBI.BigInt(0b01000);
+const BIGINT_0B10000 = JSBI.BigInt(0b10000);
+const BIGINT_0X07FFFFFFFF = JSBI.BigInt(0x07ffffffff);
+const BIGINT_0X98F2BC8E61 = JSBI.BigInt(0x98f2bc8e61);
+const BIGINT_0X79B76D99E2 = JSBI.BigInt(0x79b76d99e2);
+const BIGINT_0XF33E5FB3C4 = JSBI.BigInt(0xf33e5fb3c4);
+const BIGINT_0XAE2EABE2A8 = JSBI.BigInt(0xae2eabe2a8);
+const BIGINT_0X1E4F43E470 = JSBI.BigInt(0x1e4f43e470);
+
 /**
  * convert inBits buffer  to outBits uint array
  *
@@ -59,22 +75,6 @@ function convertBit(buffer, inBits, outBits, pad) {
  1025n
  */
 function polyMod(buffer) {
-  // pre defined BigInt could be faster about 40 percent
-  const BIGINT_1 = JSBI.BigInt(1);
-  const BIGINT_5 = JSBI.BigInt(5);
-  const BIGINT_35 = JSBI.BigInt(35);
-  const BIGINT_0B00001 = JSBI.BigInt(0b00001);
-  const BIGINT_0B00010 = JSBI.BigInt(0b00010);
-  const BIGINT_0B00100 = JSBI.BigInt(0b00100);
-  const BIGINT_0B01000 = JSBI.BigInt(0b01000);
-  const BIGINT_0B10000 = JSBI.BigInt(0b10000);
-  const BIGINT_0X07FFFFFFFF = JSBI.BigInt(0x07ffffffff);
-  const BIGINT_0X98F2BC8E61 = JSBI.BigInt(0x98f2bc8e61);
-  const BIGINT_0X79B76D99E2 = JSBI.BigInt(0x79b76d99e2);
-  const BIGINT_0XF33E5FB3C4 = JSBI.BigInt(0xf33e5fb3c4);
-  const BIGINT_0XAE2EABE2A8 = JSBI.BigInt(0xae2eabe2a8);
-  const BIGINT_0X1E4F43E470 = JSBI.BigInt(0x1e4f43e470);
-
   let checksumBigInt = BIGINT_1;
   for (const byte of buffer) {
     // c0 = c >> 35;
