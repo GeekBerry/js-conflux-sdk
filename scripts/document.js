@@ -22,6 +22,7 @@ const markdown = jsdocToMd(`${__dirname}/../src`, {
       `${sep}Message.js`,
       `${sep}Transaction.js`,
       `${sep}Drip.js`,
+      `${sep}ChecksumAddress.js`,
     ];
 
     if (lodash.some(suffixArray, suffix => filename.endsWith(suffix))) {

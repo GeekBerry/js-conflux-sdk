@@ -1,6 +1,18 @@
 
 # @geekberry/js-conflux-sdk
 
+- ChecksumAddress.js
+    - ChecksumAddress
+        - [(static)fromObject](#ChecksumAddress.js/ChecksumAddress/(static)fromObject)
+        - [(static)fromSimple](#ChecksumAddress.js/ChecksumAddress/(static)fromSimple)
+        - [(static)fromBuffer](#ChecksumAddress.js/ChecksumAddress/(static)fromBuffer)
+        - [(static)fromHex](#ChecksumAddress.js/ChecksumAddress/(static)fromHex)
+        - [**constructor**](#ChecksumAddress.js/ChecksumAddress/**constructor**)
+        - [isValid](#ChecksumAddress.js/ChecksumAddress/isValid)
+        - [toObject](#ChecksumAddress.js/ChecksumAddress/toObject)
+        - [toSimple](#ChecksumAddress.js/ChecksumAddress/toSimple)
+        - [toBuffer](#ChecksumAddress.js/ChecksumAddress/toBuffer)
+        - [toHex](#ChecksumAddress.js/ChecksumAddress/toHex)
 - Conflux.js
     - Conflux
         - [**constructor**](#Conflux.js/Conflux/**constructor**)
@@ -159,6 +171,212 @@
             - [addPrivateKey](#wallet/Wallet.js/Wallet/addPrivateKey)
             - [addRandom](#wallet/Wallet.js/Wallet/addRandom)
             - [addKeystore](#wallet/Wallet.js/Wallet/addKeystore)
+
+----------------------------------------
+
+## ChecksumAddress <a id="ChecksumAddress.js/ChecksumAddress"></a>
+
+Checksum address by CIP-37
+
+### ChecksumAddress.fromObject <a id="ChecksumAddress.js/ChecksumAddress/(static)fromObject"></a>
+
+From object to CIP-37 address
+
+* **Parameters**
+
+Name                | Type     | Required | Default | Description
+--------------------|----------|----------|---------|------------------------
+options             | `object` | true     |         |
+options.netName     | `string` | true     |         | Net name
+options.addressType | `string` | true     |         | Address Type
+options.payload     | `string` | true     |         | Base32 address payload
+options.checksum    | `string` | true     |         | Base32 address checksum
+
+* **Returns**
+
+`ChecksumAddress` 
+
+* **Examples**
+
+```
+> ChecksumAddress.fromObject({
+     netName: 'CFX',
+     addressType: 'USER',
+     payload: 'ACC7UAWF5UBTNMEZVHU9DHC6SGHEA0403Y',
+     checksum: '2DGPYFJP',
+   })
+   "CFX:TYPE.CONTRACT:ACC7UAWF5UBTNMEZVHU9DHC6SGHEA0403Y2DGPYFJP"
+```
+
+### ChecksumAddress.fromSimple <a id="ChecksumAddress.js/ChecksumAddress/(static)fromSimple"></a>
+
+From simple address string to complete CIP-37 address
+
+* **Parameters**
+
+Name   | Type     | Required | Default | Description
+-------|----------|----------|---------|------------
+string | `string` | true     |         |
+
+* **Returns**
+
+`ChecksumAddress` 
+
+* **Examples**
+
+```
+> ChecksumAddress.fromSimple('cfx:acc7uawf5ubtnmezvhu9dhc6sghea0403y2dgpyfjp')
+   "CFX:TYPE.CONTRACT:ACC7UAWF5UBTNMEZVHU9DHC6SGHEA0403Y2DGPYFJP"
+```
+
+### ChecksumAddress.fromBuffer <a id="ChecksumAddress.js/ChecksumAddress/(static)fromBuffer"></a>
+
+From bytes20 address buffer to CIP-37 address
+
+* **Parameters**
+
+Name    | Type     | Required | Default | Description
+--------|----------|----------|---------|------------
+buffer  | `Buffer` | true     |         |
+netName | `string` | false    | 'CFX'   |
+
+* **Returns**
+
+`ChecksumAddress` 
+
+* **Examples**
+
+```
+> ChecksumAddress.fromBuffer(Buffer.alloc(20))
+   'CFX:TYPE.NULL:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0SFBNJM2'
+```
+
+### ChecksumAddress.fromHex <a id="ChecksumAddress.js/ChecksumAddress/(static)fromHex"></a>
+
+From hex40 address to CIP-37 address
+
+* **Parameters**
+
+Name    | Type     | Required | Default | Description
+--------|----------|----------|---------|---------------
+hex     | `string` | true     |         | Hex 40 address
+netName | `string` | false    |         | Net name
+
+* **Returns**
+
+`ChecksumAddress` 
+
+* **Examples**
+
+```
+> ChecksumAddress.fromHex('0x0000000000000000000000000000000000000000')
+   'CFX:TYPE.NULL:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0SFBNJM2'
+> ChecksumAddress.fromHex('0x0000000000000000000000000000000000000000', 'CFXTEST')
+   'CFXTEST:TYPE.NULL:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA6F0VRCSW'
+> ChecksumAddress.fromHex('0x0000000000000000000000000000000000000000', 'NET8')
+   'NET8:TYPE.NULL:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABM73N8R6'
+```
+
+### ChecksumAddress.prototype.**constructor** <a id="ChecksumAddress.js/ChecksumAddress/**constructor**"></a>
+
+Checksum address by CIP-37
+
+* **Parameters**
+
+Name   | Type     | Required | Default | Description
+-------|----------|----------|---------|---------------
+string | `string` | true     |         | CIP-37 address
+
+* **Examples**
+
+```
+> new ChecksumAddress('CFX:TYPE.USER:AARC9ABYCUE0HHZGYRR53M6CXEDGCCRMMYYBJGH4XG')
+   'CFX:TYPE.USER:AARC9ABYCUE0HHZGYRR53M6CXEDGCCRMMYYBJGH4XG'
+> ChecksumAddress('CFX:TYPE.CONTRACT:ACC7UAWF5UBTNMEZVHU9DHC6SGHEA0403Y2DGPYFJP') // without `new`
+   'CFX:TYPE.CONTRACT:ACC7UAWF5UBTNMEZVHU9DHC6SGHEA0403Y2DGPYFJP'
+```
+
+### ChecksumAddress.prototype.isValid <a id="ChecksumAddress.js/ChecksumAddress/isValid"></a>
+
+Return address checksum is valid
+
+* **Returns**
+
+`boolean` 
+
+* **Examples**
+
+```
+> ChecksumAddress('CFX:TYPE.NULL:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0SFBNJM2').isValid()
+   true
+> ChecksumAddress('CFX:TYPE.NULL:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0SFBNJM3').isValid()
+   false
+```
+
+### ChecksumAddress.prototype.toObject <a id="ChecksumAddress.js/ChecksumAddress/toObject"></a>
+
+Inverse operation of `ChecksumAddress.fromObject`
+
+* **Returns**
+
+`object` 
+
+* **Examples**
+
+```
+> ChecksumAddress('CFX:TYPE.NULL:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0SFBNJM2').toObject()
+   {
+      netName: 'CFX',
+      addressType: 'NULL',
+      payload: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+      checksum: '0SFBNJM2',
+   }
+```
+
+### ChecksumAddress.prototype.toSimple <a id="ChecksumAddress.js/ChecksumAddress/toSimple"></a>
+
+Inverse operation of `ChecksumAddress.fromSimple`
+
+* **Returns**
+
+`string` 
+
+* **Examples**
+
+```
+> ChecksumAddress('CFX:TYPE.NULL:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0SFBNJM2').toSimple()
+   'cfx:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa0sfbnjm2'
+```
+
+### ChecksumAddress.prototype.toBuffer <a id="ChecksumAddress.js/ChecksumAddress/toBuffer"></a>
+
+Inverse operation of `ChecksumAddress.fromBuffer`
+
+* **Returns**
+
+`Buffer` 
+
+* **Examples**
+
+```
+> ChecksumAddress('CFX:TYPE.NULL:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0SFBNJM2').toBuffer()
+   <Buffer 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00>
+```
+
+### ChecksumAddress.prototype.toHex <a id="ChecksumAddress.js/ChecksumAddress/toHex"></a>
+
+Inverse operation of `ChecksumAddress.fromHex`
+
+* **Returns**
+
+`string` 
+
+* **Examples**
+
+```
+> ChecksumAddress('CFX:TYPE.BUILTIN:AAEJUAAAAAAAAAAAAAAAAAAAAAAAAAAAAJRWUC9JNB').toHex()
+   '0x0888000000000000000000000000000000000002'
+```
 
 ----------------------------------------
 
