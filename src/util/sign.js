@@ -7,6 +7,7 @@ const { syncScrypt: scrypt } = require('scrypt-js');
 const JSBI = require('./jsbi');
 
 // pre defined BigInt could faster about 40 percent
+const BIGINT_0 = JSBI.BigInt(0);
 const BIGINT_1 = JSBI.BigInt(1);
 const BIGINT_5 = JSBI.BigInt(5);
 const BIGINT_35 = JSBI.BigInt(35);
@@ -85,19 +86,19 @@ function polyMod(buffer) {
     checksumBigInt = JSBI.leftShift(checksumBigInt, BIGINT_5);
     checksumBigInt = byte ? JSBI.bitwiseXor(checksumBigInt, JSBI.BigInt(byte)) : checksumBigInt; // bit ^ 0 = bit
 
-    if (JSBI.bitwiseAnd(high, BIGINT_0B00001)) {
+    if (JSBI.notEqual(JSBI.bitwiseAnd(high, BIGINT_0B00001), BIGINT_0)) {
       checksumBigInt = JSBI.bitwiseXor(checksumBigInt, BIGINT_0X98F2BC8E61);
     }
-    if (JSBI.bitwiseAnd(high, BIGINT_0B00010)) {
+    if (JSBI.notEqual(JSBI.bitwiseAnd(high, BIGINT_0B00010), BIGINT_0)) {
       checksumBigInt = JSBI.bitwiseXor(checksumBigInt, BIGINT_0X79B76D99E2);
     }
-    if (JSBI.bitwiseAnd(high, BIGINT_0B00100)) {
+    if (JSBI.notEqual(JSBI.bitwiseAnd(high, BIGINT_0B00100), BIGINT_0)) {
       checksumBigInt = JSBI.bitwiseXor(checksumBigInt, BIGINT_0XF33E5FB3C4);
     }
-    if (JSBI.bitwiseAnd(high, BIGINT_0B01000)) {
+    if (JSBI.notEqual(JSBI.bitwiseAnd(high, BIGINT_0B01000), BIGINT_0)) {
       checksumBigInt = JSBI.bitwiseXor(checksumBigInt, BIGINT_0XAE2EABE2A8);
     }
-    if (JSBI.bitwiseAnd(high, BIGINT_0B10000)) {
+    if (JSBI.notEqual(JSBI.bitwiseAnd(high, BIGINT_0B10000), BIGINT_0)) {
       checksumBigInt = JSBI.bitwiseXor(checksumBigInt, BIGINT_0X1E4F43E470);
     }
   }
