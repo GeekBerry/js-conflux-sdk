@@ -1,5 +1,27 @@
 # change log
 
+## v2.0.1
+
+* add Event encode data
+
+```
+const sender = 'CFX:TYPE.USER:AAKDJZX2WAKDJZX2WAKDJZX2WAKDJZX2WA4Y39J9D2'; // conflux checksum address
+const receiver = '0x200000000000000000000000000000000000ffff'; // any hex40 address
+
+console.log(contract.Transfer(sender, receiver, 100));
+/*
+LogFilter {
+  address: undefined,
+  topics: [
+    '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
+    '0x0000000000000000000000001234567890123456789012345678901234567890',
+    '0x000000000000000000000000200000000000000000000000000000000000ffff'
+  ],
+  data: '0x0000000000000000000000000000000000000000000000000000000000000064', // include data
+}
+*/
+```
+
 ## v2.0.0
 
 * address => checksumAddress

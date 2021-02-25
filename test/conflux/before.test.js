@@ -239,6 +239,15 @@ test('getConfirmationRiskByHash', async () => {
   call.mockRestore();
 });
 
+test('traceBlock', async () => {
+  const call = jest.spyOn(conflux.provider, 'call');
+
+  await conflux.traceBlock(BLOCK_HASH);
+  expect(call).toHaveBeenLastCalledWith('trace_block', BLOCK_HASH);
+
+  call.mockRestore();
+});
+
 // ----------------------------- transaction --------------------------------
 test('getTransactionByHash', async () => {
   await expect(conflux.getTransactionByHash()).rejects.toThrow('not match "hex"');
@@ -421,9 +430,9 @@ test('getLogs', async () => {
   });
 
   await conflux.getLogs({
-    blockHashes: [BLOCK_HASH],
+    blockHashes: BLOCK_HASH,
     address: ADDRESS,
-    topics: [[TX_HASH], null],
+    topics: [TX_HASH, null],
     limit: 100,
   });
   expect(call).toHaveBeenLastCalledWith('cfx_getLogs', {
@@ -432,6 +441,21 @@ test('getLogs', async () => {
     address: conflux.ChecksumAddress(ADDRESS),
     blockHashes: BLOCK_HASH,
     topics: [TX_HASH, null],
+    limit: '0x64',
+  });
+
+  await conflux.getLogs({
+    blockHashes: [BLOCK_HASH, BLOCK_HASH],
+    address: [ADDRESS, ADDRESS],
+    topics: [[TX_HASH, TX_HASH], null],
+    limit: 100,
+  });
+  expect(call).toHaveBeenLastCalledWith('cfx_getLogs', {
+    fromEpoch: undefined,
+    toEpoch: undefined,
+    address: [conflux.ChecksumAddress(ADDRESS), conflux.ChecksumAddress(ADDRESS)],
+    blockHashes: [BLOCK_HASH, BLOCK_HASH],
+    topics: [[TX_HASH, TX_HASH], null],
     limit: '0x64',
   });
 
@@ -471,11 +495,20 @@ test('subscribeLogs', async () => {
 
   await conflux.subscribeLogs({
     address: ADDRESS,
-    topics: [[TX_HASH], null],
+    topics: [TX_HASH, null],
   });
   expect(call).toHaveBeenLastCalledWith('cfx_subscribe', 'logs', {
     address: conflux.ChecksumAddress(ADDRESS),
     topics: [TX_HASH, null],
+  });
+
+  await conflux.subscribeLogs({
+    address: [ADDRESS, ADDRESS],
+    topics: [[TX_HASH, TX_HASH], null],
+  });
+  expect(call).toHaveBeenLastCalledWith('cfx_subscribe', 'logs', {
+    address: [conflux.ChecksumAddress(ADDRESS), conflux.ChecksumAddress(ADDRESS)],
+    topics: [[TX_HASH, TX_HASH], null],
   });
 
   call.mockRestore();

@@ -7,8 +7,6 @@
 
 const lodash = require('lodash');
 
-const HEX_CHARS = '0123456789abcdef';
-
 // ----------------------------------------------------------------------------
 function toHex(value) {
   if (Number.isFinite(value)) {
@@ -64,21 +62,17 @@ class HexStruct {
 }
 
 // ----------------------------------------------------------------------------
-function randomPick(...args) {
-  return args[lodash.random(0, args.length - 1)];
-}
+const HEX_CHARS = '0123456789abcdef';
 
 function randomHex(size) {
-  const body = lodash.range(size)
-    .map(() => HEX_CHARS.charAt(lodash.random(0, HEX_CHARS.length - 1)))
-    .join('');
-  return `0x${body}`;
+  const array = lodash.range(size)
+    .map(() => HEX_CHARS.charAt(Math.floor(Math.random() * 16)));
+  return `0x${array.join('')}`;
 }
 
 module.exports = {
   toHex,
   padHex,
   HexStruct,
-  randomPick,
   randomHex,
 };

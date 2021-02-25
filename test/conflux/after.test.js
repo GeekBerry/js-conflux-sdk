@@ -1,5 +1,5 @@
 const lodash = require('lodash');
-const { Conflux, format } = require('../../src');
+const { Conflux, ChecksumAddress, format } = require('../../src');
 const { MockProvider } = require('../../mock');
 
 const ADDRESS = '0x1cad0b19bb29d4674531d6f115237e16afce377c';
@@ -33,6 +33,15 @@ test('getGasPrice', async () => {
   expect(typeof gasPrice).toEqual('bigint');
 });
 
+test('getSupplyInfo', async () => {
+  const supplyInfo = await conflux.getSupplyInfo();
+
+  expect(typeof supplyInfo.totalIssued).toEqual('bigint');
+  expect(typeof supplyInfo.totalStaking).toEqual('bigint');
+  expect(typeof supplyInfo.totalCollateral).toEqual('bigint');
+  expect(typeof supplyInfo.totalCirculating).toEqual('bigint');
+});
+
 test('getInterestRate', async () => {
   const interestRate = await conflux.getInterestRate();
 
@@ -54,7 +63,7 @@ test('getAccount', async () => {
   expect(typeof account.collateralForStorage).toEqual('bigint');
   expect(typeof account.nonce).toEqual('bigint');
   expect(typeof account.stakingBalance).toEqual('bigint');
-  expect(account.admin.startsWith('0x')).toEqual(true);
+  expect(ChecksumAddress(account.admin).isValid()).toEqual(true);
   expect(account.codeHash.startsWith('0x')).toEqual(true);
 });
 
@@ -79,7 +88,7 @@ test('getNextNonce', async () => {
 test('getAdmin', async () => {
   const admin = await conflux.getAdmin(ADDRESS);
 
-  expect(admin.startsWith('0x')).toEqual(true);
+  expect(ChecksumAddress(admin).isValid()).toEqual(true);
 });
 
 test('getVoteList', async () => {
@@ -126,7 +135,7 @@ test('getBlockRewardInfo', async () => {
   expect(Array.isArray(rewardArray)).toEqual(true);
   rewardArray.forEach(reward => {
     expect(reward.blockHash.startsWith('0x')).toEqual(true);
-    expect(reward.author.startsWith('0x')).toEqual(true);
+    expect(ChecksumAddress(reward.author).isValid()).toEqual(true);
     expect(typeof reward.baseReward).toEqual('bigint');
     expect(typeof reward.totalReward).toEqual('bigint');
     expect(typeof reward.txFee).toEqual('bigint');
@@ -135,16 +144,16 @@ test('getBlockRewardInfo', async () => {
 
 // -------------------------------- block -----------------------------------
 test('getBestBlockHash', async () => {
-  const transactionHash = await conflux.getBestBlockHash();
+  const blockHash = await conflux.getBestBlockHash();
 
-  expect(transactionHash.startsWith('0x')).toEqual(true);
+  expect(blockHash.startsWith('0x')).toEqual(true);
 });
 
 test('getBlockByHash', async () => {
   const block = await conflux.getBlockByHash(BLOCK_HASH);
 
   expect(block.hash.startsWith('0x')).toEqual(true);
-  expect(block.miner.startsWith('0x')).toEqual(true);
+  expect(ChecksumAddress(block.miner).isValid()).toEqual(true);
   expect(block.parentHash.startsWith('0x')).toEqual(true);
   expect(block.transactionsRoot.startsWith('0x')).toEqual(true);
   expect(block.deferredLogsBloomHash.startsWith('0x')).toEqual(true);
@@ -174,11 +183,11 @@ test('getBlockByHash', async () => {
 
 test('getBlockByHashWithPivotAssumption', async () => {
   const block = await conflux.getBlockByHashWithPivotAssumption(
-    '0xb000000104000000000000000000000000000000000000000000000000000000',
+    '0xb000000100000400000000000000000000000000000000000000000000000000',
     '0xb000000100000000000000000000000000000000000000000000000000000000',
     1,
   );
-  expect(block.hash).toEqual('0xb000000104000000000000000000000000000000000000000000000000000000');
+  expect(block.hash).toEqual('0xb000000100000400000000000000000000000000000000000000000000000000');
   expect(block.epochNumber).toEqual(1);
 });
 
@@ -196,12 +205,12 @@ test('getTransactionByHash', async () => {
 
   expect(transaction.blockHash.startsWith('0x')).toEqual(true);
   expect(transaction.hash.startsWith('0x')).toEqual(true);
-  expect(transaction.from.startsWith('0x')).toEqual(true);
-  expect(transaction.to.startsWith('0x')).toEqual(true);
+  expect(ChecksumAddress(transaction.from).isValid()).toEqual(true);
+  expect(lodash.isNull(transaction.to) || ChecksumAddress(transaction.to).isValid()).toEqual(true);
   expect(transaction.data.startsWith('0x')).toEqual(true);
   expect(transaction.r.startsWith('0x')).toEqual(true);
   expect(transaction.s.startsWith('0x')).toEqual(true);
-  expect(lodash.isNull(transaction.contractCreated) || transaction.contractCreated.startsWith('0x')).toEqual(true);
+  expect(lodash.isNull(transaction.contractCreated) || ChecksumAddress(transaction.contractCreated).isValid()).toEqual(true);
   expect(Number.isInteger(transaction.transactionIndex)).toEqual(true);
   expect(typeof transaction.nonce).toEqual('bigint');
   expect(lodash.isNull(transaction.status) || Number.isInteger(transaction.status)).toEqual(true);
@@ -219,11 +228,11 @@ test('getTransactionReceipt', async () => {
 
   expect(receipt.blockHash.startsWith('0x')).toEqual(true);
   expect(receipt.transactionHash.startsWith('0x')).toEqual(true);
-  expect(receipt.from.startsWith('0x')).toEqual(true);
-  expect(receipt.to.startsWith('0x')).toEqual(true);
+  expect(ChecksumAddress(receipt.from).isValid()).toEqual(true);
+  expect(lodash.isNull(receipt.to) || ChecksumAddress(receipt.to).isValid()).toEqual(true);
   expect(receipt.logsBloom.startsWith('0x')).toEqual(true);
   expect(receipt.stateRoot.startsWith('0x')).toEqual(true);
-  expect(lodash.isNull(receipt.contractCreated) || receipt.contractCreated.startsWith('0x')).toEqual(true);
+  expect(lodash.isNull(receipt.contractCreated) || ChecksumAddress(receipt.contractCreated).isValid()).toEqual(true);
   expect(Number.isInteger(receipt.index)).toEqual(true);
   expect(Number.isInteger(receipt.epochNumber)).toEqual(true);
   expect(lodash.isNull(receipt.outcomeStatus) || Number.isInteger(receipt.outcomeStatus)).toEqual(true);
@@ -235,7 +244,7 @@ test('getTransactionReceipt', async () => {
   expect(lodash.isBoolean(receipt.storageCoveredBySponsor)).toEqual(true);
   expect(typeof receipt.storageCollateralized).toEqual('bigint');
   expect(Array.isArray(receipt.storageReleased)).toEqual(true);
-  expect(receipt.storageReleased[0].address).toMatch(/^0x[0-9a-f]{40}$/);
+  expect(ChecksumAddress(receipt.storageReleased[0].address).isValid()).toEqual(true);
   expect(typeof receipt.storageReleased[0].collaterals).toEqual('bigint');
 });
 
@@ -293,8 +302,8 @@ test('getSponsorInfo', async () => {
   expect(typeof info.sponsorBalanceForCollateral).toEqual('bigint');
   expect(typeof info.sponsorBalanceForGas).toEqual('bigint');
   expect(typeof info.sponsorGasBound).toEqual('bigint');
-  expect(info.sponsorForCollateral.startsWith('0x')).toEqual(true);
-  expect(info.sponsorForGas.startsWith('0x')).toEqual(true);
+  expect(ChecksumAddress(info.sponsorForCollateral).isValid()).toEqual(true);
+  expect(ChecksumAddress(info.sponsorForGas).isValid()).toEqual(true);
 });
 
 test('getCollateralForStorage', async () => {
@@ -321,7 +330,7 @@ test('getLogs', async () => {
   expect(Array.isArray(eventLogs)).toEqual(true);
 
   const [eventLog] = eventLogs;
-  expect(eventLog.address.startsWith('0x')).toEqual(true);
+  expect(ChecksumAddress(eventLog.address).isValid()).toEqual(true);
   expect(eventLog.blockHash.startsWith('0x')).toEqual(true);
   expect(eventLog.transactionHash.startsWith('0x')).toEqual(true);
   expect(Number.isInteger(eventLog.epochNumber)).toEqual(true);
