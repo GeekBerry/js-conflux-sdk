@@ -1,7 +1,8 @@
 class LogFilter {
-  constructor({ address, topics }, event) {
+  constructor({ address, topics, data }, event) {
     this.address = address;
     this.topics = topics;
+    this.data = data;
     Reflect.defineProperty(this, 'event', { value: event }); // XXX: use defineProperty to avoid from JSON.stringify
   }
 

@@ -13,8 +13,16 @@ class ContractEvent extends EventCoder {
 
   call(...args) {
     const address = this.contract.address; // dynamic get `contract.address`
-    const topics = [this.signature, ...this.encodeTopics(args)];
-    return new LogFilter({ address, topics }, this);
+    const topics = this.encodeTopics(args);
+
+    let data;
+    try {
+      data = this.encodeData(args);
+    } catch (e) {
+      // `data` not filter key
+    }
+
+    return new LogFilter({ address, topics, data }, this);
   }
 }
 

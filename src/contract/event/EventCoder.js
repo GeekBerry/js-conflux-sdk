@@ -64,7 +64,7 @@ class EventCoder {
    * @example
    * > coder = new EventCoder(abi)
    * > coder.encodeTopics(['0x0123456789012345678901234567890123456789', null])
-   ['0x0000000000000000000000000123456789012345678901234567890123456789']
+   ['0xb0333e0e3a6b99318e4e2e0d7e5e5f93646f9cbf62da1587955a4092bf7df6e7', '0x0000000000000000000000000123456789012345678901234567890123456789']
    */
   encodeTopics(args) {
     assert(args.length === this.inputs.length, {
@@ -75,6 +75,9 @@ class EventCoder {
     });
 
     const topics = [];
+    if (!this.anonymous) {
+      topics.push(this.signature);
+    }
     this.inputs.forEach((component, index) => {
       if (component.indexed) {
         const coder = this.inputCoders[index];
@@ -84,6 +87,36 @@ class EventCoder {
     });
 
     return topics;
+  }
+
+  encodeData(args) {
+    assert(args.length === this.inputs.length, {
+      message: 'length not match',
+      expect: this.inputs.length,
+      got: args.length,
+      coder: this.fullName,
+    });
+
+    const notIndexedArray = [];
+    this.inputs.forEach((component, index) => {
+      if (!component.indexed) {
+        notIndexedArray.push(args[index]);
+      }
+    });
+    return format.hex(this.dataCoder.encode(notIndexedArray));
+  }
+
+  decodeData(hex) {
+    const stream = new HexStream(hex || '0x');
+    const tuple = this.dataCoder.decode(stream);
+    assert(stream.eof(), {
+      message: 'hex length to large',
+      expect: `${stream.string.length}`,
+      got: stream.index,
+      coder: this.fullName,
+    });
+
+    return tuple;
   }
 
   /**
@@ -118,14 +151,7 @@ class EventCoder {
       coder: this.fullName,
     });
 
-    const stream = new HexStream(data || '0x');
-    const notIndexedNamedTuple = this.dataCoder.decode(stream);
-    assert(stream.eof(), {
-      message: 'hex length to large',
-      expect: `${stream.string.length}`,
-      got: stream.index,
-      coder: this.fullName,
-    });
+    const notIndexedNamedTuple = this.decodeData(data);
 
     let offset = this.anonymous ? 0 : 1;
     const array = this.inputs.map((component, index) => {
