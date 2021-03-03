@@ -37,6 +37,7 @@ class MockProvider extends EventEmitter {
     epochTxCount = 2,
     chainId = 1029,
     netName = 'CFX',
+    dataBytes = 0,
   } = {}) {
     super();
 
@@ -48,6 +49,7 @@ class MockProvider extends EventEmitter {
     this.epochTxCount = epochTxCount;
     this.chainId = chainId;
     this.netName = netName;
+    this.dataBytes = dataBytes;
 
     this.accountAddressArray = lodash.range(addressCount)
       .map(i => ChecksumAddress.fromHex(accountAddressStruct.encode({ address: i }), netName).toString());
@@ -249,7 +251,7 @@ class MockProvider extends EventEmitter {
       transactionTraces: transactions.map(({ from, to, value, gas, data }) => ({
         traces: [{
           type: 'call',
-          action: { callType: 'call', from, to, value, gas, input: data },
+          action: { callType: 'call', from, to: to || from, value, gas, input: data },
         }],
       })),
     };
@@ -271,7 +273,7 @@ class MockProvider extends EventEmitter {
       blockHash,
       chainId: toHex(this.chainId),
       contractCreated,
-      data: randomHex(100),
+      data: randomHex(this.dataBytes * 2),
       epochHeight: epochNumber,
       from,
       gas: randomHex(5), // gasLimit
