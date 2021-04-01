@@ -38,19 +38,15 @@ const ADDRESS_TYPE = {
 };
 
 /**
- * epochNumber label
+ * blockNumber label
  *
- * - `LATEST_MINED` 'latest_mined': latest epoch.
- * - `LATEST_STATE` 'latest_state': latest state, about 5 epoch less then `LATEST_MINED`
- * - `LATEST_CONFIRMED` 'latest_confirmed': latest epoch which confirmation risk less 1e-8.
- * - `LATEST_CHECKPOINT` 'latest_checkpoint': latest check point epoch.
+ * - `LATEST` 'latest': latest block.
+ * - `PENDING` 'pending': TODO
  * - `EARLIEST` 'earliest': earliest epoch number, same as 0.
  */
-const EPOCH_NUMBER = {
-  LATEST_MINED: 'latest_mined',
-  LATEST_STATE: 'latest_state',
-  LATEST_CONFIRMED: 'latest_confirmed',
-  LATEST_CHECKPOINT: 'latest_checkpoint',
+const BLOCK_NUMBER = {
+  LATEST: 'latest',
+  PENDING: 'pending',
   EARLIEST: 'earliest',
 };
 
@@ -91,7 +87,7 @@ module.exports = {
 
   NET_NAME,
   ADDRESS_TYPE,
-  EPOCH_NUMBER,
+  BLOCK_NUMBER,
   MIN_GAS_PRICE,
   TRANSACTION_GAS,
   TRANSACTION_STORAGE_LIMIT,

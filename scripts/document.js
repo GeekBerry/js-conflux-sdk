@@ -18,7 +18,7 @@ const markdown = jsdocToMd(`${__dirname}/../src`, {
       `${sep}util${sep}format.js`,
       `${sep}util${sep}sign.js`,
       `${sep}CONST.js`,
-      `${sep}Conflux.js`,
+      `${sep}Ethereum.js`,
       `${sep}Message.js`,
       `${sep}Transaction.js`,
       `${sep}Drip.js`,

@@ -12,10 +12,10 @@ const browserifyOptions = {
   browserField: 'browserify-browser',
   entries: ['./src/index.js'],
   debug: true, // gen inline sourcemap to extract with exorcist
-  standalone: 'Conflux', // generate a umd file to load directly into browser
+  standalone: 'Ethereum', // generate a umd file to load directly into browser
 };
 
-const OUTPUT_FILE_NAME = 'js-conflux-sdk';
+const OUTPUT_FILE_NAME = 'js-ethereum-sdk';
 
 mkdirpSync('dist');
 

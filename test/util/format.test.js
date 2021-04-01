@@ -135,13 +135,13 @@ test('fixed64', () => {
   expect(format.fixed64('0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff')).toEqual(0.5);
 });
 
-test('epochNumber', () => {
-  expect(() => format.epochNumber(-1)).toThrow('not match any');
-  expect(format.epochNumber(0)).toEqual('0x0');
-  expect(format.epochNumber(10)).toEqual('0xa');
-  expect(format.epochNumber('latest_mined')).toEqual('latest_mined');
-  expect(format.epochNumber('latest_state')).toEqual('latest_state');
-  expect(() => format.epochNumber('LATEST_MINED')).toThrow('not match any');
+test('blockNumber', () => {
+  expect(() => format.blockNumber(-1)).toThrow('not match any');
+  expect(format.blockNumber(0)).toEqual('0x0');
+  expect(format.blockNumber(10)).toEqual('0xa');
+  expect(format.blockNumber('pending')).toEqual('pending');
+  expect(format.blockNumber('latest')).toEqual('latest');
+  expect(() => format.blockNumber('LATEST')).toThrow('not match any');
 });
 
 test('hex40', () => {
@@ -170,11 +170,6 @@ test('address', () => {
   expect(format.address('0X1B716C51381E76900EBAA7999A488511A4E1FD0A'))
     .toEqual('0x1b716c51381e76900ebaa7999a488511a4e1fd0a');
   expect(format.address('0x1B716c51381e76900EBAA7999A488511A4E1fD0a'))
-    .toEqual('0x1b716c51381e76900ebaa7999a488511a4e1fd0a');
-
-  expect(format.address('cfx:aar1c5cvhathreas1mx3xgwjuyj4k2t7bjtz1r2n2n'))
-    .toEqual('0x1b716c51381e76900ebaa7999a488511a4e1fd0a');
-  expect(format.address('CFX:TYPE.USER:AAR1C5CVHATHREAS1MX3XGWJUYJ4K2T7BJTZ1R2N2N'))
     .toEqual('0x1b716c51381e76900ebaa7999a488511a4e1fd0a');
 });
 

@@ -12,7 +12,7 @@ const Subscription = require('./subscribe/Subscription');
 /**
  * A sdk of conflux.
  */
-class Conflux {
+class Ethereum {
   /**
    * @param [options] {object} - Conflux and Provider constructor options.
    * @param [options.defaultGasPrice] {string|number} - The default gas price in drip to use for transactions.
@@ -418,24 +418,22 @@ class Conflux {
   /**
    * Returns the epoch number of given parameter.
    *
-   * @param [epochNumber='latest_state'] {string|number} - See [format.epochNumber](#util/format.js/format/(static)epochNumber)
    * @return {Promise<number>} integer of the current epoch number of given parameter.
    *
    * @example
    * > await conflux.getEpochNumber();
    443
    */
-  async getEpochNumber(epochNumber) {
-    const result = await this.provider.call('cfx_epochNumber',
-      format.epochNumber.$or(undefined)(epochNumber),
-    );
+  async getBlockNumber() {
+    const result = await this.provider.call('eth_blockNumber');
+
     return format.uInt(result);
   }
 
   /**
    * Returns information about a block by epoch number.
    *
-   * @param epochNumber {string|number} - See [format.epochNumber](#util/format.js/format/(static)epochNumber)
+   * @param blockNumber {string|number} - See [format.epochNumber](#util/format.js/format/(static)epochNumber)
    * @param [detail=false] {boolean} - If `true` it returns the full transaction objects, if `false` only the hashes of the transactions.
    * @return {Promise<object|null>} See `getBlockByHash`
    *
@@ -443,9 +441,9 @@ class Conflux {
    * > await conflux.getBlockByEpochNumber('latest_mined', true);
    {...}
    */
-  async getBlockByEpochNumber(epochNumber, detail = false) {
-    const result = await this.provider.call('cfx_getBlockByEpochNumber',
-      format.epochNumber(epochNumber),
+  async getBlockByNumber(blockNumber, detail = false) {
+    const result = await this.provider.call('eth_getBlockByNumber',
+      format.hex(blockNumber),
       format.boolean(detail),
     );
     return format.block.$or(null)(result);
@@ -576,7 +574,7 @@ class Conflux {
     }
    */
   async getBlockByHash(blockHash, detail = false) {
-    const result = await this.provider.call('cfx_getBlockByHash',
+    const result = await this.provider.call('eth_getBlockByHash',
       format.blockHash(blockHash),
       format.boolean(detail),
     );
@@ -681,7 +679,7 @@ class Conflux {
     }
    */
   async getTransactionByHash(transactionHash) {
-    const result = await this.provider.call('cfx_getTransactionByHash',
+    const result = await this.provider.call('eth_getTransactionByHash',
       format.transactionHash(transactionHash),
     );
     return format.transaction.$or(null)(result);
@@ -738,7 +736,7 @@ class Conflux {
     }
    */
   async getTransactionReceipt(transactionHash) {
-    const result = await this.provider.call('cfx_getTransactionReceipt',
+    const result = await this.provider.call('eth_getTransactionReceipt',
       format.transactionHash(transactionHash),
     );
     return format.receipt.$or(null)(result);
@@ -1055,22 +1053,14 @@ class Conflux {
    * Virtually call a contract, return the output data.
    *
    * @param options {object} - See [Transaction](#Transaction.js/Transaction/**constructor**)
-   * @param [epochNumber='latest_state'] {string|number} - See [format.epochNumber](#util/format.js/format/(static)epochNumber)
+   * @param [blockNumber=CONST.BLOCK_NUMBER.LATEST] {string|number} - See [format.blockNumber](#util/format.js/format/(static)blockNumber)
    * @return {Promise<string>} The output data.
    */
-  async call(options, epochNumber) {
-    if (options.from !== undefined) {
-      options.from = this.ChecksumAddress(options.from);
-    }
-
-    if (options.to !== undefined && options.to !== null) {
-      options.to = this.ChecksumAddress(options.to);
-    }
-
+  async call(options, blockNumber = CONST.BLOCK_NUMBER.LATEST) {
     try {
-      return await this.provider.call('cfx_call',
+      return await this.provider.call('eth_call',
         format.callTx(options),
-        format.epochNumber.$or(undefined)(epochNumber),
+        format.blockNumber.$or(undefined)(blockNumber),
       );
     } catch (e) {
       throw Contract.decodeError(e);
@@ -1156,15 +1146,11 @@ class Conflux {
    ]
    */
   async getLogs(options) {
-    if (options.blockHashes !== undefined && (options.fromEpoch !== undefined || options.toEpoch !== undefined)) {
-      throw new Error('OverrideError, do not use `blockHashes` with `fromEpoch` or `toEpoch`, cause only `blockHashes` will take effect');
+    if (options.blockHash !== undefined && (options.fromEpoch !== undefined || options.toEpoch !== undefined)) {
+      throw new Error('OverrideError, do not use `blockHash` with `fromEpoch` or `toEpoch`, cause only `blockHash` will take effect');
     }
 
-    if (options.address !== undefined) {
-      options.address = Array.isArray(options.address) ? options.address.map(v => this.ChecksumAddress(v)) : this.ChecksumAddress(options.address);
-    }
-
-    const result = await this.provider.call('cfx_getLogs', format.getLogs(options));
+    const result = await this.provider.call('eth_getLogs', format.getLogs(options));
 
     return format.logs(result);
   }
@@ -1355,4 +1341,4 @@ class Conflux {
   }
 }
 
-module.exports = Conflux;
+module.exports = Ethereum;

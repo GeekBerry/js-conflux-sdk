@@ -1,5 +1,5 @@
 const CONST = require('./CONST');
-const Conflux = require('./Conflux');
+const Ethereum = require('./Ethereum');
 const Contract = require('./contract');
 const Wallet = require('./wallet');
 const Transaction = require('./Transaction');
@@ -12,7 +12,7 @@ const format = require('./util/format');
 
 module.exports = {
   CONST,
-  Conflux,
+  Ethereum,
   Contract,
   Wallet,
   Transaction,

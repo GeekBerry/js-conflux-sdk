@@ -191,23 +191,21 @@ format.big = format(toBig);
 format.fixed64 = format.big.$after(v => Number(v.div(CONST.MAX_UINT)));
 
 /**
- * @param arg {number|string} - number or label, See [EPOCH_NUMBER](#CONST.js/EPOCH_NUMBER)
+ * @param arg {number|string} - number or label, See [BLOCK_NUMBER](#CONST.js/BLOCK_NUMBER)
  * @return {string}
  *
  * @example
- * > format.epochNumber(10)
+ * > format.blockNumber(10)
  "0xa"
- * > format.epochNumber(EPOCH_NUMBER.LATEST_STATE)
- "latest_state"
- * > format.epochNumber('latest_mined')
- "latest_mined"
+ * > format.blockNumber(BLOCK_NUMBER.LATEST)
+ "latest"
+ * > format.blockNumber('earliest')
+ "earliest"
  */
-format.epochNumber = format.bigUIntHex
-  .$or(CONST.EPOCH_NUMBER.LATEST_MINED)
-  .$or(CONST.EPOCH_NUMBER.LATEST_STATE)
-  .$or(CONST.EPOCH_NUMBER.LATEST_CONFIRMED)
-  .$or(CONST.EPOCH_NUMBER.LATEST_CHECKPOINT)
-  .$or(CONST.EPOCH_NUMBER.EARLIEST);
+format.blockNumber = format.bigUIntHex
+  .$or(CONST.BLOCK_NUMBER.LATEST)
+  .$or(CONST.BLOCK_NUMBER.PENDING)
+  .$or(CONST.BLOCK_NUMBER.EARLIEST);
 
 /**
  * When encoding UNFORMATTED DATA (byte arrays, account addresses, hashes, bytecode arrays): encode as hex, prefix with "0x", two hex digits per byte.
@@ -257,14 +255,8 @@ format.checksumAddress = format(ChecksumAddress).$or(v => ChecksumAddress.fromSi
  * @example
  * > format.address('0x0123456789012345678901234567890123456789')
  "0x0123456789012345678901234567890123456789"
-
- * > format.address('CFX:TYPE.USER:AAR1C5CVHATHREAS1MX3XGWJUYJ4K2T7BJTZ1R2N2N')
- "0x1b716c51381e76900ebaa7999a488511a4e1fd0a"
-
- * > format.address('cfx:aar1c5cvhathreas1mx3xgwjuyj4k2t7bjtz1r2n2n')
- "0x1b716c51381e76900ebaa7999a488511a4e1fd0a"
  */
-format.address = format.hex40.$or(format.checksumAddress.$after(v => v.toHex()));
+format.address = format.hex40;
 
 format.hex64 = format.hex.$validate(v => v.length === 2 + 64, 'hex64');
 
@@ -383,12 +375,11 @@ format.keccak256 = format.bytes.$after(sign.keccak256).$after(format.hex);
 
 // -------------------------- format method arguments -------------------------
 format.getLogs = format({
-  limit: format.bigUIntHex,
-  fromEpoch: format.epochNumber,
-  toEpoch: format.epochNumber,
-  blockHashes: format.blockHash.$or([format.blockHash]),
-  address: format.checksumAddress.$or([format.checksumAddress]),
+  fromBlock: format.blockNumber,
+  toBlock: format.blockNumber,
+  address: format.address.$or([format.address]),
   topics: format([format.hex64.$or([format.hex64]).$or(null)]),
+  blockHash: format.blockHash,
 }, { pick: true });
 
 format.signTx = format({
@@ -407,15 +398,11 @@ format.signTx = format({
 }, { strict: true, pick: true });
 
 format.callTx = format({
-  from: format.checksumAddress,
-  nonce: format.bigUIntHex,
-  gasPrice: format.bigUIntHex,
+  from: format.address,
+  to: format.address,
   gas: format.bigUIntHex,
-  to: format.checksumAddress.$or(null),
+  gasPrice: format.bigUIntHex,
   value: format.bigUIntHex,
-  storageLimit: format.bigUIntHex,
-  epochHeight: format.bigUIntHex,
-  chainId: format.bigUIntHex,
   data: format.hex,
 }, { pick: true });
 
@@ -442,50 +429,42 @@ format.estimate = format({
 });
 
 format.transaction = format({
-  nonce: format.bigUInt,
-  gasPrice: format.bigUInt,
+  blockNumber: format.uInt.$or(null),
   gas: format.bigUInt,
-  value: format.bigUInt,
-  storageLimit: format.bigUInt,
-  epochHeight: format.uInt,
-  chainId: format.uInt,
-  v: format.uInt,
-  status: format.uInt.$or(null),
+  gasPrice: format.bigUInt,
+  nonce: format.bigUInt,
   transactionIndex: format.uInt.$or(null),
+  v: format.uInt,
+  value: format.bigUInt,
 });
 
 format.block = format({
-  epochNumber: format.uInt.$or(null),
-  blame: format.uInt,
-  height: format.uInt,
+  difficulty: format.bigUInt,
+  gasLimit: format.bigUInt,
+  gasUsed: format.bigUInt,
+  number: format.uInt.$or(null),
   size: format.uInt,
   timestamp: format.uInt,
-  gasLimit: format.bigUInt,
-  gasUsed: format.bigUInt.$or(null).$or(undefined), // XXX: undefined before main net upgrade
-  difficulty: format.bigUInt,
+  totalDifficulty: format.bigUInt,
   transactions: [(format.transaction).$or(format.transactionHash)],
 });
 
-format.receipt = format({
-  index: format.uInt,
-  epochNumber: format.uInt,
-  outcomeStatus: format.uInt.$or(null),
-  gasUsed: format.bigUInt,
-  gasFee: format.bigUInt,
-  storageCollateralized: format.bigUInt,
-  storageReleased: [{
-    collaterals: format.bigUInt,
-  }],
-});
-
 format.log = format({
-  epochNumber: format.uInt,
+  blockNumber: format.uInt,
   logIndex: format.uInt,
   transactionIndex: format.uInt,
-  transactionLogIndex: format.uInt,
 });
 
 format.logs = format([format.log]);
+
+format.receipt = format({
+  blockNumber: format.uInt,
+  cumulativeGasUsed: format.bigUInt,
+  gasUsed: format.bigUInt,
+  status: (format.uInt).$or(null),
+  transactionIndex: format.uInt,
+  logs: format.logs,
+});
 
 format.supplyInfo = format({
   totalIssued: format.bigUInt,
