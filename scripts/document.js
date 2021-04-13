@@ -34,7 +34,7 @@ const markdown = jsdocToMd(`${__dirname}/../src`, {
 });
 
 fs.writeFileSync(`${__dirname}/../readme.md`, `
-# @geekberry/js-conflux-sdk
+# @geekberry/js-ethereum-sdk
 
 ${markdown}
 `);

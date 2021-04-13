@@ -1,7 +1,7 @@
-const { Conflux } = require('../../src');
+const { Ethereum } = require('../../src');
 const MockProvider = require('../../mock/MockProvider');
 
-const conflux = new Conflux({
+const conflux = new Ethereum({
   defaultGasPrice: 1000000,
 });
 conflux.provider = new MockProvider();

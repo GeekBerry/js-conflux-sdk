@@ -150,18 +150,6 @@ test('hex40', () => {
   expect(() => format.hex40(HEX_64)).toThrow('not match "hex40"');
 });
 
-test('checksumAddress', () => {
-  expect(() => format.checksumAddress()).toThrow('not match');
-
-  expect(() => format.checksumAddress('0x1b716c51381e76900ebaa7999a488511a4e1fd0a')).toThrow('not match');
-
-  expect(format.checksumAddress('cfx:aar1c5cvhathreas1mx3xgwjuyj4k2t7bjtz1r2n2n').toString())
-    .toEqual('CFX:TYPE.USER:AAR1C5CVHATHREAS1MX3XGWJUYJ4K2T7BJTZ1R2N2N');
-
-  expect(format.checksumAddress('CFX:TYPE.USER:AAR1C5CVHATHREAS1MX3XGWJUYJ4K2T7BJTZ1R2N2N').toString())
-    .toEqual('CFX:TYPE.USER:AAR1C5CVHATHREAS1MX3XGWJUYJ4K2T7BJTZ1R2N2N');
-});
-
 test('address', () => {
   expect(() => format.address()).toThrow('not match');
 

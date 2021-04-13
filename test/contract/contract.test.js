@@ -1,5 +1,5 @@
 const JSBI = require('../../src/util/jsbi');
-const { Conflux, Contract, format } = require('../../src');
+const { Ethereum, Contract, format } = require('../../src');
 const { MockProvider } = require('../../mock');
 const { abi, bytecode, address } = require('./contract.json');
 const ContractConstructor = require('../../src/contract/method/ContractConstructor');
@@ -8,7 +8,7 @@ const ADDRESS = '0x1cad0b19bb29d4674531d6f115237e16afce377c';
 const HEX64 = '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';
 
 // ----------------------------------------------------------------------------
-const conflux = new Conflux();
+const conflux = new Ethereum();
 conflux.provider = new MockProvider();
 
 const contract = conflux.Contract({ abi, bytecode, address });

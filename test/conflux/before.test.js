@@ -1,5 +1,5 @@
 const lodash = require('lodash');
-const { Conflux, ChecksumAddress } = require('../../src');
+const { Ethereum, ChecksumAddress } = require('../../src');
 const { MockProvider } = require('../../mock');
 
 const ADDRESS = '0x1cad0b19bb29d4674531d6f115237e16afce377c';
@@ -8,7 +8,7 @@ const TX_HASH = '0xb0a0000000000000000000000000000000000000000000000000000000000
 const PASSWORD = '123456';
 
 // ----------------------------------------------------------------------------
-const conflux = new Conflux({
+const conflux = new Ethereum({
   defaultGasPrice: lodash.random(0, 1000),
 });
 conflux.provider = new MockProvider();

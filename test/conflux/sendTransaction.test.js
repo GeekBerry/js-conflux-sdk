@@ -1,5 +1,5 @@
 const JSBI = require('../../src/util/jsbi');
-const { Conflux, format, CONST } = require('../../src');
+const { Ethereum, format, CONST } = require('../../src');
 const { MockProvider } = require('../../mock');
 
 const PRIVATE_KEY = '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';
@@ -7,7 +7,7 @@ const ADDRESS = '0x0123456789012345678901234567890123456789';
 const PASSWORD = 'password';
 
 // ----------------------------------------------------------------------------
-const conflux = new Conflux({});
+const conflux = new Ethereum({});
 conflux.provider = new MockProvider();
 const account = conflux.wallet.addPrivateKey(PRIVATE_KEY);
 

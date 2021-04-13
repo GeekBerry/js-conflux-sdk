@@ -4,7 +4,6 @@ const JSBI = require('./jsbi');
 const parser = require('./parser');
 const sign = require('./sign');
 const CONST = require('../CONST');
-const ChecksumAddress = require('../ChecksumAddress');
 
 // ----------------------------------------------------------------------------
 function toHex(value) {
@@ -232,20 +231,6 @@ format.hex = format(toHex);
 format.hex40 = format.hex.$validate(v => v.length === 2 + 40, 'hex40');
 
 /**
- * @param arg {string}
- * @return {string} Checksum address
- *
- * @example
- * > format.checksumAddress('CFX:TYPE.USER:AAR1C5CVHATHREAS1MX3XGWJUYJ4K2T7BJTZ1R2N2N')
- 'CFX:TYPE.USER:AAR1C5CVHATHREAS1MX3XGWJUYJ4K2T7BJTZ1R2N2N'
-
- * > format.checksumAddress('cfx:aar1c5cvhathreas1mx3xgwjuyj4k2t7bjtz1r2n2n')
- 'CFX:TYPE.USER:AAR1C5CVHATHREAS1MX3XGWJUYJ4K2T7BJTZ1R2N2N'
-
- */
-format.checksumAddress = format(ChecksumAddress).$or(v => ChecksumAddress.fromSimple(v));
-
-/**
  * Checks if a given string is a valid address.
  * It will also check the checksum, if the address has upper and lowercase letters.
  *
@@ -386,7 +371,7 @@ format.signTx = format({
   nonce: format.bigUInt.$after(format.hexBuffer),
   gasPrice: format.bigUInt.$after(format.hexBuffer),
   gas: format.bigUInt.$after(format.hexBuffer),
-  to: format(format.checksumAddress.$or(null).$default(null)).$after(v => (v ? v.toHex() : v)).$after(format.hexBuffer),
+  to: format(format.address.$or(null).$default(null)).$after(v => (v ? v.toHex() : v)).$after(format.hexBuffer),
   value: format.bigUInt.$default(0).$after(format.hexBuffer),
   storageLimit: format.bigUInt.$after(format.hexBuffer),
   epochHeight: format.uInt.$after(format.hexBuffer),

@@ -1,11 +1,8 @@
 const CONST = require('./CONST');
-const { assert } = require('./util');
 const format = require('./util/format');
 const providerFactory = require('./provider');
 const Wallet = require('./wallet');
 const Contract = require('./contract');
-const ChecksumAddress = require('./ChecksumAddress');
-const internalContract = require('./contract/internal');
 const PendingTransaction = require('./subscribe/PendingTransaction');
 const Subscription = require('./subscribe/Subscription');
 
@@ -31,7 +28,6 @@ class Ethereum {
    });
    */
   constructor({
-    netName = CONST.NET_NAME.CFX,
     defaultGasPrice,
     ...rest
   } = {}) {
@@ -48,13 +44,6 @@ class Ethereum {
      * @type {Wallet}
      */
     this.wallet = new Wallet();
-
-    /**
-     * Default net name
-     *
-     * @type {string}
-     */
-    this.netName = netName;
 
     /**
      * Default gas price for following methods:
@@ -87,73 +76,6 @@ class Ethereum {
   }
 
   /**
-   * Create internal contract by default abi and address
-   *
-   * - [AdminControl](https://github.com/Conflux-Chain/conflux-rust/blob/master/internal_contract/contracts/AdminControl.sol)
-   * - [SponsorWhitelistControl](https://github.com/Conflux-Chain/conflux-rust/blob/master/internal_contract/contracts/SponsorWhitelistControl.sol)
-   * - [Staking](https://github.com/Conflux-Chain/conflux-rust/blob/master/internal_contract/contracts/Staking.sol)
-   *
-   * @param name {"AdminControl"|"SponsorWhitelistControl"|"Staking"} Internal contract name
-   * @return {Contract}
-   *
-   * @example
-   * > conflux.InternalContract('AdminControl')
-   {
-    constructor: [Function: bound call],
-    abi: ContractABI { * },
-    address: '0x0888000000000000000000000000000000000000',
-    destroy: [Function: bound call],
-    getAdmin: [Function: bound call],
-    setAdmin: [Function: bound call],
-    'destroy(address)': [Function: bound call],
-    '0x00f55d9d': [Function: bound call],
-    'getAdmin(address)': [Function: bound call],
-    '0x64efb22b': [Function: bound call],
-    'setAdmin(address,address)': [Function: bound call],
-    '0xc55b6bb7': [Function: bound call]
-  }
-   */
-  InternalContract(name) {
-    const options = internalContract[name];
-    assert(options, `can not find internal contract named "${name}"`);
-    return this.Contract(options);
-  }
-
-  /**
-   * A shout cut for `ChecksumAddress(string)`, `ChecksumAddress.fromSimple(string)` or `ChecksumAddress.fromHex(string, conflux.netName)`
-   *
-   * @param string {string} - Hex, checksum address or simple checksum address
-   * @return ChecksumAddress
-   *
-   * @example
-   * > conflux.ChecksumAddress('0x0000000000000000000000000000000000000000');
-   [String (ChecksumAddress): 'CFX:TYPE.NULL:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0SFBNJM2']
-
-   > conflux.ChecksumAddress('cfx:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa0sfbnjm2');
-   [String (ChecksumAddress): 'CFX:TYPE.NULL:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0SFBNJM2']
-
-   > conflux.ChecksumAddress('CFX:TYPE.NULL:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0SFBNJM2');
-   [String (ChecksumAddress): 'CFX:TYPE.NULL:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0SFBNJM2']
-   */
-  ChecksumAddress(string) {
-    string = `${string}`;
-
-    try {
-      return ChecksumAddress.fromHex(string, this.netName);
-    } catch (e) {
-      // pass
-    }
-
-    try {
-      return ChecksumAddress.fromSimple(string);
-    } catch (e) {
-      // pass
-    }
-
-    return new ChecksumAddress(string);
-  }
-
-  /**
    * close connection.
    *
    * @example
@@ -171,31 +93,23 @@ class Ethereum {
    * @return {Promise<string>}
    */
   async getClientVersion() {
-    return this.provider.call('cfx_clientVersion');
+    return this.provider.call('web3_clientVersion');
   }
 
   /**
-   * Get status
-   * @return {Promise<object>} Status information object
-   * - chainId `number`: Chain id
-   * - epochNumber `number`: Epoch number
-   * - blockNumber `number`: Block number
-   * - pendingTxNumber `number`: Pending transaction number
-   * - bestHash `string`: The block hash of best pivot block
-   *
-   * @example
-   * > await conflux.getStatus()
-   {
-      chainId: 1029,
-      epochNumber: 1117476,
-      blockNumber: 2230973,
-      pendingTxNumber: 4531,
-      bestHash: '0x8d581f13fa0548f2751450a7dabd871777875c9ccdf0d8bd629e07a7a5a7917a'
-   }
+   * @return {Promise<string>}
    */
-  async getStatus() {
-    const result = await this.provider.call('cfx_getStatus');
-    return format.status(result);
+  async getNetVersion() {
+    const result = await this.provider.call('net_version');
+    return CONST.NET_VERSION[result] || result;
+  }
+
+  /**
+   * @return {Promise<number>}
+   */
+  async getProtocolVersion() {
+    const result = await this.provider.call('eth_protocolVersion');
+    return format.uInt(result);
   }
 
   /**
@@ -208,135 +122,26 @@ class Ethereum {
    1n
    */
   async getGasPrice() {
-    const result = await this.provider.call('cfx_gasPrice');
-    return format.bigUInt(result);
-  }
-
-  /**
-   * Get CFX total supply info
-   *
-   * @param [epochNumber='latest_state'] {string|number} - See [format.epochNumber](#util/format.js/format/(static)epochNumber)
-   * @return {Promise<object>} Supply info
-   *
-   * @example
-   * > await conflux.getSupplyInfo();
-   {
-    totalCirculating: 10000000061346204857053386048036690n,
-    totalCollateral: 109158125000000000000000n,
-    totalIssued: 10000005061346154857053386048036690n,
-    totalStaking: 41923206238928855616779914n
-  }
-   */
-  async getSupplyInfo(epochNumber) {
-    const result = await this.provider.call('cfx_getSupplyInfo',
-      format.epochNumber.$or(undefined)(epochNumber),
-    );
-    return format.supplyInfo(result);
-  }
-
-  /**
-   * Returns the interest rate of given parameter.
-   *
-   * @param [epochNumber='latest_state'] {string|number} - See [format.epochNumber](#util/format.js/format/(static)epochNumber)
-   * @return {Promise<BigInt>} The interest rate of given parameter.
-   *
-   * @example
-   * > await conflux.getInterestRate();
-   2522880000000n
-   */
-  async getInterestRate(epochNumber) {
-    const result = await this.provider.call('cfx_getInterestRate',
-      format.epochNumber.$or(undefined)(epochNumber),
-    );
-    return format.bigUInt(result);
-  }
-
-  /**
-   * Returns the accumulate interest rate of given parameter.
-   *
-   * @param [epochNumber='latest_state'] {string|number} - See [format.epochNumber](#util/format.js/format/(static)epochNumber)
-   * @return {Promise<BigInt>} The accumulate interest rate of given parameter.
-   *
-   * @example
-   * > await conflux.getAccumulateInterestRate()
-   76357297457647044505744908994993n
-   */
-  async getAccumulateInterestRate(epochNumber) {
-    const result = await this.provider.call('cfx_getAccumulateInterestRate',
-      format.epochNumber.$or(undefined)(epochNumber),
-    );
+    const result = await this.provider.call('eth_gasPrice');
     return format.bigUInt(result);
   }
 
   // ------------------------------- address ----------------------------------
   /**
-   * Return account related states of the given account
-   *
-   * @param address {string} - address to get account.
-   * @param [epochNumber='latest_state'] {string|number} - See [format.epochNumber](#util/format.js/format/(static)epochNumber)
-   * @return {Promise<object>} Return the states of the given account:
-   * - balance `BigInt`: the balance of the account.
-   * - nonce `BigInt`: the nonce of the account's next transaction.
-   * - codeHash `string`: the code hash of the account.
-   * - stakingBalance `BigInt`: the staking balance of the account.
-   * - collateralForStorage `BigInt`: the collateral storage of the account.
-   * - accumulatedInterestReturn `BigInt`: accumulated unterest return of the account.
-   * - admin `string`: admin of the account.
-   *
-   * @example
-   > await conflux.getAccount('0x1c1e72f0c37968557b3d85a3f32747792798bbde');
-   {
-      accumulatedInterestReturn: 0n,
-      balance: 824812401057514588670n,
-      collateralForStorage: 174187500000000000000n,
-      nonce: 1449n,
-      stakingBalance: 0n,
-      admin: 'NET1921:TYPE.NULL:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE1FWAT0M',
-      codeHash: '0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470'
-   }
-   */
-  async getAccount(address, epochNumber) {
-    const result = await this.provider.call('cfx_getAccount',
-      this.ChecksumAddress(address),
-      format.epochNumber.$or(undefined)(epochNumber),
-    );
-    return format.account(result);
-  }
-
-  /**
    * Returns the balance of the account of given address.
    *
    * @param address {string} - The address to get the balance of.
-   * @param [epochNumber='latest_state'] {string|number} - See [format.epochNumber](#util/format.js/format/(static)epochNumber)
+   * @param [blockNumber=CONST.BLOCK_NUMBER.LATEST] {string|number} - See [format.epochNumber](#util/format.js/format/(static)epochNumber)
    * @return {Promise<BigInt>} The balance in Drip.
    *
    * @example
    * > await conflux.getBalance("0x1c1e72f0c37968557b3d85a3f32747792798bbde");
    824812401057514588670n
    */
-  async getBalance(address, epochNumber) {
-    const result = await this.provider.call('cfx_getBalance',
-      this.ChecksumAddress(address),
-      format.epochNumber.$or(undefined)(epochNumber),
-    );
-    return format.bigUInt(result);
-  }
-
-  /**
-   * Returns the balance of the staking account of given address.
-   *
-   * @param address {string} - Address to check for staking balance.
-   * @param [epochNumber='latest_state'] {string|number} - See [format.epochNumber](#util/format.js/format/(static)epochNumber)
-   * @return {Promise<BigInt>} The staking balance in Drip.
-   *
-   * @example
-   * > await conflux.getStakingBalance('0x1c1e72f0c37968557b3d85a3f32747792798bbde', 'latest_state');
-   0n
-   */
-  async getStakingBalance(address, epochNumber) {
-    const result = await this.provider.call('cfx_getStakingBalance',
-      this.ChecksumAddress(address),
-      format.epochNumber.$or(undefined)(epochNumber),
+  async getBalance(address, blockNumber = CONST.BLOCK_NUMBER.LATEST) {
+    const result = await this.provider.call('eth_getBalance',
+      format.address(address),
+      format.blockNumber(blockNumber),
     );
     return format.bigUInt(result);
   }
@@ -345,73 +150,19 @@ class Ethereum {
    * Returns the next nonce should be used by given address.
    *
    * @param address {string} - The address to get the numbers of transactions from.
-   * @param [epochNumber] {string|number} - See [format.epochNumber](#util/format.js/format/(static)epochNumber)
+   * @param [blockNumber] {string|number} - See [format.blockNumber](#util/format.js/format/(static)blockNumber)
    * @return {Promise<BigInt>} The next nonce should be used by given address.
    *
    * @example
    * > await conflux.getNextNonce("0x1c1e72f0c37968557b3d85a3f32747792798bbde");
    1449n
    */
-  async getNextNonce(address, epochNumber) {
-    const result = await this.provider.call('cfx_getNextNonce',
-      this.ChecksumAddress(address),
-      format.epochNumber.$or(undefined)(epochNumber),
+  async getTransactionCount(address, blockNumber = CONST.BLOCK_NUMBER.LATEST) {
+    const result = await this.provider.call('eth_getTransactionCount',
+      format.address(address),
+      format.blockNumber(blockNumber),
     );
-    return format.bigUInt(result);
-  }
-
-  /**
-   * Returns the admin of given contract.
-   *
-   * @param address {string} - Address to contract.
-   * @param [epochNumber='latest_state'] {string|number} - See [format.epochNumber](#util/format.js/format/(static)epochNumber)
-   * @return {Promise<string>} Address to admin, or `null` if the contract does not exist.
-   *
-   * @example
-   * > conflux.getAdmin('0x8e2f2e68eb75bb8b18caafe9607242d4748f8d98')
-   'NET1921:TYPE.NULL:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE1FWAT0M'
-   */
-  async getAdmin(address, epochNumber) {
-    return this.provider.call('cfx_getAdmin',
-      this.ChecksumAddress(address),
-      format.epochNumber.$or(undefined)(epochNumber),
-    );
-  }
-
-  /**
-   * Returns vote list of the given account.
-   *
-   * @param address {string} - Address to contract.
-   * @param [epochNumber='latest_state'] {string|number} - See [format.epochNumber](#util/format.js/format/(static)epochNumber)
-   * @return {Promise<object[]>} Vote list
-   * - `array`:
-   *   - amount `BigInt`: This is the number of tokens should be locked before
-   *   - unlockBlockNumber `number`: This is the timestamp when the vote right will be invalid, measured in, the number of past blocks.
-   */
-  async getVoteList(address, epochNumber) {
-    const result = await this.provider.call('cfx_getVoteList',
-      this.ChecksumAddress(address),
-      format.epochNumber.$or(undefined)(epochNumber),
-    );
-    return format.voteList(result);
-  }
-
-  /**
-   * Returns deposit list of the given account.
-   * @param address {string} - Address to contract.
-   * @param [epochNumber='latest_state'] {string|number} - See [format.epochNumber](#util/format.js/format/(static)epochNumber)
-   * @return {Promise<object[]>} Deposit list
-   * - `array`:
-   *   - amount `BigInt`: the number of tokens deposited
-   *   - accumulatedInterestRate: `BigInt`: the accumulated interest rate at the time of the deposit
-   *   - depositTime `number`: the time of the deposit
-   */
-  async getDepositList(address, epochNumber) {
-    const result = await this.provider.call('cfx_getDepositList',
-      this.ChecksumAddress(address),
-      format.epochNumber.$or(undefined)(epochNumber),
-    );
-    return format.depositList(result);
+    return format.uInt(result);
   }
 
   // -------------------------------- epoch -----------------------------------
@@ -443,80 +194,13 @@ class Ethereum {
    */
   async getBlockByNumber(blockNumber, detail = false) {
     const result = await this.provider.call('eth_getBlockByNumber',
-      format.hex(blockNumber),
+      format.blockNumber(blockNumber),
       format.boolean(detail),
     );
     return format.block.$or(null)(result);
   }
 
-  /**
-   * Returns hashes of blocks located in some epoch.
-   *
-   * @param epochNumber {string|number} - See [format.epochNumber](#util/format.js/format/(static)epochNumber)
-   * @return {Promise<string[]>} Array of block hashes, sorted by execution(topological) order.
-   *
-   * @example
-   * > await conflux.getBlocksByEpochNumber(0);
-   ['0xe677ae5206a5d67d9efa183d867b4b986ed82a3e62174a1488cf8364d58534ec']
-   */
-  async getBlocksByEpochNumber(epochNumber) {
-    return this.provider.call('cfx_getBlocksByEpoch',
-      format.epochNumber(epochNumber),
-    );
-  }
-
-  /**
-   * Get epoch blocks reward info
-   *
-   * @private
-   * @param epochNumber {string|number} - See [format.epochNumber](#util/format.js/format/(static)epochNumber)
-   * @return {Promise<object[]>} List of block reward info
-   * - blockHash `string`: Hash of the block.
-   * - author `string`: The address of the beneficiary to whom the mining rewards were given.
-   * - baseReward `BigInt`: Block base reward in `Drip`
-   * - totalReward `BigInt`: Block total reward in `Drip`
-   * - txFee `BigInt`: Total gas fee of block transaction
-   *
-   * @example
-   * > await conflux.getBlockRewardInfo(6);
-   [
-   {
-      baseReward: 6993700000000000000n,
-      totalReward: 6993700031741486703n,
-      txFee: 0n,
-      author: 'NET1921:TYPE.USER:AAJAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPT701CZ2Z',
-      blockHash: '0x73cd891aea310e2c0b8644de91746c7353cebfffb780126bc06101b20689c893'
-    },
-   {
-      baseReward: 6997200000000000000n,
-      totalReward: 6997200031760371742n,
-      txFee: 3000000n,
-      author: 'NET1921:TYPE.USER:AATXETSP0KDARPDB5STDYEX11DR3X6SB0JABGHCD8E',
-      blockHash: '0xaf4136d04e9e2cc470703251ec46f5913ab7955d526feed43771705e89c77390'
-    }
-   ]
-   */
-  async getBlockRewardInfo(epochNumber) {
-    const result = await this.provider.call('cfx_getBlockRewardInfo',
-      format.epochNumber(epochNumber),
-    );
-    return format.rewardInfo(result);
-  }
-
   // -------------------------------- block -----------------------------------
-  /**
-   * Returns the hash of best block.
-   *
-   * @return {Promise<string>} hash of the best block.
-   *
-   * @example
-   * > await conflux.getBestBlockHash();
-   "0xb8bb355bfeaf055a032d5b7df719917c090ee4fb6fee42383004dfe8911d7daf"
-   */
-  async getBestBlockHash() {
-    return this.provider.call('cfx_getBestBlockHash');
-  }
-
   /**
    * Returns information about a block by hash.
    *
@@ -579,55 +263,6 @@ class Ethereum {
       format.boolean(detail),
     );
     return format.block.$or(null)(result);
-  }
-
-  /**
-   * Get block by `blockHash` if pivot block of `epochNumber` is `pivotBlockHash`.
-   *
-   * @private
-   * @param blockHash {string} - Block hash which epochNumber expect to be `epochNumber`.
-   * @param pivotBlockHash {string} - Block hash which expect to be the pivot block of `epochNumber`.
-   * @param epochNumber {number} - Epoch number
-   * @return {Promise<object>} See `getBlockByHash`
-   */
-  async getBlockByHashWithPivotAssumption(blockHash, pivotBlockHash, epochNumber) {
-    const result = await this.provider.call('cfx_getBlockByHashWithPivotAssumption',
-      format.blockHash(blockHash),
-      format.blockHash(pivotBlockHash),
-      format.epochNumber(epochNumber),
-    );
-    return format.block(result);
-  }
-
-  /**
-   * Get the risk of the block could be reverted.
-   * All block in one same epoch returned same risk number
-   *
-   * @param blockHash {string} - Hash of a block
-   * @return {Promise<number|null>} Number >0 and <1
-   *
-   * @example
-   * > await conflux.getConfirmationRiskByHash('0xaf4136d04e9e2cc470703251ec46f5913ab7955d526feed43771705e89c77390')
-   1e-8
-   */
-  async getConfirmationRiskByHash(blockHash) {
-    const result = await this.provider.call('cfx_getConfirmationRiskByHash',
-      format.blockHash(blockHash),
-    );
-    return format.fixed64.$or(null)(result);
-  }
-
-  /**
-   * Get block trace
-   *
-   * @param blockHash {string} - Hash of a block
-   * @return {Promise<object>|null}
-   */
-  async traceBlock(blockHash) {
-    const result = await this.provider.call('trace_block',
-      format.blockHash(blockHash),
-    );
-    return format.traceBlock.$or(null)(result);
   }
 
   // ----------------------------- transaction --------------------------------
@@ -754,7 +389,7 @@ class Ethereum {
    */
   async sendRawTransaction(hex) {
     try {
-      return await this.provider.call('cfx_sendRawTransaction',
+      return await this.provider.call('eth_sendRawTransaction',
         format.hex(hex),
       );
     } catch (e) {
@@ -763,195 +398,195 @@ class Ethereum {
     }
   }
 
-  /**
-   * Create `Transaction` and sign by account which key by `from` filed in `conflux.wallet`, then send transaction
-   *
-   * @private
-   * @param options {object}
-   * @param options.from {string} - Key of account in conflux.wallet
-   * @return {Promise<Transaction>}
-   */
-  async _signTransaction(options) {
-    const account = await this.wallet.get(options.from);
+  // /**
+  //  * Create `Transaction` and sign by account which key by `from` filed in `conflux.wallet`, then send transaction
+  //  *
+  //  * @private
+  //  * @param options {object}
+  //  * @param options.from {string} - Key of account in conflux.wallet
+  //  * @return {Promise<Transaction>}
+  //  */
+  // async _signTransaction(options) {
+  //   const account = await this.wallet.get(options.from);
+  //
+  //   if (options.nonce === undefined) {
+  //     options.nonce = await this.getNextNonce(account);
+  //   }
+  //
+  //   if (options.chainId === undefined) {
+  //     const status = await this.getStatus();
+  //     options.chainId = status.chainId;
+  //   }
+  //
+  //   if (options.epochHeight === undefined) {
+  //     options.epochHeight = await this.getEpochNumber();
+  //   }
+  //
+  //   if (options.gasPrice === undefined) {
+  //     if (this.defaultGasPrice === undefined) {
+  //       const gasPrice = await this.getGasPrice();
+  //       options.gasPrice = Number(gasPrice) === 0 ? CONST.MIN_GAS_PRICE : gasPrice;
+  //     } else {
+  //       options.gasPrice = this.defaultGasPrice;
+  //     }
+  //   }
+  //
+  //   if (options.gas === undefined || options.storageLimit === undefined) {
+  //     let gas;
+  //     let storageLimit;
+  //
+  //     if (options.data) {
+  //       const { gasLimit, storageCollateralized } = await this.estimateGasAndCollateral(options);
+  //       gas = gasLimit;
+  //       storageLimit = storageCollateralized;
+  //     } else {
+  //       gas = CONST.TRANSACTION_GAS;
+  //       storageLimit = CONST.TRANSACTION_STORAGE_LIMIT;
+  //     }
+  //
+  //     if (options.gas === undefined) {
+  //       options.gas = gas;
+  //     }
+  //
+  //     if (options.storageLimit === undefined) {
+  //       options.storageLimit = storageLimit;
+  //     }
+  //   }
+  //
+  //   return account.signTransaction(options);
+  // }
 
-    if (options.nonce === undefined) {
-      options.nonce = await this.getNextNonce(account);
-    }
-
-    if (options.chainId === undefined) {
-      const status = await this.getStatus();
-      options.chainId = status.chainId;
-    }
-
-    if (options.epochHeight === undefined) {
-      options.epochHeight = await this.getEpochNumber();
-    }
-
-    if (options.gasPrice === undefined) {
-      if (this.defaultGasPrice === undefined) {
-        const gasPrice = await this.getGasPrice();
-        options.gasPrice = Number(gasPrice) === 0 ? CONST.MIN_GAS_PRICE : gasPrice;
-      } else {
-        options.gasPrice = this.defaultGasPrice;
-      }
-    }
-
-    if (options.gas === undefined || options.storageLimit === undefined) {
-      let gas;
-      let storageLimit;
-
-      if (options.data) {
-        const { gasLimit, storageCollateralized } = await this.estimateGasAndCollateral(options);
-        gas = gasLimit;
-        storageLimit = storageCollateralized;
-      } else {
-        gas = CONST.TRANSACTION_GAS;
-        storageLimit = CONST.TRANSACTION_STORAGE_LIMIT;
-      }
-
-      if (options.gas === undefined) {
-        options.gas = gas;
-      }
-
-      if (options.storageLimit === undefined) {
-        options.storageLimit = storageLimit;
-      }
-    }
-
-    return account.signTransaction(options);
-  }
-
-  /**
-   * Sign and send transaction
-   * if `from` field in `conflux.wallet`, sign by local account and send raw transaction,
-   * else call `cfx_sendTransaction` and sign by remote wallet
-   *
-   * @param options {object} - See [Transaction](#Transaction.js/Transaction/**constructor**)
-   * @param [password] {string} - Password for remote node.
-   * @return {Promise<PendingTransaction>} The PendingTransaction object.
-   *
-   * @example
-   * > txHash = await conflux.sendTransaction({from:account, to:address, value:0}); // send and get transaction hash
-   "0xb2ba6cca35f0af99a9601d09ee19c1949d8130312550e3f5413c520c6d828f88"
-
-   * @example
-   * > packedTx = await conflux.sendTransaction({from:account, to:address, value:0}).get(); // await till transaction packed
-   {
-    "nonce": 8n,
-    "value": 0n,
-    "gasPrice": 1000000000n,
-    "gas": 21000n,
-    "v": 0,
-    "transactionIndex": null,
-    "status": null,
-    "storageLimit": 0n,
-    "chainId": 1,
-    "epochHeight": 791394,
-    "blockHash": null,
-    "contractCreated": null,
-    "data": "0x",
-    "from": "0x1bd9e9be525ab967e633bcdaeac8bd5723ed4d6b",
-    "hash": "0xb2ba6cca35f0af99a9601d09ee19c1949d8130312550e3f5413c520c6d828f88",
-    "r": "0x245a1a86ae405eb72c1eaf98f5e22baa326fcf8262abad2c4a3e5bdcf2e912b5",
-    "s": "0x4df8058887a4dd8aaf60208accb3e57292a50ff06a117df6e54f7f56176248c0",
-    "to": "0x1bd9e9be525ab967e633bcdaeac8bd5723ed4d6b"
-   }
-
-   * @example
-   * > minedTx = await conflux.sendTransaction({from:account, to:address, value:0}).mined(); // await till transaction mined
-   {
-    "nonce": 8n,
-    "value": 0n,
-    "gasPrice": 1000000000n,
-    "gas": 21000n,
-    "v": 0,
-    "transactionIndex": 0,
-    "status": 0,
-    "storageLimit": 0n,
-    "chainId": 1,
-    "epochHeight": 791394,
-    "blockHash": "0xdb2d2d438dcdee8d61c6f495bd363b1afb68cb0fdff16582c08450a9ca487852",
-    "contractCreated": null,
-    "data": "0x",
-    "from": "0x1bd9e9be525ab967e633bcdaeac8bd5723ed4d6b",
-    "hash": "0xb2ba6cca35f0af99a9601d09ee19c1949d8130312550e3f5413c520c6d828f88",
-    "r": "0x245a1a86ae405eb72c1eaf98f5e22baa326fcf8262abad2c4a3e5bdcf2e912b5",
-    "s": "0x4df8058887a4dd8aaf60208accb3e57292a50ff06a117df6e54f7f56176248c0",
-    "to": "0x1bd9e9be525ab967e633bcdaeac8bd5723ed4d6b"
-   }
-
-   * @example
-   * > executedReceipt = await conflux.sendTransaction({from:account, to:address, value:0}).executed(); // await till transaction executed
-   {
-    "index": 0,
-    "epochNumber": 791402,
-    "outcomeStatus": 0,
-    "gasUsed": 21000n,
-    "gasFee": 21000000000000n,
-    "blockHash": "0xdb2d2d438dcdee8d61c6f495bd363b1afb68cb0fdff16582c08450a9ca487852",
-    "contractCreated": null,
-    "from": "0x1bd9e9be525ab967e633bcdaeac8bd5723ed4d6b",
-    "logs": [],
-    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-    "stateRoot": "0x510d680cdbf60d34bcd987b3bf9925449c0839a7381dc8fd8222d2c7ee96122d",
-    "to": "0x1bd9e9be525ab967e633bcdaeac8bd5723ed4d6b",
-    "transactionHash": "0xb2ba6cca35f0af99a9601d09ee19c1949d8130312550e3f5413c520c6d828f88"
-   }
-
-   * @example
-   * > confirmedReceipt = await conflux.sendTransaction({from:account, to:address, value:0}).confirmed(); // await till risk coefficient < threshold (default 1e-8)
-   {
-    "index": 0,
-    "epochNumber": 791402,
-    "outcomeStatus": 0,
-    "gasUsed": 21000n,
-    "gasFee": 21000000000000n,
-    "blockHash": "0xdb2d2d438dcdee8d61c6f495bd363b1afb68cb0fdff16582c08450a9ca487852",
-    "contractCreated": null,
-    "from": "0x1bd9e9be525ab967e633bcdaeac8bd5723ed4d6b",
-    "logs": [],
-    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-    "stateRoot": "0x510d680cdbf60d34bcd987b3bf9925449c0839a7381dc8fd8222d2c7ee96122d",
-    "to": "0x1bd9e9be525ab967e633bcdaeac8bd5723ed4d6b",
-    "transactionHash": "0xb2ba6cca35f0af99a9601d09ee19c1949d8130312550e3f5413c520c6d828f88"
-   }
-   */
-  async sendTransaction(options, password) {
-    if (options.from !== undefined) {
-      options.from = this.ChecksumAddress(options.from);
-    }
-
-    if (options.to !== undefined && options.to !== null) {
-      options.to = this.ChecksumAddress(options.to);
-    }
-
-    if (this.wallet.has(options.from)) {
-      const transaction = await this._signTransaction(options);
-      return this.sendRawTransaction(transaction.serialize());
-    }
-
-    return this.provider.call('cfx_sendTransaction',
-      format.callTx(options),
-      password,
-    );
-  }
+  // /**
+  //  * Sign and send transaction
+  //  * if `from` field in `conflux.wallet`, sign by local account and send raw transaction,
+  //  * else call `cfx_sendTransaction` and sign by remote wallet
+  //  *
+  //  * @param options {object} - See [Transaction](#Transaction.js/Transaction/**constructor**)
+  //  * @param [password] {string} - Password for remote node.
+  //  * @return {Promise<PendingTransaction>} The PendingTransaction object.
+  //  *
+  //  * @example
+  //  * > txHash = await conflux.sendTransaction({from:account, to:address, value:0}); // send and get transaction hash
+  //  "0xb2ba6cca35f0af99a9601d09ee19c1949d8130312550e3f5413c520c6d828f88"
+  //
+  //  * @example
+  //  * > packedTx = await conflux.sendTransaction({from:account, to:address, value:0}).get(); // await till transaction packed
+  //  {
+  //   "nonce": 8n,
+  //   "value": 0n,
+  //   "gasPrice": 1000000000n,
+  //   "gas": 21000n,
+  //   "v": 0,
+  //   "transactionIndex": null,
+  //   "status": null,
+  //   "storageLimit": 0n,
+  //   "chainId": 1,
+  //   "epochHeight": 791394,
+  //   "blockHash": null,
+  //   "contractCreated": null,
+  //   "data": "0x",
+  //   "from": "0x1bd9e9be525ab967e633bcdaeac8bd5723ed4d6b",
+  //   "hash": "0xb2ba6cca35f0af99a9601d09ee19c1949d8130312550e3f5413c520c6d828f88",
+  //   "r": "0x245a1a86ae405eb72c1eaf98f5e22baa326fcf8262abad2c4a3e5bdcf2e912b5",
+  //   "s": "0x4df8058887a4dd8aaf60208accb3e57292a50ff06a117df6e54f7f56176248c0",
+  //   "to": "0x1bd9e9be525ab967e633bcdaeac8bd5723ed4d6b"
+  //  }
+  //
+  //  * @example
+  //  * > minedTx = await conflux.sendTransaction({from:account, to:address, value:0}).mined(); // await till transaction mined
+  //  {
+  //   "nonce": 8n,
+  //   "value": 0n,
+  //   "gasPrice": 1000000000n,
+  //   "gas": 21000n,
+  //   "v": 0,
+  //   "transactionIndex": 0,
+  //   "status": 0,
+  //   "storageLimit": 0n,
+  //   "chainId": 1,
+  //   "epochHeight": 791394,
+  //   "blockHash": "0xdb2d2d438dcdee8d61c6f495bd363b1afb68cb0fdff16582c08450a9ca487852",
+  //   "contractCreated": null,
+  //   "data": "0x",
+  //   "from": "0x1bd9e9be525ab967e633bcdaeac8bd5723ed4d6b",
+  //   "hash": "0xb2ba6cca35f0af99a9601d09ee19c1949d8130312550e3f5413c520c6d828f88",
+  //   "r": "0x245a1a86ae405eb72c1eaf98f5e22baa326fcf8262abad2c4a3e5bdcf2e912b5",
+  //   "s": "0x4df8058887a4dd8aaf60208accb3e57292a50ff06a117df6e54f7f56176248c0",
+  //   "to": "0x1bd9e9be525ab967e633bcdaeac8bd5723ed4d6b"
+  //  }
+  //
+  //  * @example
+  //  * > executedReceipt = await conflux.sendTransaction({from:account, to:address, value:0}).executed(); // await till transaction executed
+  //  {
+  //   "index": 0,
+  //   "epochNumber": 791402,
+  //   "outcomeStatus": 0,
+  //   "gasUsed": 21000n,
+  //   "gasFee": 21000000000000n,
+  //   "blockHash": "0xdb2d2d438dcdee8d61c6f495bd363b1afb68cb0fdff16582c08450a9ca487852",
+  //   "contractCreated": null,
+  //   "from": "0x1bd9e9be525ab967e633bcdaeac8bd5723ed4d6b",
+  //   "logs": [],
+  //   "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+  //   "stateRoot": "0x510d680cdbf60d34bcd987b3bf9925449c0839a7381dc8fd8222d2c7ee96122d",
+  //   "to": "0x1bd9e9be525ab967e633bcdaeac8bd5723ed4d6b",
+  //   "transactionHash": "0xb2ba6cca35f0af99a9601d09ee19c1949d8130312550e3f5413c520c6d828f88"
+  //  }
+  //
+  //  * @example
+  //  * > confirmedReceipt = await conflux.sendTransaction({from:account, to:address, value:0}).confirmed(); // await till risk coefficient < threshold (default 1e-8)
+  //  {
+  //   "index": 0,
+  //   "epochNumber": 791402,
+  //   "outcomeStatus": 0,
+  //   "gasUsed": 21000n,
+  //   "gasFee": 21000000000000n,
+  //   "blockHash": "0xdb2d2d438dcdee8d61c6f495bd363b1afb68cb0fdff16582c08450a9ca487852",
+  //   "contractCreated": null,
+  //   "from": "0x1bd9e9be525ab967e633bcdaeac8bd5723ed4d6b",
+  //   "logs": [],
+  //   "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+  //   "stateRoot": "0x510d680cdbf60d34bcd987b3bf9925449c0839a7381dc8fd8222d2c7ee96122d",
+  //   "to": "0x1bd9e9be525ab967e633bcdaeac8bd5723ed4d6b",
+  //   "transactionHash": "0xb2ba6cca35f0af99a9601d09ee19c1949d8130312550e3f5413c520c6d828f88"
+  //  }
+  //  */
+  // async sendTransaction(options, password) {
+  //   if (options.from !== undefined) {
+  //     options.from = format.address(options.from);
+  //   }
+  //
+  //   if (options.to !== undefined && options.to !== null) {
+  //     options.to = format.address(options.to);
+  //   }
+  //
+  //   if (this.wallet.has(options.from)) {
+  //     const transaction = await this._signTransaction(options);
+  //     return this.sendRawTransaction(transaction.serialize());
+  //   }
+  //
+  //   return this.provider.call('cfx_sendTransaction',
+  //     format.callTx(options),
+  //     password,
+  //   );
+  // }
 
   // ------------------------------ contract ----------------------------------
   /**
    * Returns the code of given contract.
    *
    * @param address {string} - Address to contract.
-   * @param [epochNumber='latest_state'] {string|number} - See [format.epochNumber](#util/format.js/format/(static)epochNumber)
+   * @param [blockNumber=CONST.BLOCK_NUMBER.LATEST] {string|number} - See [format.blockNumber](#util/format.js/format/(static)blockNumber)
    * @return {Promise<string>} Byte code of contract, or 0x if the contract does not exist.
    *
    * @example
    * > await conflux.getCode('0xb385b84f08161f92a195953b980c8939679e906a');
    "0x6080604052348015600f57600080fd5b506004361060325760003560e01c806306661abd1460375780638..."
    */
-  async getCode(address, epochNumber) {
-    return this.provider.call('cfx_getCode',
-      this.ChecksumAddress(address),
-      format.epochNumber.$or(undefined)(epochNumber),
+  async getCode(address, blockNumber = CONST.BLOCK_NUMBER.LATEST) {
+    return this.provider.call('eth_getCode',
+      format.address(address),
+      format.blockNumber(blockNumber),
     );
   }
 
@@ -960,93 +595,19 @@ class Ethereum {
    *
    * @param address {string} - Address to contract.
    * @param position {string} - The given position.
-   * @param [epochNumber='latest_state'] {string|number} - See [format.epochNumber](#util/format.js/format/(static)epochNumber)
+   * @param [blockNumber='latest_state'] {string|number} - See [format.blockNumber](#util/format.js/format/(static)blockNumber)
    * @return {Promise<string|null>} Storage entry of given query, or null if the it does not exist.
    *
    * @example
    * > await conflux.getStorageAt('0x866aca87ff33a0ae05d2164b3d999a804f583222', '0x6661e9d6d8b923d5bbaab1b96e1dd51ff6ea2a93520fdc9eb75d059238b8c5e9')
    "0x000000000000000000000000000000000000000000000000000000000000162e"
    */
-  async getStorageAt(address, position, epochNumber) {
-    return this.provider.call('cfx_getStorageAt',
-      this.ChecksumAddress(address),
-      format.hex64(position),
-      format.epochNumber.$or(undefined)(epochNumber),
+  async getStorageAt(address, position, blockNumber = CONST.BLOCK_NUMBER.LATEST) {
+    return this.provider.call('eth_getStorageAt',
+      format.address(address),
+      format.hex(position),
+      format.blockNumber(blockNumber),
     );
-  }
-
-  /**
-   * Returns the storage root of a given contract.
-   *
-   * @param address {string} - Address to contract.
-   * @param [epochNumber='latest_state'] {string|number} - See [format.epochNumber](#util/format.js/format/(static)epochNumber)
-   * @return {Promise<object>} A storage root object, or `null` if the contract does not exist
-   * - delta `string`: storage root in the delta trie.
-   * - intermediate `string`: storage root in the intermediate trie.
-   * - snapshot `string`: storage root in the snapshot.
-   *
-   * @example
-   * > await conflux.getStorageRoot('0x866aca87ff33a0ae05d2164b3d999a804f583222')
-   {
-      "delta": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
-      "intermediate": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
-      "snapshot": "0x7bb7d43152e56f529fbef709aab7371b0672f2332ae0fb4786da350f664df5b4"
-   }
-   */
-  async getStorageRoot(address, epochNumber) {
-    return this.provider.call('cfx_getStorageRoot',
-      this.ChecksumAddress(address),
-      format.epochNumber.$or(undefined)(epochNumber),
-    );
-  }
-
-  /**
-   * Returns the sponsor info of given contract.
-   *
-   * @param address {string} - Address to contract.
-   * @param [epochNumber='latest_state'] {string|number} - See [format.epochNumber](#util/format.js/format/(static)epochNumber)
-   * @return {Promise<object>} A sponsor info object, if the contract doesn't have a sponsor, then the all fields in returned object will be 0:
-   * - sponsorBalanceForCollateral `BigInt`: the sponsored balance for storage.
-   * - sponsorBalanceForGas `BigInt`: the sponsored balance for gas.
-   * - sponsorGasBound `BigInt`: the max gas could be sponsored for one transaction.
-   * - sponsorForCollateral `string`: the address of the storage sponsor.
-   * - sponsorForGas `string`: the address of the gas sponsor.
-   *
-   * @example
-   * > await conflux.getSponsorInfo('0x8e2f2e68eb75bb8b18caafe9607242d4748f8d98')
-   {
-      sponsorBalanceForCollateral: 410625000000000000000n,
-      sponsorBalanceForGas: 9999999993626232440n,
-      sponsorGasBound: 10000000000n,
-      sponsorForCollateral: '0x8d5adbcaf5714924830591586f05302bf87f74bd',
-      sponsorForGas: '0x8d5adbcaf5714924830591586f05302bf87f74bd'
-   }
-   */
-  async getSponsorInfo(address, epochNumber) {
-    const result = await this.provider.call('cfx_getSponsorInfo',
-      this.ChecksumAddress(address),
-      format.epochNumber.$or(undefined)(epochNumber),
-    );
-    return format.sponsorInfo(result);
-  }
-
-  /**
-   * Returns the size of the collateral storage of given address, in Byte.
-   *
-   * @param address {string} - Address to check for collateral storage.
-   * @param [epochNumber='latest_state'] - See [format.epochNumber](#util/format.js/format/(static)epochNumber)
-   * @return {Promise<BigInt>} - The collateral storage in Byte.
-   *
-   * @example
-   * > await conflux.getCollateralForStorage('0x8e2f2e68eb75bb8b18caafe9607242d4748f8d98')
-   89375000000000000000n
-   */
-  async getCollateralForStorage(address, epochNumber) {
-    const result = await this.provider.call('cfx_getCollateralForStorage',
-      this.ChecksumAddress(address),
-      format.epochNumber.$or(undefined)(epochNumber),
-    );
-    return format.bigUInt(result);
   }
 
   /**
@@ -1060,7 +621,7 @@ class Ethereum {
     try {
       return await this.provider.call('eth_call',
         format.callTx(options),
-        format.blockNumber.$or(undefined)(blockNumber),
+        format.blockNumber(blockNumber),
       );
     } catch (e) {
       throw Contract.decodeError(e);
@@ -1071,27 +632,19 @@ class Ethereum {
    * Virtually call a contract, return the estimate gas used and storage collateralized.
    *
    * @param options {object} - See [Transaction](#Transaction.js/Transaction/**constructor**)
-   * @param [epochNumber='latest_state'] {string|number} - See [format.epochNumber](#util/format.js/format/(static)epochNumber)
+   * @param [blockNumber=CONST.BLOCK_NUMBER.LATEST] {string|number} - See [format.epochNumber](#util/format.js/format/(static)epochNumber)
    * @return {Promise<object>} A estimate result object:
    * - `BigInt` gasUsed: The gas used.
    * - `BigInt` gasLimit: The gas limit.
    * - `BigInt` storageCollateralized: The storage collateralized in Byte.
    */
-  async estimateGasAndCollateral(options, epochNumber) {
-    if (options.from !== undefined) {
-      options.from = this.ChecksumAddress(options.from);
-    }
-
-    if (options.to !== undefined && options.to !== null) {
-      options.to = this.ChecksumAddress(options.to);
-    }
-
+  async estimateGas(options, blockNumber = CONST.BLOCK_NUMBER.LATEST) {
     try {
-      const result = await this.provider.call('cfx_estimateGasAndCollateral',
+      const result = await this.provider.call('eth_estimateGas',
         format.callTx(options),
-        format.epochNumber.$or(undefined)(epochNumber),
+        format.blockNumber(blockNumber),
       );
-      return format.estimate(result);
+      return format.bigUInt(result);
     } catch (e) {
       throw Contract.decodeError(e);
     }
@@ -1146,10 +699,6 @@ class Ethereum {
    ]
    */
   async getLogs(options) {
-    if (options.blockHash !== undefined && (options.fromEpoch !== undefined || options.toEpoch !== undefined)) {
-      throw new Error('OverrideError, do not use `blockHash` with `fromEpoch` or `toEpoch`, cause only `blockHash` will take effect');
-    }
-
     const result = await this.provider.call('eth_getLogs', format.getLogs(options));
 
     return format.logs(result);
@@ -1179,89 +728,48 @@ class Ethereum {
    }
    */
   async subscribe(name, ...args) {
-    return this.provider.call('cfx_subscribe', name, ...args);
+    return this.provider.call('eth_subscribe', name, ...args);
   }
 
-  /**
-   * The epochs topic streams consensus results: the total order of blocks, as expressed by a sequence of epochs.
-   * The returned series of epoch numbers is monotonically increasing with an increment of one.
-   * If you see the same epoch twice, this suggests a pivot chain reorg has happened (this might happen for recent epochs).
-   * For each epoch, the last hash in epochHashesOrdered is the hash of the pivot block.
-   *
-   * @return {Promise<Subscription>} EventEmitter instance with the follow events:
-   * - 'data':
-   *   - epochNumber `number`: epoch number
-   *   - epochHashesOrdered `array`: epoch block hash in order
-   *     - `string`: block hash
-   *
-   * @example
-   * > subscription = await conflux.subscribeEpochs()
-   * > subscription.on('data', data=>console.log(data))
-   {
-     epochNumber: 566031,
-     epochHashesOrdered: [
-       '0x2820dbb5c4126455ad37bc88c635ae1f35e0d4f85c74300c01828f57ea1e5969',
-       '0xd66b801335ba01e2448df52e59da584b54fc7ee7c2f8160943c097e1ebd23038'
-     ]
-    }
-   {
-     epochNumber: 566032,
-     epochHashesOrdered: [
-       '0x899606b462f0141d672aaea8497c82aebbd7b16d266fad71e9d5093b5c6d392e',
-       '0xf6093d19c4df3645cd972e9f791fe0db3a1ab70881023a8aee63f64e0c3ca152'
-     ]
-   }
-   */
-  async subscribeEpochs() {
-    const id = await this.subscribe('epochs');
-    const subscription = new Subscription(id);
-
-    this.provider.on(id, data => {
-      subscription.emit('data', format.subscribeEpoch(data));
-    });
-
-    return subscription;
-  }
-
-  /**
-   * The newHeads topic streams all new block headers participating in the consensus.
-   *
-   * @return {Promise<Subscription>} EventEmitter instance with the follow events:
-   * - 'data': see `getBlockByHash`
-   *
-   * @example
-   * > subscription = await conflux.subscribeNewHeads()
-   * > subscription.on('data', data=>console.log(data))
-   {
-      difficulty: 368178587115n,
-      epochNumber: null,
-      gasLimit: 30000000n,
-      height: 1118247,
-      timestamp: 1605005752,
-      adaptive: false,
-      blame: 0,
-      deferredLogsBloomHash: '0xd397b3b043d87fcd6fad1291ff0bfd16401c274896d8c63a923727f077b8e0b5',
-      deferredReceiptsRoot: '0x7ae0d5716513206755b6f7c95272b79dbc225759b6e17727e19c2f15c3166bda',
-      deferredStateRoot: '0x3cf5deba77c8aa9072f1e972d6a97db487a0ce88455f371eb8ac8fa77321cb9d',
-      hash: '0x194675173abbc5aab50326136008774eea1a289e6722c973dfed12b703ee5f2a',
-      miner: '0x189121b8f0cdfef0b56eb22d9cb76c97b9c7cfbc',
-      nonce: '0x799d35f695950fd6',
-      parentHash: '0x4af3cf8cb358e75acad282ffa4b578b6211ea9eeb7cf87c282f120d8a1c809df',
-      powQuality: '0xe7ac17feab',
-      refereeHashes: [],
-      transactionsRoot: '0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470'
-    }
-   */
-  async subscribeNewHeads() {
-    const id = await this.subscribe('newHeads');
-    const subscription = new Subscription(id);
-
-    this.provider.on(id, data => {
-      subscription.emit('data', format.subscribeHead(data));
-    });
-
-    return subscription;
-  }
+  // /**
+  //  * The newHeads topic streams all new block headers participating in the consensus.
+  //  *
+  //  * @return {Promise<Subscription>} EventEmitter instance with the follow events:
+  //  * - 'data': see `getBlockByHash`
+  //  *
+  //  * @example
+  //  * > subscription = await conflux.subscribeNewHeads()
+  //  * > subscription.on('data', data=>console.log(data))
+  //  {
+  //     difficulty: 368178587115n,
+  //     epochNumber: null,
+  //     gasLimit: 30000000n,
+  //     height: 1118247,
+  //     timestamp: 1605005752,
+  //     adaptive: false,
+  //     blame: 0,
+  //     deferredLogsBloomHash: '0xd397b3b043d87fcd6fad1291ff0bfd16401c274896d8c63a923727f077b8e0b5',
+  //     deferredReceiptsRoot: '0x7ae0d5716513206755b6f7c95272b79dbc225759b6e17727e19c2f15c3166bda',
+  //     deferredStateRoot: '0x3cf5deba77c8aa9072f1e972d6a97db487a0ce88455f371eb8ac8fa77321cb9d',
+  //     hash: '0x194675173abbc5aab50326136008774eea1a289e6722c973dfed12b703ee5f2a',
+  //     miner: '0x189121b8f0cdfef0b56eb22d9cb76c97b9c7cfbc',
+  //     nonce: '0x799d35f695950fd6',
+  //     parentHash: '0x4af3cf8cb358e75acad282ffa4b578b6211ea9eeb7cf87c282f120d8a1c809df',
+  //     powQuality: '0xe7ac17feab',
+  //     refereeHashes: [],
+  //     transactionsRoot: '0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470'
+  //   }
+  //  */
+  // async subscribeNewHeads() {
+  //   const id = await this.subscribe('newHeads');
+  //   const subscription = new Subscription(id);
+  //
+  //   this.provider.on(id, data => {
+  //     subscription.emit('data', format.subscribeHead(data));
+  //   });
+  //
+  //   return subscription;
+  // }
 
   /**
    * The logs topic streams all logs matching a certain filter, in order.
@@ -1300,19 +808,11 @@ class Ethereum {
    { revertTo: 568231 }
    */
   async subscribeLogs(options = {}) {
-    if (options.address !== undefined) {
-      options.address = Array.isArray(options.address) ? options.address.map(v => this.ChecksumAddress(v)) : this.ChecksumAddress(options.address);
-    }
-
     const id = await this.subscribe('logs', format.getLogs(options));
 
     const subscription = new Subscription(id);
     this.provider.on(id, data => {
-      if (data.revertTo) {
-        subscription.emit('revert', format.subscribeRevert(data));
-      } else {
-        subscription.emit('data', format.log(data));
-      }
+      subscription.emit('data', format.log(data));
     });
 
     return subscription;
