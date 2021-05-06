@@ -3,8 +3,8 @@ const ContractMethod = require('./ContractMethod');
 const { WORD_CHARS } = require('../../CONST');
 
 class ContractConstructor extends ContractMethod {
-  constructor(fragment, bytecode, contract, conflux) {
-    super(lodash.defaults(fragment, { name: 'constructor', inputs: [] }), contract, conflux);
+  constructor(fragment, bytecode, contract, client) {
+    super(lodash.defaults(fragment, { name: 'constructor', inputs: [] }), contract, client);
 
     this.signature = ''; // MUST be '' for `super.encodeData`
     this.bytecode = bytecode;

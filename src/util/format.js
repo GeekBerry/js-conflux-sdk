@@ -10,7 +10,7 @@ function toHex(value) {
   let hex;
 
   if (lodash.isString(value)) {
-    hex = value.toLowerCase(); // XXX: lower case for support checksum address
+    hex = value.toLowerCase(); // TODO: lower case for support checksum address
   } else if (Number.isInteger(value) || (typeof value === 'bigint') || (value instanceof JSBI)) {
     hex = `0x${value.toString(16)}`;
   } else if (Buffer.isBuffer(value)) {
@@ -176,18 +176,6 @@ format.bigUIntHex = format.bigUInt.$after(v => `0x${v.toString(16)}`);
  Error('Invalid number')
  */
 format.big = format(toBig);
-
-/**
- * @param arg {string|number|BigInt|Big}
- * @return {Number}
- *
- * @example
- * > format.fixed64('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff')
- 1
- * > format.fixed64('0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff')
- 0.5
- */
-format.fixed64 = format.big.$after(v => Number(v.div(CONST.MAX_UINT)));
 
 /**
  * @param arg {number|string} - number or label, See [BLOCK_NUMBER](#CONST.js/BLOCK_NUMBER)
@@ -392,27 +380,6 @@ format.callTx = format({
 }, { pick: true });
 
 // ----------------------------- parse rpc returned ---------------------------
-format.status = format({
-  chainId: format.uInt,
-  epochNumber: format.uInt,
-  blockNumber: format.uInt,
-  pendingTxNumber: format.uInt,
-});
-
-format.account = format({
-  accumulatedInterestReturn: format.bigUInt,
-  balance: format.bigUInt,
-  collateralForStorage: format.bigUInt,
-  nonce: format.bigUInt,
-  stakingBalance: format.bigUInt,
-});
-
-format.estimate = format({
-  gasUsed: format.bigUInt,
-  gasLimit: format.bigUInt,
-  storageCollateralized: format.bigUInt,
-});
-
 format.transaction = format({
   blockNumber: format.uInt.$or(null),
   gas: format.bigUInt,
@@ -449,74 +416,6 @@ format.receipt = format({
   status: (format.uInt).$or(null),
   transactionIndex: format.uInt,
   logs: format.logs,
-});
-
-format.supplyInfo = format({
-  totalIssued: format.bigUInt,
-  totalStaking: format.bigUInt,
-  totalCollateral: format.bigUInt,
-  totalCirculating: format.bigUInt,
-});
-
-format.sponsorInfo = format({
-  sponsorBalanceForCollateral: format.bigUInt,
-  sponsorBalanceForGas: format.bigUInt,
-  sponsorGasBound: format.bigUInt,
-});
-
-format.rewardInfo = format([
-  {
-    baseReward: format.bigUInt,
-    totalReward: format.bigUInt,
-    txFee: format.bigUInt,
-  },
-]);
-
-format.voteList = format([
-  {
-    amount: format.bigUInt,
-  },
-]);
-
-format.depositList = format([
-  {
-    amount: format.bigUInt,
-    accumulatedInterestRate: format.bigUInt,
-  },
-]);
-
-format.traceBlock = format({
-  transactionTraces: [
-    {
-      traces: [
-        {
-          action: {
-            init: format.hex.$parse(Buffer.from, Array.isArray),
-            input: format.hex.$parse(Buffer.from, Array.isArray),
-            value: format.bigUInt,
-            gas: format.bigUInt,
-          },
-        },
-      ],
-    },
-  ],
-});
-
-// ---------------------------- parse subscribe event -------------------------
-format.subscribeHead = format({
-  difficulty: format.bigUInt,
-  epochNumber: format.uInt.$or(null),
-  gasLimit: format.bigUInt,
-  height: format.uInt,
-  timestamp: format.uInt,
-});
-
-format.subscribeRevert = format({
-  revertTo: format.uInt,
-});
-
-format.subscribeEpoch = format({
-  epochNumber: format.uInt,
 });
 
 module.exports = format;

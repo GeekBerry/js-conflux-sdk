@@ -2,10 +2,10 @@ const lodash = require('lodash');
 const callable = require('../../util/callable');
 
 class ContractEventOverride {
-  constructor(events, contract, conflux) {
+  constructor(events, contract, client) {
     this.signatureToEvent = lodash.keyBy(events, 'signature');
     this.contract = contract;
-    this.conflux = conflux;
+    this.client = client;
 
     return callable(this, this.call.bind(this));
   }

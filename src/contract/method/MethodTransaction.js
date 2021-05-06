@@ -14,11 +14,11 @@ class MethodTransaction extends Transaction {
    * > Note: This can alter the smart contract state.
    *
    * @param options {object} - See [Transaction](#Transaction.js/Transaction/**constructor**)
-   * @param [password] {string} - See [conflux.sendTransaction](#Conflux.js/Conflux/sendTransaction)
+   * @param [password] {string} - See [client.sendTransaction](#Conflux.js/Conflux/sendTransaction)
    * @return {Promise<PendingTransaction>} The PendingTransaction object.
    */
   sendTransaction(options, password) {
-    return this.method.conflux.sendTransaction({ ...this, ...options }, password);
+    return this.method.client.sendTransaction({ ...this, ...options }, password);
   }
 
   /**
@@ -31,7 +31,7 @@ class MethodTransaction extends Transaction {
    * @return {Promise<object>} The gas used and storage occupied for the simulated call/transaction.
    */
   async estimateGasAndCollateral(options, epochNumber) {
-    return this.method.conflux.estimateGasAndCollateral({ ...this, ...options }, epochNumber);
+    return this.method.client.estimateGasAndCollateral({ ...this, ...options }, epochNumber);
   }
 
   /**
@@ -46,7 +46,7 @@ class MethodTransaction extends Transaction {
    * @return {Promise<*>} Decoded contact call return.
    */
   async call(options, epochNumber) {
-    const hex = await this.method.conflux.call({ ...this, ...options }, epochNumber);
+    const hex = await this.method.client.call({ ...this, ...options }, epochNumber);
     return this.method.decodeOutputs(hex);
   }
 

@@ -3,8 +3,8 @@ function sleep(ms) {
 }
 
 class PendingTransaction {
-  constructor(conflux, func, args) {
-    this.conflux = conflux;
+  constructor(client, func, args) {
+    this.client = client;
     this.func = func;
     this.args = args;
     this.promise = undefined;
@@ -43,7 +43,7 @@ class PendingTransaction {
   async get({ delay = 0 } = {}) {
     await sleep(delay);
     const transactionHash = await this;
-    return this.conflux.getTransactionByHash(transactionHash);
+    return this.client.getTransactionByHash(transactionHash);
   }
 
   /**
@@ -89,7 +89,7 @@ class PendingTransaction {
 
     const transactionHash = await this;
     for (let lastTime = startTime; lastTime < startTime + timeout; lastTime = Date.now()) {
-      const receipt = await this.conflux.getTransactionReceipt(transactionHash);
+      const receipt = await this.client.getTransactionReceipt(transactionHash);
       if (receipt) {
         if (receipt.outcomeStatus !== 0) {
           throw new Error(`transaction "${transactionHash}" executed failed, outcomeStatus ${receipt.outcomeStatus}`);
@@ -121,7 +121,7 @@ class PendingTransaction {
     const transactionHash = await this;
     for (let lastTime = startTime; lastTime < startTime + timeout; lastTime = Date.now()) {
       const receipt = await this.executed({ delta, timeout }); // must get receipt every time, cause blockHash might change
-      const risk = await this.conflux.getConfirmationRiskByHash(receipt.blockHash);
+      const risk = await this.client.getConfirmationRiskByHash(receipt.blockHash);
       if (risk <= threshold) {
         return receipt;
       }

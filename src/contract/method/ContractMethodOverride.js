@@ -2,10 +2,10 @@ const lodash = require('lodash');
 const callable = require('../../util/callable');
 
 class ContractMethodOverride {
-  constructor(methods, contract, conflux) {
+  constructor(methods, contract, client) {
     this.signatureToMethod = lodash.keyBy(methods, 'signature');
     this.contract = contract;
-    this.conflux = conflux;
+    this.client = client;
 
     return callable(this, this.call.bind(this));
   }

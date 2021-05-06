@@ -3,10 +3,10 @@ const EventCoder = require('./EventCoder');
 const LogFilter = require('./LogFilter');
 
 class ContractEvent extends EventCoder {
-  constructor(fragment, contract, conflux) {
+  constructor(fragment, contract, client) {
     super(fragment);
     this.contract = contract;
-    this.conflux = conflux;
+    this.client = client;
 
     return callable(this, this.call.bind(this));
   }

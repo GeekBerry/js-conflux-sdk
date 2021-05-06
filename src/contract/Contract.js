@@ -24,11 +24,11 @@ class Contract {
    * @param options.abi {array} - The json interface for the contract to instantiate
    * @param [options.address] {string} - The address of the smart contract to call, can be added later using `contract.address = '0x1234...'`
    * @param [options.bytecode] {string} - The byte code of the contract, can be added later using `contract.constructor.code = '0x1234...'`
-   * @param conflux {Conflux} - Conflux instance.
+   * @param client {Conflux} - Conflux instance.
    * @return {object}
    *
    * @example
-   * > const contract = conflux.Contract({ abi, bytecode, address });
+   * > const contract = client.Contract({ abi, bytecode, address });
    {
       abi: ContractABI { contract: [Circular *1] },
       address: '0x8e2f2e68eb75bb8b18caafe9607242d4748f8d98',
@@ -51,7 +51,7 @@ class Contract {
    "0x6080..."
 
    * @example
-   * > const contract = conflux.Contract({
+   * > const contract = client.Contract({
    address: '0x8e2f2e68eb75bb8b18caafe9607242d4748f8d98',
    abi: [
       {
@@ -84,11 +84,11 @@ class Contract {
    * > await contract.name(); // call a method without parameter, get decoded return value.
    "FansCoin"
    * > await contract.name().call({ to: '0x8b8689c7f3014a4d86e4d1d0daaf74a47f5e0f27' }); // call a method with options
-   "conflux USDT"
+   "client USDT"
    * > await contract.balanceOf('0x19c742cec42b9e4eff3b84cdedcde2f58a36f44f'); // call a method with parameters, get decoded return value.
    10000000000000000000n
 
-   * > transaction = await conflux.getTransactionByHash('0x2055f3287f1a6ce77d91f5dfdf7517a531b3a560fee1265f27dc1ff92314530b');
+   * > transaction = await client.getTransactionByHash('0x2055f3287f1a6ce77d91f5dfdf7517a531b3a560fee1265f27dc1ff92314530b');
    * > contract.abi.decodeData(transaction.data)
    {
       name: 'send',
@@ -107,7 +107,7 @@ class Contract {
       }
     }
 
-   * > receipt = await conflux.getTransactionReceipt('0x2055f3287f1a6ce77d91f5dfdf7517a531b3a560fee1265f27dc1ff92314530b');
+   * > receipt = await client.getTransactionReceipt('0x2055f3287f1a6ce77d91f5dfdf7517a531b3a560fee1265f27dc1ff92314530b');
    * > contract.abi.decodeLog(receipt.logs[1]);
    {
       name: 'Transfer',
@@ -126,19 +126,19 @@ class Contract {
       }
     }
    */
-  constructor({ abi, address, bytecode }, conflux) {
+  constructor({ abi, address, bytecode }, client) {
     const abiTable = lodash.groupBy(abi, 'type');
     this.abi = new ContractABI(this); // XXX: Create a method named `abi` in solidity is a `Warning`.
 
     this.address = address; // XXX: Create a method named `address` in solidity is a `ParserError`
 
     // constructor
-    this.constructor = new ContractConstructor(lodash.first(abiTable.constructor), bytecode, this, conflux);
+    this.constructor = new ContractConstructor(lodash.first(abiTable.constructor), bytecode, this, client);
 
     // method
-    const methodArray = lodash.map(abiTable.function, fragment => new ContractMethod(fragment, this, conflux));
+    const methodArray = lodash.map(abiTable.function, fragment => new ContractMethod(fragment, this, client));
     lodash.forEach(lodash.groupBy(methodArray, 'name'), (array, name) => {
-      this[name] = array.length === 1 ? lodash.first(array) : new ContractMethodOverride(array, this, conflux);
+      this[name] = array.length === 1 ? lodash.first(array) : new ContractMethodOverride(array, this, client);
 
       array.forEach(method => {
         this[method.type] = method;
@@ -147,9 +147,9 @@ class Contract {
     });
 
     // event
-    const eventArray = lodash.map(abiTable.event, fragment => new ContractEvent(fragment, this, conflux));
+    const eventArray = lodash.map(abiTable.event, fragment => new ContractEvent(fragment, this, client));
     lodash.forEach(lodash.groupBy(eventArray, 'name'), (array, name) => {
-      this[name] = array.length === 1 ? lodash.first(array) : new ContractEventOverride(array, this, conflux);
+      this[name] = array.length === 1 ? lodash.first(array) : new ContractEventOverride(array, this, client);
 
       array.forEach(event => {
         this[event.type] = event;

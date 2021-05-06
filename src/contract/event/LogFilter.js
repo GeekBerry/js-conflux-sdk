@@ -7,7 +7,7 @@ class LogFilter {
   }
 
   async getLogs(options = {}) {
-    const logs = await this.event.conflux.getLogs({ ...this, ...options });
+    const logs = await this.event.client.getLogs({ ...this, ...options });
 
     logs.forEach(log => {
       log.arguments = this.event.decodeLog(log);
@@ -17,7 +17,7 @@ class LogFilter {
   }
 
   async subscribeLogs(options = {}) {
-    const subscription = await this.event.conflux.subscribeLogs({ ...this, ...options });
+    const subscription = await this.event.client.subscribeLogs({ ...this, ...options });
 
     subscription.on('data', log => {
       log.arguments = this.event.decodeLog(log);

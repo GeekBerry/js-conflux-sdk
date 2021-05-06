@@ -3,10 +3,10 @@ const MethodTransaction = require('./MethodTransaction');
 const FunctionCoder = require('./FunctionCoder');
 
 class ContractMethod extends FunctionCoder {
-  constructor(fragment, contract, conflux) {
+  constructor(fragment, contract, client) {
     super(fragment);
     this.contract = contract;
-    this.conflux = conflux;
+    this.client = client;
 
     return callable(this, this.call.bind(this));
   }

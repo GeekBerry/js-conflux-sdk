@@ -7,7 +7,7 @@ const PendingTransaction = require('./subscribe/PendingTransaction');
 const Subscription = require('./subscribe/Subscription');
 
 /**
- * A sdk of conflux.
+ * A sdk of ethereum.
  */
 class Ethereum {
   /**
@@ -16,12 +16,9 @@ class Ethereum {
    * @param [options.url] {string} - Url of Conflux node to connect.
    * @param [options.timeout] {number} - Request time out in ms
    * @param [options.logger] {Object} - Logger object with 'info' and 'error' method.
-   * @example
-   * > const { Conflux } = require('js-conflux-sdk');
-   * > const conflux = new Conflux({url:'http://test.confluxrpc.org'});
    *
    * @example
-   * > const conflux = new Conflux({
+   * > const client = new Ethereum({
      url: 'http://localhost:8000',
      defaultGasPrice: 100,
      logger: console,
@@ -59,14 +56,14 @@ class Ethereum {
   }
 
   _decoratePendingTransaction(func) {
-    const conflux = this;
+    const client = this;
     return function (...args) {
-      return new PendingTransaction(conflux, func.bind(this), args);
+      return new PendingTransaction(client, func.bind(this), args);
     };
   }
 
   /**
-   * A shout cut for `new Contract(options, conflux);`
+   * A shout cut for `new Contract(options, client);`
    *
    * @param options {object} - See [Contract.constructor](#Contract.js/constructor)
    * @return {Contract} - A Contract instance
@@ -79,7 +76,7 @@ class Ethereum {
    * close connection.
    *
    * @example
-   * > conflux.close();
+   * > client.close();
    */
   close() {
     this.provider.close();
@@ -118,7 +115,7 @@ class Ethereum {
    * @return {Promise<BigInt>} Gas price in drip.
    *
    * @example
-   * > await conflux.getGasPrice();
+   * > await client.getGasPrice();
    1n
    */
   async getGasPrice() {
@@ -135,7 +132,7 @@ class Ethereum {
    * @return {Promise<BigInt>} The balance in Drip.
    *
    * @example
-   * > await conflux.getBalance("0x1c1e72f0c37968557b3d85a3f32747792798bbde");
+   * > await client.getBalance("0x1c1e72f0c37968557b3d85a3f32747792798bbde");
    824812401057514588670n
    */
   async getBalance(address, blockNumber = CONST.BLOCK_NUMBER.LATEST) {
@@ -154,7 +151,7 @@ class Ethereum {
    * @return {Promise<BigInt>} The next nonce should be used by given address.
    *
    * @example
-   * > await conflux.getNextNonce("0x1c1e72f0c37968557b3d85a3f32747792798bbde");
+   * > await client.getNextNonce("0x1c1e72f0c37968557b3d85a3f32747792798bbde");
    1449n
    */
   async getTransactionCount(address, blockNumber = CONST.BLOCK_NUMBER.LATEST) {
@@ -172,7 +169,7 @@ class Ethereum {
    * @return {Promise<number>} integer of the current epoch number of given parameter.
    *
    * @example
-   * > await conflux.getEpochNumber();
+   * > await client.getEpochNumber();
    443
    */
   async getBlockNumber() {
@@ -189,7 +186,7 @@ class Ethereum {
    * @return {Promise<object|null>} See `getBlockByHash`
    *
    * @example
-   * > await conflux.getBlockByEpochNumber('latest_mined', true);
+   * > await client.getBlockByEpochNumber('latest_mined', true);
    {...}
    */
   async getBlockByNumber(blockNumber, detail = false) {
@@ -228,7 +225,7 @@ class Ethereum {
    * - transactionsRoot `string`: The hash of the transactions of the block.
    *
    * @example
-   * > await conflux.getBlockByHash('0xaf4136d04e9e2cc470703251ec46f5913ab7955d526feed43771705e89c77390');
+   * > await client.getBlockByHash('0xaf4136d04e9e2cc470703251ec46f5913ab7955d526feed43771705e89c77390');
    {
       epochNumber: 6,
       blame: 0,
@@ -291,7 +288,7 @@ class Ethereum {
    * - value `BigInt`: value transferred in Drip.
    *
    * @example
-   * > await conflux.getTransactionByHash('0xbf7110474779ba2404433ef39a24cb5b277186ef1e6cb199b0b60907b029a1ce');
+   * > await client.getTransactionByHash('0xbf7110474779ba2404433ef39a24cb5b277186ef1e6cb199b0b60907b029a1ce');
    {
       nonce: 0n,
       gasPrice: 10n,
@@ -345,7 +342,7 @@ class Ethereum {
    *   - collaterals `BigInt`: corresponding amount of storage collateral released
    *
    * @example
-   * > await conflux.getTransactionReceipt('0xbf7110474779ba2404433ef39a24cb5b277186ef1e6cb199b0b60907b029a1ce');
+   * > await client.getTransactionReceipt('0xbf7110474779ba2404433ef39a24cb5b277186ef1e6cb199b0b60907b029a1ce');
    {
       index: 1,
       epochNumber: 6,
@@ -384,7 +381,7 @@ class Ethereum {
    * @return {Promise<PendingTransaction>} The transaction hash, or the zero hash if the transaction is not yet available.
    *
    * @example
-   * > await conflux.sendRawTransaction('0xf85f800382520894bbd9e9b...');
+   * > await client.sendRawTransaction('0xf85f800382520894bbd9e9b...');
    "0xbe007c3eca92d01f3917f33ae983f40681182cf618defe75f490a65aac016914"
    */
   async sendRawTransaction(hex) {
@@ -399,11 +396,11 @@ class Ethereum {
   }
 
   // /**
-  //  * Create `Transaction` and sign by account which key by `from` filed in `conflux.wallet`, then send transaction
+  //  * Create `Transaction` and sign by account which key by `from` filed in `client.wallet`, then send transaction
   //  *
   //  * @private
   //  * @param options {object}
-  //  * @param options.from {string} - Key of account in conflux.wallet
+  //  * @param options.from {string} - Key of account in client.wallet
   //  * @return {Promise<Transaction>}
   //  */
   // async _signTransaction(options) {
@@ -458,7 +455,7 @@ class Ethereum {
 
   // /**
   //  * Sign and send transaction
-  //  * if `from` field in `conflux.wallet`, sign by local account and send raw transaction,
+  //  * if `from` field in `client.wallet`, sign by local account and send raw transaction,
   //  * else call `cfx_sendTransaction` and sign by remote wallet
   //  *
   //  * @param options {object} - See [Transaction](#Transaction.js/Transaction/**constructor**)
@@ -466,11 +463,11 @@ class Ethereum {
   //  * @return {Promise<PendingTransaction>} The PendingTransaction object.
   //  *
   //  * @example
-  //  * > txHash = await conflux.sendTransaction({from:account, to:address, value:0}); // send and get transaction hash
+  //  * > txHash = await client.sendTransaction({from:account, to:address, value:0}); // send and get transaction hash
   //  "0xb2ba6cca35f0af99a9601d09ee19c1949d8130312550e3f5413c520c6d828f88"
   //
   //  * @example
-  //  * > packedTx = await conflux.sendTransaction({from:account, to:address, value:0}).get(); // await till transaction packed
+  //  * > packedTx = await client.sendTransaction({from:account, to:address, value:0}).get(); // await till transaction packed
   //  {
   //   "nonce": 8n,
   //   "value": 0n,
@@ -493,7 +490,7 @@ class Ethereum {
   //  }
   //
   //  * @example
-  //  * > minedTx = await conflux.sendTransaction({from:account, to:address, value:0}).mined(); // await till transaction mined
+  //  * > minedTx = await client.sendTransaction({from:account, to:address, value:0}).mined(); // await till transaction mined
   //  {
   //   "nonce": 8n,
   //   "value": 0n,
@@ -516,7 +513,7 @@ class Ethereum {
   //  }
   //
   //  * @example
-  //  * > executedReceipt = await conflux.sendTransaction({from:account, to:address, value:0}).executed(); // await till transaction executed
+  //  * > executedReceipt = await client.sendTransaction({from:account, to:address, value:0}).executed(); // await till transaction executed
   //  {
   //   "index": 0,
   //   "epochNumber": 791402,
@@ -534,7 +531,7 @@ class Ethereum {
   //  }
   //
   //  * @example
-  //  * > confirmedReceipt = await conflux.sendTransaction({from:account, to:address, value:0}).confirmed(); // await till risk coefficient < threshold (default 1e-8)
+  //  * > confirmedReceipt = await client.sendTransaction({from:account, to:address, value:0}).confirmed(); // await till risk coefficient < threshold (default 1e-8)
   //  {
   //   "index": 0,
   //   "epochNumber": 791402,
@@ -580,7 +577,7 @@ class Ethereum {
    * @return {Promise<string>} Byte code of contract, or 0x if the contract does not exist.
    *
    * @example
-   * > await conflux.getCode('0xb385b84f08161f92a195953b980c8939679e906a');
+   * > await client.getCode('0xb385b84f08161f92a195953b980c8939679e906a');
    "0x6080604052348015600f57600080fd5b506004361060325760003560e01c806306661abd1460375780638..."
    */
   async getCode(address, blockNumber = CONST.BLOCK_NUMBER.LATEST) {
@@ -599,7 +596,7 @@ class Ethereum {
    * @return {Promise<string|null>} Storage entry of given query, or null if the it does not exist.
    *
    * @example
-   * > await conflux.getStorageAt('0x866aca87ff33a0ae05d2164b3d999a804f583222', '0x6661e9d6d8b923d5bbaab1b96e1dd51ff6ea2a93520fdc9eb75d059238b8c5e9')
+   * > await client.getStorageAt('0x866aca87ff33a0ae05d2164b3d999a804f583222', '0x6661e9d6d8b923d5bbaab1b96e1dd51ff6ea2a93520fdc9eb75d059238b8c5e9')
    "0x000000000000000000000000000000000000000000000000000000000000162e"
    */
   async getStorageAt(address, position, blockNumber = CONST.BLOCK_NUMBER.LATEST) {
@@ -671,7 +668,7 @@ class Ethereum {
    * - transactionLogIndex `number`: Log index in transaction.
    *
    * @example
-   * > await conflux.getLogs({
+   * > await client.getLogs({
       address: '0x8e2f2e68eb75bb8b18caafe9607242d4748f8d98',
       fromEpoch: 39802,
       toEpoch: 39802,
@@ -707,17 +704,17 @@ class Ethereum {
   /**
    * Subscribe event by name and got id, and provider will emit event by id
    *
-   * > Note: suggest use `conflux.subscribeXXX` to subscribe
+   * > Note: suggest use `client.subscribeXXX` to subscribe
    *
    * @param name {string} - Subscription name
    * @param args {array} - Subscription arguments
    * @return {Promise<string>} Id of subscription
    *
    * @example
-   * > conflux = new Conflux({url:'ws://127.0.0.1:12535'})
-   * > id = await conflux.subscribe('epochs');
+   * > client = new Conflux({url:'ws://127.0.0.1:12535'})
+   * > id = await client.subscribe('epochs');
    "0x8fe7879a1681e9b9"
-   * > conflux.provider.on(id, data=>console.log(data));
+   * > client.provider.on(id, data=>console.log(data));
    {
      epochHashesOrdered: [
        '0x0eff33578346b8e8347af3bae948eb7f4f5c27add9dbcfeb55eaf7cb3640088f',
@@ -737,7 +734,7 @@ class Ethereum {
   //  * - 'data': see `getBlockByHash`
   //  *
   //  * @example
-  //  * > subscription = await conflux.subscribeNewHeads()
+  //  * > subscription = await client.subscribeNewHeads()
   //  * > subscription.on('data', data=>console.log(data))
   //  {
   //     difficulty: 368178587115n,
@@ -784,7 +781,7 @@ class Ethereum {
    *   - revertTo 'number': epoch number
    *
    * @example
-   * > subscription = await conflux.subscribeLogs()
+   * > subscription = await client.subscribeLogs()
    * > subscription.on('data', data=>console.log(data))
    {
      epochNumber: 568224,
@@ -824,15 +821,15 @@ class Ethereum {
    * @return {Promise<boolean>} Is success
    *
    * @example
-   * > id = await conflux.subscribe('epochs');
-   * > await conflux.unsubscribe(id);
+   * > id = await client.subscribe('epochs');
+   * > await client.unsubscribe(id);
    true
-   * > await conflux.unsubscribe(id);
+   * > await client.unsubscribe(id);
    false
 
    * @example
-   * > subscription = await conflux.subscribeLogs();
-   * > await conflux.unsubscribe(subscription);
+   * > subscription = await client.subscribeLogs();
+   * > await client.unsubscribe(subscription);
    true
    */
   async unsubscribe(id) {
