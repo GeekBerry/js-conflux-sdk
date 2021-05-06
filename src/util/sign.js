@@ -192,9 +192,7 @@ function privateKeyToPublicKey(privateKey) {
  <Buffer 4c 6f a3 22 12 5f a3 1a 42 cb dd a8 73 0d 4c f0 20 0d 72 db>
  */
 function publicKeyToAddress(publicKey) {
-  const buffer = keccak256(publicKey).slice(-20);
-  buffer[0] = (buffer[0] & 0x0f) | 0x10; // eslint-disable-line no-bitwise
-  return buffer;
+  return keccak256(publicKey).slice(-20);
 }
 
 /**

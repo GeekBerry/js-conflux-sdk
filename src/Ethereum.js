@@ -654,12 +654,11 @@ class Ethereum {
    * Returns logs matching the filter provided.
    *
    * @param [options] {object}
-   * @param [options.fromEpoch='latest_checkpoint'] {string|number} - See [format.epochNumber](#util/format.js/format/(static)epochNumber). Search will be applied from this epoch number.
-   * @param [options.toEpoch='latest_state'] {string|number} - See [format.epochNumber](#util/format.js/format/(static)epochNumber). Search will be applied up until (and including) this epoch number.
-   * @param [options.blockHashes] {string[]} -  Array of up to 128 block hashes that the search will be applied to. This will override from/to epoch fields if it's not null
+   * @param [options.fromBlock=CONST.BLOCK_NUMBER.LATEST] {string|number} - See [format.blockNumber](#util/format.js/format/(static)blockNumber). Search will be applied from this epoch number.
+   * @param [options.toBlock=CONST.BLOCK_NUMBER.LATEST] {string|number} - See [format.blockNumber](#util/format.js/format/(static)blockNumber). Search will be applied up until (and including) this epoch number.
+   * @param [options.blockHash] {string} -  Array of up to 128 block hashes that the search will be applied to. This will override from/to epoch fields if it's not null
    * @param [options.address] {string|string[]} - Search contract addresses. If null, match all. If specified, log must be produced by one of these addresses.
    * @param [options.topics] {array} - Search topics. Logs can have 4 topics: the function signature and up to 3 indexed event arguments. The elements of topics match the corresponding log topics. Example: ["0xA", null, ["0xB", "0xC"], null] matches logs with "0xA" as the 1st topic AND ("0xB" OR "0xC") as the 3rd topic. If null, match all.
-   * @param [options.limit] {number} - Return the last limit logs
    * @return {Promise<object[]>} Array of log, that the logs matching the filter provided:
    * - address `string`: Address this event originated from.
    * - topics `string[]`: Array of topics.

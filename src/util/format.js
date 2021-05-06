@@ -430,7 +430,7 @@ format.block = format({
   number: format.uInt.$or(null),
   size: format.uInt,
   timestamp: format.uInt,
-  totalDifficulty: format.bigUInt,
+  totalDifficulty: format.bigUInt.$or(null),
   transactions: [(format.transaction).$or(format.transactionHash)],
 });
 
