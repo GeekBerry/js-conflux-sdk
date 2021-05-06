@@ -10,7 +10,7 @@ function toHex(value) {
   let hex;
 
   if (lodash.isString(value)) {
-    hex = value.toLowerCase(); // TODO: lower case for support checksum address
+    hex = value.toLowerCase();
   } else if (Number.isInteger(value) || (typeof value === 'bigint') || (value instanceof JSBI)) {
     hex = `0x${value.toString(16)}`;
   } else if (Buffer.isBuffer(value)) {
@@ -27,6 +27,27 @@ function toHex(value) {
     throw new Error(`${value} not match "hex"`);
   }
   return hex.length % 2 ? `0x0${hex.slice(2)}` : hex;
+}
+
+function toAddress(value) {
+  let string;
+
+  if (lodash.isString(value)) {
+    string = value;
+  } else if (Buffer.isBuffer(value)) {
+    string = `0x${value.toString('hex')}`;
+  } else {
+    string = `${value}`;
+  }
+  if (!/^0x[0-9a-f]{40}$/i.test(string)) {
+    throw new Error(`${value} not match "address"`);
+  }
+
+  const address = sign.checksumAddress(string);
+  if (string !== string.toLowerCase() && string !== string.toUpperCase() && string !== address) {
+    throw new Error(`address "${string}" checksum error`);
+  }
+  return address;
 }
 
 function toNumber(value) {
@@ -195,6 +216,19 @@ format.blockNumber = format.bigUIntHex
   .$or(CONST.BLOCK_NUMBER.EARLIEST);
 
 /**
+ * Checks if a given string is a valid address.
+ * It will also check the checksum, if the address has upper and lowercase letters.
+ *
+ * @param arg {string|Buffer}
+ * @return {string} Hex string
+ *
+ * @example
+ * > format.address('0xbbb62a2252f998225886fed4f2a9dac3c94de681')
+ "0xBbb62A2252F998225886FEd4f2A9DaC3C94dE681"
+ */
+format.address = format(toAddress);
+
+/**
  * When encoding UNFORMATTED DATA (byte arrays, account addresses, hashes, bytecode arrays): encode as hex, prefix with "0x", two hex digits per byte.
  *
  * @param arg {number|BigInt|string|Buffer|boolean|null}
@@ -215,21 +249,6 @@ format.blockNumber = format.bigUIntHex
  "0x0a"
  */
 format.hex = format(toHex);
-
-format.hex40 = format.hex.$validate(v => v.length === 2 + 40, 'hex40');
-
-/**
- * Checks if a given string is a valid address.
- * It will also check the checksum, if the address has upper and lowercase letters.
- *
- * @param arg {string|Buffer}
- * @return {string} Hex string
- *
- * @example
- * > format.address('0x0123456789012345678901234567890123456789')
- "0x0123456789012345678901234567890123456789"
- */
-format.address = format.hex40;
 
 format.hex64 = format.hex.$validate(v => v.length === 2 + 64, 'hex64');
 
