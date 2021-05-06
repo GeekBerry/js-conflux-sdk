@@ -110,7 +110,7 @@ class Ethereum {
   }
 
   /**
-   * Returns the current price per gas in Drip.
+   * Returns the current price per gas in Wei.
    *
    * @return {Promise<BigInt>} Gas price in drip.
    *
@@ -129,7 +129,7 @@ class Ethereum {
    *
    * @param address {string} - The address to get the balance of.
    * @param [blockNumber=CONST.BLOCK_NUMBER.LATEST] {string|number} - See [format.epochNumber](#util/format.js/format/(static)epochNumber)
-   * @return {Promise<BigInt>} The balance in Drip.
+   * @return {Promise<BigInt>} The balance in Wei.
    *
    * @example
    * > await client.getBalance("0x1c1e72f0c37968557b3d85a3f32747792798bbde");
@@ -274,7 +274,7 @@ class Ethereum {
    * - epochHeight `number`: epoch height
    * - from `string`: address of the sender.
    * - gas `BigInt`: gas provided by the sender.
-   * - gasPrice `number`: gas price provided by the sender in Drip.
+   * - gasPrice `number`: gas price provided by the sender in Wei.
    * - hash `string`: hash of the transaction.
    * - nonce `BigInt`: the number of transactions made by the sender prior to this one.
    * - r `string`: ECDSA signature r
@@ -285,7 +285,7 @@ class Ethereum {
    * - to `string`: address of the receiver. null when its a contract creation transaction.
    * - transactionIndex `number`: integer of the transactions's index position in the block. `null` when its pending.
    * - v `string`: ECDSA recovery id
-   * - value `BigInt`: value transferred in Drip.
+   * - value `BigInt`: value transferred in Wei.
    *
    * @example
    * > await client.getTransactionByHash('0xbf7110474779ba2404433ef39a24cb5b277186ef1e6cb199b0b60907b029a1ce');

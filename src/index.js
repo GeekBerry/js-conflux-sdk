@@ -4,7 +4,7 @@ const Contract = require('./contract');
 const Wallet = require('./wallet');
 const Transaction = require('./Transaction');
 const Message = require('./Message');
-const Drip = require('./Drip');
+const Wei = require('./Wei');
 const providerFactory = require('./provider');
 const sign = require('./util/sign');
 const format = require('./util/format');
@@ -16,7 +16,7 @@ module.exports = {
   Wallet,
   Transaction,
   Message,
-  Drip,
+  Wei,
   providerFactory,
   sign,
   format,
