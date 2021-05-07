@@ -10,11 +10,8 @@ class Transaction {
    * @param [options.from] {string} - The sender address.
    * @param [options.nonce] {string|number} - This allows to overwrite your own pending transactions that use the same nonce.
    * @param [options.gasPrice] {string|number} - The price of gas for this transaction in drip.
-   * @param [options.gas] {string|number} - The amount of gas to use for the transaction (unused gas is refunded).
    * @param [options.to] {string} - The destination address of the message, left undefined for a contract-creation transaction.
    * @param [options.value] {string|number} - The value transferred for the transaction in drip, also the endowment if it’s a contract-creation transaction.
-   * @param [options.storageLimit] {string|number} - The storage limit specified by the sender.
-   * @param [options.epochHeight] {string|number} - The epoch proposed by the sender. Note that this is NOT the epoch of the block containing this transaction.
    * @param [options.chainId] {string|number} - The chain ID specified by the sender.
    * @param [options.data] {string|Buffer} - Either a ABI byte string containing the data of the function call on a contract, or in the case of a contract-creation transaction the initialisation code.
    * @param [options.r] {string|Buffer} - ECDSA signature r
@@ -22,17 +19,15 @@ class Transaction {
    * @param [options.v] {number} - ECDSA recovery id
    * @return {Transaction}
    */
-  constructor({ from, nonce, gasPrice, gas, to, value, storageLimit, epochHeight, chainId, data, v, r, s }) {
+  constructor({ from, nonce, gasPrice, gasLimit, to, value, data, chainId, v, r, s }) {
     this.from = from;
     this.nonce = nonce;
     this.gasPrice = gasPrice;
-    this.gas = gas;
+    this.gasLimit = gasLimit;
     this.to = to;
     this.value = value;
-    this.storageLimit = storageLimit;
-    this.epochHeight = epochHeight;
-    this.chainId = chainId;
     this.data = data;
+    this.chainId = chainId;
     this.v = v;
     this.r = r;
     this.s = s;
@@ -62,12 +57,12 @@ class Transaction {
   sign(privateKey) {
     const privateKeyBuffer = format.hexBuffer(privateKey);
     const addressBuffer = privateKeyToAddress(privateKeyBuffer);
-    const { r, s, v } = ecdsaSign(keccak256(this.encode(false)), privateKeyBuffer);
+    const { r, s, recovery } = ecdsaSign(keccak256(this.encode(false)), privateKeyBuffer);
 
     this.from = format.address(addressBuffer);
     this.r = format.hex(r);
     this.s = format.hex(s);
-    this.v = v;
+    this.v = recovery + 27 + this.chainId * 2 + 8; // EIP-155
 
     return this;
   }
@@ -81,23 +76,24 @@ class Transaction {
     const publicKey = ecdsaRecover(keccak256(this.encode(false)), {
       r: format.hexBuffer(this.r),
       s: format.hexBuffer(this.s),
-      v: format.uInt(this.v),
+      recovery: format.uInt(this.v - 27 - this.chainId * 2 - 8),
     });
     return format.publicKey(publicKey);
   }
 
   /**
    * Encode rlp.
+   * > TODO: EIP-2718, EIP-2930
    *
    * @param [includeSignature=false] {boolean} - Whether or not to include the signature.
    * @return {Buffer}
    */
   encode(includeSignature) {
-    const { nonce, gasPrice, gas, to, value, storageLimit, epochHeight, chainId, data, v, r, s } = format.signTx(this);
+    const { nonce, gasPrice, gasLimit, to, value, data, chainId, v, r, s } = format.signTx(this);
 
     const raw = includeSignature
-      ? [[nonce, gasPrice, gas, to, value, storageLimit, epochHeight, chainId, data], v, r, s]
-      : [nonce, gasPrice, gas, to, value, storageLimit, epochHeight, chainId, data];
+      ? [nonce, gasPrice, gasLimit, to, value, data, v, r, s]
+      : [nonce, gasPrice, gasLimit, to, value, data, chainId, format.hexBuffer(null), format.hexBuffer(null)];
 
     return rlp.encode(raw);
   }

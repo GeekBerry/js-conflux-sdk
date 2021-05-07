@@ -88,6 +88,10 @@ class Ethereum {
    *
    * @private
    * @return {Promise<string>}
+   *
+   * @example
+   * > await client.getClientVersion()
+   "OpenEthereum//v3.2.5-rc.1-stable-2df74c2-20210428/x86_64-linux-gnu/rustc1.51.0"
    */
   async getClientVersion() {
     return this.provider.call('web3_clientVersion');
@@ -95,6 +99,10 @@ class Ethereum {
 
   /**
    * @return {Promise<string>}
+   *
+   * @example
+   * > await client.getNetVersion()
+   "Mainnet"
    */
   async getNetVersion() {
     const result = await this.provider.call('net_version');
@@ -103,6 +111,22 @@ class Ethereum {
 
   /**
    * @return {Promise<number>}
+   *
+   * @example
+   * > await client.getChainId()
+   42
+   */
+  async getChainId() {
+    const result = await this.provider.call('eth_chainId');
+    return format.uInt(result);
+  }
+
+  /**
+   * @return {Promise<number>}
+   *
+   * @example
+   * > await client.getProtocolVersion()
+   65
    */
   async getProtocolVersion() {
     const result = await this.provider.call('eth_protocolVersion');
@@ -395,178 +419,51 @@ class Ethereum {
     }
   }
 
-  // /**
-  //  * Create `Transaction` and sign by account which key by `from` filed in `client.wallet`, then send transaction
-  //  *
-  //  * @private
-  //  * @param options {object}
-  //  * @param options.from {string} - Key of account in client.wallet
-  //  * @return {Promise<Transaction>}
-  //  */
-  // async _signTransaction(options) {
-  //   const account = await this.wallet.get(options.from);
-  //
-  //   if (options.nonce === undefined) {
-  //     options.nonce = await this.getNextNonce(account);
-  //   }
-  //
-  //   if (options.chainId === undefined) {
-  //     const status = await this.getStatus();
-  //     options.chainId = status.chainId;
-  //   }
-  //
-  //   if (options.epochHeight === undefined) {
-  //     options.epochHeight = await this.getEpochNumber();
-  //   }
-  //
-  //   if (options.gasPrice === undefined) {
-  //     if (this.defaultGasPrice === undefined) {
-  //       const gasPrice = await this.getGasPrice();
-  //       options.gasPrice = Number(gasPrice) === 0 ? CONST.MIN_GAS_PRICE : gasPrice;
-  //     } else {
-  //       options.gasPrice = this.defaultGasPrice;
-  //     }
-  //   }
-  //
-  //   if (options.gas === undefined || options.storageLimit === undefined) {
-  //     let gas;
-  //     let storageLimit;
-  //
-  //     if (options.data) {
-  //       const { gasLimit, storageCollateralized } = await this.estimateGasAndCollateral(options);
-  //       gas = gasLimit;
-  //       storageLimit = storageCollateralized;
-  //     } else {
-  //       gas = CONST.TRANSACTION_GAS;
-  //       storageLimit = CONST.TRANSACTION_STORAGE_LIMIT;
-  //     }
-  //
-  //     if (options.gas === undefined) {
-  //       options.gas = gas;
-  //     }
-  //
-  //     if (options.storageLimit === undefined) {
-  //       options.storageLimit = storageLimit;
-  //     }
-  //   }
-  //
-  //   return account.signTransaction(options);
-  // }
+  /**
+   * Create `Transaction` and sign by account which key by `from` filed in `client.wallet`, then send transaction
+   *
+   * @private
+   * @param options {object}
+   * @param options.from {string} - Key of account in client.wallet
+   * @return {Promise<Transaction>}
+   */
+  async signTransaction(options) {
+    const account = await this.wallet.get(options.from);
 
-  // /**
-  //  * Sign and send transaction
-  //  * if `from` field in `client.wallet`, sign by local account and send raw transaction,
-  //  * else call `cfx_sendTransaction` and sign by remote wallet
-  //  *
-  //  * @param options {object} - See [Transaction](#Transaction.js/Transaction/**constructor**)
-  //  * @param [password] {string} - Password for remote node.
-  //  * @return {Promise<PendingTransaction>} The PendingTransaction object.
-  //  *
-  //  * @example
-  //  * > txHash = await client.sendTransaction({from:account, to:address, value:0}); // send and get transaction hash
-  //  "0xb2ba6cca35f0af99a9601d09ee19c1949d8130312550e3f5413c520c6d828f88"
-  //
-  //  * @example
-  //  * > packedTx = await client.sendTransaction({from:account, to:address, value:0}).get(); // await till transaction packed
-  //  {
-  //   "nonce": 8n,
-  //   "value": 0n,
-  //   "gasPrice": 1000000000n,
-  //   "gas": 21000n,
-  //   "v": 0,
-  //   "transactionIndex": null,
-  //   "status": null,
-  //   "storageLimit": 0n,
-  //   "chainId": 1,
-  //   "epochHeight": 791394,
-  //   "blockHash": null,
-  //   "contractCreated": null,
-  //   "data": "0x",
-  //   "from": "0x1bd9e9be525ab967e633bcdaeac8bd5723ed4d6b",
-  //   "hash": "0xb2ba6cca35f0af99a9601d09ee19c1949d8130312550e3f5413c520c6d828f88",
-  //   "r": "0x245a1a86ae405eb72c1eaf98f5e22baa326fcf8262abad2c4a3e5bdcf2e912b5",
-  //   "s": "0x4df8058887a4dd8aaf60208accb3e57292a50ff06a117df6e54f7f56176248c0",
-  //   "to": "0x1bd9e9be525ab967e633bcdaeac8bd5723ed4d6b"
-  //  }
-  //
-  //  * @example
-  //  * > minedTx = await client.sendTransaction({from:account, to:address, value:0}).mined(); // await till transaction mined
-  //  {
-  //   "nonce": 8n,
-  //   "value": 0n,
-  //   "gasPrice": 1000000000n,
-  //   "gas": 21000n,
-  //   "v": 0,
-  //   "transactionIndex": 0,
-  //   "status": 0,
-  //   "storageLimit": 0n,
-  //   "chainId": 1,
-  //   "epochHeight": 791394,
-  //   "blockHash": "0xdb2d2d438dcdee8d61c6f495bd363b1afb68cb0fdff16582c08450a9ca487852",
-  //   "contractCreated": null,
-  //   "data": "0x",
-  //   "from": "0x1bd9e9be525ab967e633bcdaeac8bd5723ed4d6b",
-  //   "hash": "0xb2ba6cca35f0af99a9601d09ee19c1949d8130312550e3f5413c520c6d828f88",
-  //   "r": "0x245a1a86ae405eb72c1eaf98f5e22baa326fcf8262abad2c4a3e5bdcf2e912b5",
-  //   "s": "0x4df8058887a4dd8aaf60208accb3e57292a50ff06a117df6e54f7f56176248c0",
-  //   "to": "0x1bd9e9be525ab967e633bcdaeac8bd5723ed4d6b"
-  //  }
-  //
-  //  * @example
-  //  * > executedReceipt = await client.sendTransaction({from:account, to:address, value:0}).executed(); // await till transaction executed
-  //  {
-  //   "index": 0,
-  //   "epochNumber": 791402,
-  //   "outcomeStatus": 0,
-  //   "gasUsed": 21000n,
-  //   "gasFee": 21000000000000n,
-  //   "blockHash": "0xdb2d2d438dcdee8d61c6f495bd363b1afb68cb0fdff16582c08450a9ca487852",
-  //   "contractCreated": null,
-  //   "from": "0x1bd9e9be525ab967e633bcdaeac8bd5723ed4d6b",
-  //   "logs": [],
-  //   "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-  //   "stateRoot": "0x510d680cdbf60d34bcd987b3bf9925449c0839a7381dc8fd8222d2c7ee96122d",
-  //   "to": "0x1bd9e9be525ab967e633bcdaeac8bd5723ed4d6b",
-  //   "transactionHash": "0xb2ba6cca35f0af99a9601d09ee19c1949d8130312550e3f5413c520c6d828f88"
-  //  }
-  //
-  //  * @example
-  //  * > confirmedReceipt = await client.sendTransaction({from:account, to:address, value:0}).confirmed(); // await till risk coefficient < threshold (default 1e-8)
-  //  {
-  //   "index": 0,
-  //   "epochNumber": 791402,
-  //   "outcomeStatus": 0,
-  //   "gasUsed": 21000n,
-  //   "gasFee": 21000000000000n,
-  //   "blockHash": "0xdb2d2d438dcdee8d61c6f495bd363b1afb68cb0fdff16582c08450a9ca487852",
-  //   "contractCreated": null,
-  //   "from": "0x1bd9e9be525ab967e633bcdaeac8bd5723ed4d6b",
-  //   "logs": [],
-  //   "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-  //   "stateRoot": "0x510d680cdbf60d34bcd987b3bf9925449c0839a7381dc8fd8222d2c7ee96122d",
-  //   "to": "0x1bd9e9be525ab967e633bcdaeac8bd5723ed4d6b",
-  //   "transactionHash": "0xb2ba6cca35f0af99a9601d09ee19c1949d8130312550e3f5413c520c6d828f88"
-  //  }
-  //  */
-  // async sendTransaction(options, password) {
-  //   if (options.from !== undefined) {
-  //     options.from = format.address(options.from);
-  //   }
-  //
-  //   if (options.to !== undefined && options.to !== null) {
-  //     options.to = format.address(options.to);
-  //   }
-  //
-  //   if (this.wallet.has(options.from)) {
-  //     const transaction = await this._signTransaction(options);
-  //     return this.sendRawTransaction(transaction.serialize());
-  //   }
-  //
-  //   return this.provider.call('cfx_sendTransaction',
-  //     format.callTx(options),
-  //     password,
-  //   );
-  // }
+    if (options.nonce === undefined) {
+      options.nonce = await this.getTransactionCount(account);
+    }
+
+    if (options.chainId === undefined) {
+      options.chainId = await this.getChainId();
+    }
+
+    if (options.gasPrice === undefined) {
+      if (this.defaultGasPrice === undefined) {
+        options.gasPrice = await this.getGasPrice();
+      } else {
+        options.gasPrice = this.defaultGasPrice;
+      }
+    }
+
+    if (options.gasLimit === undefined) {
+      options.gasLimit = options.data
+        ? await this.estimateGas(options)
+        : CONST.TRANSACTION_GAS;
+    }
+
+    return account.signTransaction(options);
+  }
+
+  /**
+   * @param options {object}
+   * @return {Promise<PendingTransaction>}
+   */
+  async sendTransaction(options) {
+    const transaction = await this.signTransaction(options);
+
+    return this.sendRawTransaction(transaction.serialize());
+  }
 
   // ------------------------------ contract ----------------------------------
   /**

@@ -91,8 +91,8 @@ class PendingTransaction {
     for (let lastTime = startTime; lastTime < startTime + timeout; lastTime = Date.now()) {
       const receipt = await this.client.getTransactionReceipt(transactionHash);
       if (receipt) {
-        if (receipt.outcomeStatus !== 0) {
-          throw new Error(`transaction "${transactionHash}" executed failed, outcomeStatus ${receipt.outcomeStatus}`);
+        if (receipt.status !== 1) { // 0: failure, 1: success
+          throw new Error(`transaction "${transactionHash}" executed failed, outcomeStatus ${receipt.status}`);
         }
         return receipt;
       }
@@ -101,35 +101,6 @@ class PendingTransaction {
     }
 
     throw new Error(`wait transaction "${transactionHash}" executed timeout after ${Date.now() - startTime} ms`);
-  }
-
-  /**
-   * Async wait till transaction been confirmed.
-   *
-   * - executed
-   * - transaction block risk coefficient < threshold
-   *
-   * @param [options] {object}
-   * @param [options.delta=1000] {number} - Loop transaction interval in ms.
-   * @param [options.timeout=30*60*1000] {number} - Loop timeout in ms.
-   * @param [options.threshold=1e-8] {number} - Number in range (0,1)
-   * @return {Promise<object>} See [Conflux.getTransactionReceipt](#Conflux.js/getTransactionReceipt)
-   */
-  async confirmed({ delta = 1000, timeout = 30 * 60 * 1000, threshold = 1e-8 } = {}) {
-    const startTime = Date.now();
-
-    const transactionHash = await this;
-    for (let lastTime = startTime; lastTime < startTime + timeout; lastTime = Date.now()) {
-      const receipt = await this.executed({ delta, timeout }); // must get receipt every time, cause blockHash might change
-      const risk = await this.client.getConfirmationRiskByHash(receipt.blockHash);
-      if (risk <= threshold) {
-        return receipt;
-      }
-
-      await sleep(lastTime + delta - Date.now());
-    }
-
-    throw new Error(`wait transaction "${transactionHash}" confirmed timeout after ${Date.now() - startTime} ms`);
   }
 }
 

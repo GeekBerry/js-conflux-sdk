@@ -148,7 +148,7 @@ function privateKeyToAddress(privateKey) {
  {
   r: <Buffer 21 ab b4 c3 fd 51 75 81 e6 c7 e7 e0 7f 40 4f a2 2c ba 8d 8f 71 27 0b 29 58 42 b8 3c 44 b5 a4 c6>,
   s: <Buffer 08 59 7b 69 8f 8f 3c c2 ba 0b 45 ee a7 7f 55 29 ad f9 5c a5 51 41 e7 9b 56 53 77 3d 00 5d 18 58>,
-  v: 0
+  recovery: 0
  }
  */
 function ecdsaSign(hash, privateKey) {
@@ -156,7 +156,7 @@ function ecdsaSign(hash, privateKey) {
   return {
     r: sig.signature.slice(0, 32),
     s: sig.signature.slice(32, 64),
-    v: sig.recovery,
+    recovery: sig.recovery,
   };
 }
 
@@ -167,7 +167,7 @@ function ecdsaSign(hash, privateKey) {
  * @param options {object}
  * @param options.r {Buffer}
  * @param options.s {Buffer}
- * @param options.v {number}
+ * @param options.recovery {number}
  * @return {Buffer} publicKey
  *
  * @example
@@ -178,8 +178,8 @@ function ecdsaSign(hash, privateKey) {
  * > publicKeyToAddress(ecdsaRecover(buffer32, ecdsaSign(buffer32, privateKey)))
  <Buffer 0d b9 e0 02 85 67 52 28 8b ef 47 60 fa 67 94 ec 83 a8 53 b9>
  */
-function ecdsaRecover(hash, { r, s, v }) {
-  const senderPublic = secp256k1.recover(hash, Buffer.concat([r, s]), v);
+function ecdsaRecover(hash, { r, s, recovery }) {
+  const senderPublic = secp256k1.recover(hash, Buffer.concat([r, s]), recovery);
   return secp256k1.publicKeyConvert(senderPublic, false).slice(1);
 }
 

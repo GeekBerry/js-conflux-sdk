@@ -32,16 +32,6 @@ const NET_VERSION = {
 };
 
 /**
- * min gas price for transaction
- *
- * @type {number}
- * @example
- * > CONST.MIN_GAS_PRICE
- 1
- */
-const MIN_GAS_PRICE = 1;
-
-/**
  * gas use for pure transfer transaction
  *
  * @type {number}
@@ -59,6 +49,5 @@ module.exports = {
 
   NET_VERSION,
   BLOCK_NUMBER,
-  MIN_GAS_PRICE,
   TRANSACTION_GAS,
 };

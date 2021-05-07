@@ -45,7 +45,7 @@ function toAddress(value) {
 
   const address = sign.checksumAddress(string);
   if (string !== string.toLowerCase() && string !== string.toUpperCase() && string !== address) {
-    throw new Error(`address "${string}" checksum error`);
+    throw new Error(`checksum error, expect to be ${address}, got ${string}`);
   }
   return address;
 }
@@ -377,33 +377,33 @@ format.getLogs = format({
 format.signTx = format({
   nonce: format.bigUInt.$after(format.hexBuffer),
   gasPrice: format.bigUInt.$after(format.hexBuffer),
-  gas: format.bigUInt.$after(format.hexBuffer),
-  to: format(format.address.$or(null).$default(null)).$after(v => (v ? v.toHex() : v)).$after(format.hexBuffer),
+  gasLimit: format.bigUInt.$after(format.hexBuffer),
+  to: format.address.$or(null).$default(null).$after(format.hexBuffer),
   value: format.bigUInt.$default(0).$after(format.hexBuffer),
-  storageLimit: format.bigUInt.$after(format.hexBuffer),
-  epochHeight: format.uInt.$after(format.hexBuffer),
-  chainId: format.uInt.$default(0).$after(format.hexBuffer),
+  chainId: format.hexBuffer,
   data: format.hex.$default('0x').$after(format.hexBuffer),
-  r: (format.bigUInt.$after(format.hexBuffer)).$or(undefined),
-  s: (format.bigUInt.$after(format.hexBuffer)).$or(undefined),
-  v: (format.uInt.$after(format.hexBuffer)).$or(undefined),
+  r: format.hexBuffer.$or(undefined),
+  s: format.hexBuffer.$or(undefined),
+  v: format.hexBuffer.$or(undefined),
 }, { strict: true, pick: true });
 
 format.callTx = format({
   from: format.address,
-  to: format.address,
-  gas: format.bigUIntHex,
+  nonce: format.bigUIntHex,
+  gasLimit: format.bigUIntHex,
   gasPrice: format.bigUIntHex,
+  to: format.address,
   value: format.bigUIntHex,
-  data: format.hex,
+  data: format.hex.$default('0x'),
 }, { pick: true });
 
 // ----------------------------- parse rpc returned ---------------------------
 format.transaction = format({
   blockNumber: format.uInt.$or(null),
+  chainId: format.uInt,
   gas: format.bigUInt,
   gasPrice: format.bigUInt,
-  nonce: format.bigUInt,
+  nonce: format.uInt,
   transactionIndex: format.uInt.$or(null),
   v: format.uInt,
   value: format.bigUInt,

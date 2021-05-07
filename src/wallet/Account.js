@@ -1,5 +1,4 @@
 const Transaction = require('../Transaction');
-const Message = require('../Message');
 
 class Account {
   /**
@@ -15,14 +14,6 @@ class Account {
    */
   async signTransaction(options) {
     return new Transaction(options);
-  }
-
-  /**
-   * @param message {string}
-   * @return {Promise<Message>}
-   */
-  async signMessage(message) {
-    return new Message(message);
   }
 
   /**
