@@ -88,16 +88,15 @@ describe('number', () => {
     expect(coder.signed).toEqual(true);
     expect(coder.size).toEqual(1);
 
-    testEncode(coder, 127, '0x000000000000000000000000000000000000000000000000000000000000007f');
-    testDecode(coder, JSBI.BigInt(127), '0x000000000000000000000000000000000000000000000000000000000000007f');
+    testEncodeAndDecode(coder, 127, '0x000000000000000000000000000000000000000000000000000000000000007f');
 
     expect(() => coder.encode(128)).toThrow('bound error');
-    testEncodeAndDecode(coder, JSBI.BigInt(127), '0x000000000000000000000000000000000000000000000000000000000000007f');
-    testEncodeAndDecode(coder, JSBI.BigInt(1), '0x0000000000000000000000000000000000000000000000000000000000000001');
-    testEncodeAndDecode(coder, JSBI.BigInt(0), '0x0000000000000000000000000000000000000000000000000000000000000000');
-    testEncodeAndDecode(coder, JSBI.BigInt(-1), '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff');
-    testEncodeAndDecode(coder, JSBI.BigInt(-128), '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff80');
-    testDecode(coder, JSBI.BigInt(-128), '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcd80');
+    testEncodeAndDecode(coder, 127, '0x000000000000000000000000000000000000000000000000000000000000007f');
+    testEncodeAndDecode(coder, 1, '0x0000000000000000000000000000000000000000000000000000000000000001');
+    testEncodeAndDecode(coder, 0, '0x0000000000000000000000000000000000000000000000000000000000000000');
+    testEncodeAndDecode(coder, -1, '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff');
+    testEncodeAndDecode(coder, -128, '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff80');
+    testDecode(coder, -128, '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcd80');
     expect(() => coder.encode(-129)).toThrow('bound error');
   });
 
@@ -109,11 +108,11 @@ describe('number', () => {
     expect(coder.size).toEqual(1);
 
     expect(() => coder.encode(256)).toThrow();
-    testEncodeAndDecode(coder, JSBI.BigInt(255), '0x00000000000000000000000000000000000000000000000000000000000000ff');
-    testEncodeAndDecode(coder, JSBI.BigInt(1), '0x0000000000000000000000000000000000000000000000000000000000000001');
-    testEncodeAndDecode(coder, JSBI.BigInt(0), '0x0000000000000000000000000000000000000000000000000000000000000000');
-    testDecode(coder, JSBI.BigInt(128), '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff80');
-    testDecode(coder, JSBI.BigInt(128), '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcd80');
+    testEncodeAndDecode(coder, 255, '0x00000000000000000000000000000000000000000000000000000000000000ff');
+    testEncodeAndDecode(coder, 1, '0x0000000000000000000000000000000000000000000000000000000000000001');
+    testEncodeAndDecode(coder, 0, '0x0000000000000000000000000000000000000000000000000000000000000000');
+    testDecode(coder, 128, '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff80');
+    testDecode(coder, 128, '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcd80');
     expect(() => coder.encode(-1)).toThrow('bound error');
   });
 
@@ -217,12 +216,12 @@ describe('array', () => {
     expect(coder.size).toEqual(2);
     expect(coder.dynamic).toEqual(false);
 
-    testEncodeAndDecode(coder, [JSBI.BigInt(0xab), JSBI.BigInt(0xcd)], '0x' +
+    testEncodeAndDecode(coder, [0xab, 0xcd], '0x' +
       '00000000000000000000000000000000000000000000000000000000000000ab' +
       '00000000000000000000000000000000000000000000000000000000000000cd',
     );
 
-    testEncode(coder, [0xab, 0xcd], '0x' +
+    testEncode(coder, [JSBI.BigInt(0xab), JSBI.BigInt(0xcd)], '0x' +
       '00000000000000000000000000000000000000000000000000000000000000ab' +
       '00000000000000000000000000000000000000000000000000000000000000cd',
     );
@@ -238,7 +237,7 @@ describe('array', () => {
     expect(coder.size).toEqual(undefined);
     expect(coder.dynamic).toEqual(true);
 
-    testEncodeAndDecode(coder, [JSBI.BigInt(0xab), JSBI.BigInt(0xcd)], '0x' +
+    testEncodeAndDecode(coder, [0xab, 0xcd], '0x' +
       '0000000000000000000000000000000000000000000000000000000000000002' +
       '00000000000000000000000000000000000000000000000000000000000000ab' +
       '00000000000000000000000000000000000000000000000000000000000000cd',
@@ -398,7 +397,7 @@ describe('tuple', () => {
     expect(value.location.y).toEqual(value[1][1]);
   });
 
-  test('tuple(uint,uint32[],string,bytes10)', () => {
+  test('tuple(uint,uint64[],string,bytes10)', () => {
     const coder = valueCoder({
       type: 'tuple',
       components: [
@@ -416,7 +415,7 @@ describe('tuple', () => {
 
     testEncodeAndDecode(
       coder,
-      [JSBI.BigInt(0x123), [JSBI.BigInt(0x456), JSBI.BigInt(0x789)], 'Hello, world!', Buffer.from([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])],
+      [JSBI.BigInt(0x123), [0x456, 0x789], 'Hello, world!', Buffer.from([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])],
       '0x' +
       '0000000000000000000000000000000000000000000000000000000000000123' +
       '0000000000000000000000000000000000000000000000000000000000000080' +
