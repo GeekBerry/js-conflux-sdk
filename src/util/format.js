@@ -392,7 +392,7 @@ format.callTx = format({
   nonce: format.bigUIntHex,
   gasLimit: format.bigUIntHex,
   gasPrice: format.bigUIntHex,
-  to: format.address,
+  to: format.address.$or(null),
   value: format.bigUIntHex,
   data: format.hex.$default('0x'),
 }, { pick: true });

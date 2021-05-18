@@ -2,7 +2,6 @@ const lodash = require('lodash');
 const { format, sign } = require('../../src');
 
 const {
-  convertBit,
   randomBuffer,
   randomPrivateKey,
 
@@ -18,16 +17,8 @@ const {
 
 const KEY = '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';
 const PUBLIC = '0x4646ae5047316b4230d0086c8acec687f00b1cd9d1dc634f6cb358ac0a9a8ffffe77b4dd0a4bfb95851f3b7355c781dd60f8418fc8a65d14907aff47c903a559';
-const ADDRESS = '0x1cad0b19bb29d4674531d6f115237e16afce377c';
+const ADDRESS = '0xFCAd0B19bB29D4674531d6f115237E16AfCE377c';
 const PASSWORD = 'password';
-
-test('convertBit', async () => {
-  expect(convertBit(Buffer.from([1, 1]), 8, 5, true)).toEqual([0, 4, 0, 16]);
-  expect(() => convertBit(Buffer.from([1, 1]), 8, 5)).toThrow('not zero suffix');
-
-  expect(convertBit(Buffer.from([]), 5, 8)).toEqual([]);
-  expect(() => convertBit(Buffer.from([0]), 5, 8)).toThrow('excess 5 bits');
-});
 
 test('randomBuffer', () => {
   const buffer1 = randomBuffer(32);
@@ -96,13 +87,13 @@ test('encrypt and decrypt', () => {
 
 test('ecdsaSign and ecdsaRecover', () => {
   const hash = randomBuffer(32);
-  const { r, s, v } = ecdsaSign(hash, format.hexBuffer(KEY));
+  const { r, s, recovery } = ecdsaSign(hash, format.hexBuffer(KEY));
 
   expect(r.length).toEqual(32);
   expect(s.length).toEqual(32);
-  expect(Number.isInteger(v)).toEqual(true);
+  expect(Number.isInteger(recovery)).toEqual(true);
 
-  const publicKey = ecdsaRecover(hash, { r, s, v });
-  const address = format.hex(publicKeyToAddress(publicKey));
+  const publicKey = ecdsaRecover(hash, { r, s, recovery });
+  const address = format.address(publicKeyToAddress(publicKey));
   expect(address).toEqual(ADDRESS);
 });

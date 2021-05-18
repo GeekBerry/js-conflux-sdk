@@ -92,7 +92,7 @@ class PendingTransaction {
       const receipt = await this.client.getTransactionReceipt(transactionHash);
       if (receipt) {
         if (receipt.status !== 1) { // 0: failure, 1: success
-          throw new Error(`transaction "${transactionHash}" executed failed, outcomeStatus ${receipt.status}`);
+          throw new Error(`transaction "${transactionHash}" executed failed, status ${receipt.status}`);
         }
         return receipt;
       }

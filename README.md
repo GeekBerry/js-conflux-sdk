@@ -1,91 +1,44 @@
 
-# @geekberry/js-conflux-sdk
+# @geekberry/js-ethereum-sdk
 
-- ChecksumAddress.js
-    - ChecksumAddress
-        - [(static)fromObject](#ChecksumAddress.js/ChecksumAddress/(static)fromObject)
-        - [(static)fromSimple](#ChecksumAddress.js/ChecksumAddress/(static)fromSimple)
-        - [(static)fromBuffer](#ChecksumAddress.js/ChecksumAddress/(static)fromBuffer)
-        - [(static)fromHex](#ChecksumAddress.js/ChecksumAddress/(static)fromHex)
-        - [**constructor**](#ChecksumAddress.js/ChecksumAddress/**constructor**)
-        - [isValid](#ChecksumAddress.js/ChecksumAddress/isValid)
-        - [toObject](#ChecksumAddress.js/ChecksumAddress/toObject)
-        - [toSimple](#ChecksumAddress.js/ChecksumAddress/toSimple)
-        - [toBuffer](#ChecksumAddress.js/ChecksumAddress/toBuffer)
-        - [toHex](#ChecksumAddress.js/ChecksumAddress/toHex)
 - CONST.js
-    - [NET_NAME](#CONST.js/NET_NAME)
-    - [ADDRESS_TYPE](#CONST.js/ADDRESS_TYPE)
     - [BLOCK_NUMBER](#CONST.js/BLOCK_NUMBER)
-    - [MIN_GAS_PRICE](#CONST.js/MIN_GAS_PRICE)
     - [TRANSACTION_GAS](#CONST.js/TRANSACTION_GAS)
-    - [TRANSACTION_STORAGE_LIMIT](#CONST.js/TRANSACTION_STORAGE_LIMIT)
 - contract
     - Contract.js
         - Contract
             - [**constructor**](#contract/Contract.js/Contract/**constructor**)
-- Drip.js
-    - Drip
-        - [(static)fromCFX](#Drip.js/Drip/(static)fromCFX)
-        - [(static)fromGDrip](#Drip.js/Drip/(static)fromGDrip)
-        - [**constructor**](#Drip.js/Drip/**constructor**)
-        - [toCFX](#Drip.js/Drip/toCFX)
-        - [toGDrip](#Drip.js/Drip/toGDrip)
 - Ethereum.js
     - Ethereum
         - [**constructor**](#Ethereum.js/Ethereum/**constructor**)
         - [provider](#Ethereum.js/Ethereum/provider)
         - [wallet](#Ethereum.js/Ethereum/wallet)
-        - [netName](#Ethereum.js/Ethereum/netName)
         - [defaultGasPrice](#Ethereum.js/Ethereum/defaultGasPrice)
         - [Contract](#Ethereum.js/Ethereum/Contract)
-        - [InternalContract](#Ethereum.js/Ethereum/InternalContract)
-        - [ChecksumAddress](#Ethereum.js/Ethereum/ChecksumAddress)
         - [close](#Ethereum.js/Ethereum/close)
-        - [getStatus](#Ethereum.js/Ethereum/getStatus)
+        - [getNetVersion](#Ethereum.js/Ethereum/getNetVersion)
+        - [getChainId](#Ethereum.js/Ethereum/getChainId)
+        - [getProtocolVersion](#Ethereum.js/Ethereum/getProtocolVersion)
         - [getGasPrice](#Ethereum.js/Ethereum/getGasPrice)
-        - [getSupplyInfo](#Ethereum.js/Ethereum/getSupplyInfo)
-        - [getInterestRate](#Ethereum.js/Ethereum/getInterestRate)
-        - [getAccumulateInterestRate](#Ethereum.js/Ethereum/getAccumulateInterestRate)
-        - [getAccount](#Ethereum.js/Ethereum/getAccount)
         - [getBalance](#Ethereum.js/Ethereum/getBalance)
-        - [getStakingBalance](#Ethereum.js/Ethereum/getStakingBalance)
-        - [getNextNonce](#Ethereum.js/Ethereum/getNextNonce)
-        - [getAdmin](#Ethereum.js/Ethereum/getAdmin)
-        - [getVoteList](#Ethereum.js/Ethereum/getVoteList)
-        - [getDepositList](#Ethereum.js/Ethereum/getDepositList)
+        - [getTransactionCount](#Ethereum.js/Ethereum/getTransactionCount)
         - [getBlockNumber](#Ethereum.js/Ethereum/getBlockNumber)
         - [getBlockByNumber](#Ethereum.js/Ethereum/getBlockByNumber)
-        - [getBlocksByEpochNumber](#Ethereum.js/Ethereum/getBlocksByEpochNumber)
-        - [getBestBlockHash](#Ethereum.js/Ethereum/getBestBlockHash)
         - [getBlockByHash](#Ethereum.js/Ethereum/getBlockByHash)
-        - [getConfirmationRiskByHash](#Ethereum.js/Ethereum/getConfirmationRiskByHash)
-        - [traceBlock](#Ethereum.js/Ethereum/traceBlock)
         - [getTransactionByHash](#Ethereum.js/Ethereum/getTransactionByHash)
         - [getTransactionReceipt](#Ethereum.js/Ethereum/getTransactionReceipt)
         - [sendRawTransaction](#Ethereum.js/Ethereum/sendRawTransaction)
         - [sendTransaction](#Ethereum.js/Ethereum/sendTransaction)
         - [getCode](#Ethereum.js/Ethereum/getCode)
         - [getStorageAt](#Ethereum.js/Ethereum/getStorageAt)
-        - [getStorageRoot](#Ethereum.js/Ethereum/getStorageRoot)
-        - [getSponsorInfo](#Ethereum.js/Ethereum/getSponsorInfo)
-        - [getCollateralForStorage](#Ethereum.js/Ethereum/getCollateralForStorage)
         - [call](#Ethereum.js/Ethereum/call)
-        - [estimateGasAndCollateral](#Ethereum.js/Ethereum/estimateGasAndCollateral)
+        - [estimateGas](#Ethereum.js/Ethereum/estimateGas)
         - [getLogs](#Ethereum.js/Ethereum/getLogs)
         - [subscribe](#Ethereum.js/Ethereum/subscribe)
-        - [subscribeEpochs](#Ethereum.js/Ethereum/subscribeEpochs)
         - [subscribeNewHeads](#Ethereum.js/Ethereum/subscribeNewHeads)
         - [subscribeLogs](#Ethereum.js/Ethereum/subscribeLogs)
+        - [subscribeNewPendingTransactions](#Ethereum.js/Ethereum/subscribeNewPendingTransactions)
         - [unsubscribe](#Ethereum.js/Ethereum/unsubscribe)
-- Message.js
-    - Message
-        - [(static)sign](#Message.js/Message/(static)sign)
-        - [(static)recover](#Message.js/Message/(static)recover)
-        - [**constructor**](#Message.js/Message/**constructor**)
-        - [hash(getter)](#Message.js/Message/hash(getter))
-        - [from(getter)](#Message.js/Message/from(getter))
-        - [sign](#Message.js/Message/sign)
 - provider
     - BaseProvider.js
         - BaseProvider
@@ -106,7 +59,6 @@
             - [get](#subscribe/PendingTransaction.js/PendingTransaction/get)
             - [mined](#subscribe/PendingTransaction.js/PendingTransaction/mined)
             - [executed](#subscribe/PendingTransaction.js/PendingTransaction/executed)
-            - [confirmed](#subscribe/PendingTransaction.js/PendingTransaction/confirmed)
     - Subscription.js
         - [Subscription](#subscribe/Subscription.js/Subscription)
 - Transaction.js
@@ -126,11 +78,9 @@
             - [(static)bigUInt](#util/format.js/format/(static)bigUInt)
             - [(static)bigUIntHex](#util/format.js/format/(static)bigUIntHex)
             - [(static)big](#util/format.js/format/(static)big)
-            - [(static)fixed64](#util/format.js/format/(static)fixed64)
             - [(static)blockNumber](#util/format.js/format/(static)blockNumber)
-            - [(static)hex](#util/format.js/format/(static)hex)
-            - [(static)checksumAddress](#util/format.js/format/(static)checksumAddress)
             - [(static)address](#util/format.js/format/(static)address)
+            - [(static)hex](#util/format.js/format/(static)hex)
             - [(static)blockHash](#util/format.js/format/(static)blockHash)
             - [(static)transactionHash](#util/format.js/format/(static)transactionHash)
             - [(static)privateKey](#util/format.js/format/(static)privateKey)
@@ -140,9 +90,8 @@
             - [(static)boolean](#util/format.js/format/(static)boolean)
             - [(static)keccak256](#util/format.js/format/(static)keccak256)
     - sign.js
-        - [convertBit](#util/sign.js/convertBit)
-        - [polyMod](#util/sign.js/polyMod)
         - [keccak256](#util/sign.js/keccak256)
+        - [checksumAddress](#util/sign.js/checksumAddress)
         - [randomBuffer](#util/sign.js/randomBuffer)
         - [randomPrivateKey](#util/sign.js/randomPrivateKey)
         - [privateKeyToPublicKey](#util/sign.js/privateKeyToPublicKey)
@@ -174,255 +123,13 @@
 
 ----------------------------------------
 
-## ChecksumAddress <a id="ChecksumAddress.js/ChecksumAddress"></a>
-
-Checksum address by CIP-37
-
-### ChecksumAddress.fromObject <a id="ChecksumAddress.js/ChecksumAddress/(static)fromObject"></a>
-
-From object to CIP-37 address
-
-* **Parameters**
-
-Name                | Type     | Required | Default | Description
---------------------|----------|----------|---------|------------------------
-options             | `object` | true     |         |
-options.netName     | `string` | true     |         | Net name
-options.addressType | `string` | true     |         | Address Type
-options.payload     | `string` | true     |         | Base32 address payload
-options.checksum    | `string` | true     |         | Base32 address checksum
-
-* **Returns**
-
-`ChecksumAddress` 
-
-* **Examples**
-
-```
-> ChecksumAddress.fromObject({
-     netName: 'CFX',
-     addressType: 'USER',
-     payload: 'ACC7UAWF5UBTNMEZVHU9DHC6SGHEA0403Y',
-     checksum: '2DGPYFJP',
-   })
-   "CFX:TYPE.CONTRACT:ACC7UAWF5UBTNMEZVHU9DHC6SGHEA0403Y2DGPYFJP"
-```
-
-### ChecksumAddress.fromSimple <a id="ChecksumAddress.js/ChecksumAddress/(static)fromSimple"></a>
-
-From simple address string to complete CIP-37 address
-
-* **Parameters**
-
-Name   | Type     | Required | Default | Description
--------|----------|----------|---------|------------
-string | `string` | true     |         |
-
-* **Returns**
-
-`ChecksumAddress` 
-
-* **Examples**
-
-```
-> ChecksumAddress.fromSimple('cfx:acc7uawf5ubtnmezvhu9dhc6sghea0403y2dgpyfjp')
-   "CFX:TYPE.CONTRACT:ACC7UAWF5UBTNMEZVHU9DHC6SGHEA0403Y2DGPYFJP"
-```
-
-### ChecksumAddress.fromBuffer <a id="ChecksumAddress.js/ChecksumAddress/(static)fromBuffer"></a>
-
-From bytes20 address buffer to CIP-37 address
-
-* **Parameters**
-
-Name    | Type     | Required | Default | Description
---------|----------|----------|---------|------------
-buffer  | `Buffer` | true     |         |
-netName | `string` | false    | 'CFX'   |
-
-* **Returns**
-
-`ChecksumAddress` 
-
-* **Examples**
-
-```
-> ChecksumAddress.fromBuffer(Buffer.alloc(20))
-   'CFX:TYPE.NULL:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0SFBNJM2'
-```
-
-### ChecksumAddress.fromHex <a id="ChecksumAddress.js/ChecksumAddress/(static)fromHex"></a>
-
-From hex40 address to CIP-37 address
-
-* **Parameters**
-
-Name    | Type     | Required | Default | Description
---------|----------|----------|---------|---------------
-hex     | `string` | true     |         | Hex 40 address
-netName | `string` | false    |         | Net name
-
-* **Returns**
-
-`ChecksumAddress` 
-
-* **Examples**
-
-```
-> ChecksumAddress.fromHex('0x0000000000000000000000000000000000000000')
-   'CFX:TYPE.NULL:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0SFBNJM2'
-> ChecksumAddress.fromHex('0x0000000000000000000000000000000000000000', 'CFXTEST')
-   'CFXTEST:TYPE.NULL:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA6F0VRCSW'
-> ChecksumAddress.fromHex('0x0000000000000000000000000000000000000000', 'NET8')
-   'NET8:TYPE.NULL:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABM73N8R6'
-```
-
-### ChecksumAddress.prototype.**constructor** <a id="ChecksumAddress.js/ChecksumAddress/**constructor**"></a>
-
-Checksum address by CIP-37
-
-* **Parameters**
-
-Name   | Type     | Required | Default | Description
--------|----------|----------|---------|---------------
-string | `string` | true     |         | CIP-37 address
-
-* **Examples**
-
-```
-> new ChecksumAddress('CFX:TYPE.USER:AARC9ABYCUE0HHZGYRR53M6CXEDGCCRMMYYBJGH4XG')
-   'CFX:TYPE.USER:AARC9ABYCUE0HHZGYRR53M6CXEDGCCRMMYYBJGH4XG'
-> ChecksumAddress('CFX:TYPE.CONTRACT:ACC7UAWF5UBTNMEZVHU9DHC6SGHEA0403Y2DGPYFJP') // without `new`
-   'CFX:TYPE.CONTRACT:ACC7UAWF5UBTNMEZVHU9DHC6SGHEA0403Y2DGPYFJP'
-```
-
-### ChecksumAddress.prototype.isValid <a id="ChecksumAddress.js/ChecksumAddress/isValid"></a>
-
-Return address checksum is valid
-
-* **Returns**
-
-`boolean` 
-
-* **Examples**
-
-```
-> ChecksumAddress('CFX:TYPE.NULL:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0SFBNJM2').isValid()
-   true
-> ChecksumAddress('CFX:TYPE.NULL:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0SFBNJM3').isValid()
-   false
-```
-
-### ChecksumAddress.prototype.toObject <a id="ChecksumAddress.js/ChecksumAddress/toObject"></a>
-
-Inverse operation of `ChecksumAddress.fromObject`
-
-* **Returns**
-
-`object` 
-
-* **Examples**
-
-```
-> ChecksumAddress('CFX:TYPE.NULL:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0SFBNJM2').toObject()
-   {
-      netName: 'CFX',
-      addressType: 'NULL',
-      payload: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
-      checksum: '0SFBNJM2',
-   }
-```
-
-### ChecksumAddress.prototype.toSimple <a id="ChecksumAddress.js/ChecksumAddress/toSimple"></a>
-
-Inverse operation of `ChecksumAddress.fromSimple`
-
-* **Returns**
-
-`string` 
-
-* **Examples**
-
-```
-> ChecksumAddress('CFX:TYPE.NULL:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0SFBNJM2').toSimple()
-   'cfx:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa0sfbnjm2'
-```
-
-### ChecksumAddress.prototype.toBuffer <a id="ChecksumAddress.js/ChecksumAddress/toBuffer"></a>
-
-Inverse operation of `ChecksumAddress.fromBuffer`
-
-* **Returns**
-
-`Buffer` 
-
-* **Examples**
-
-```
-> ChecksumAddress('CFX:TYPE.NULL:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0SFBNJM2').toBuffer()
-   <Buffer 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00>
-```
-
-### ChecksumAddress.prototype.toHex <a id="ChecksumAddress.js/ChecksumAddress/toHex"></a>
-
-Inverse operation of `ChecksumAddress.fromHex`
-
-* **Returns**
-
-`string` 
-
-* **Examples**
-
-```
-> ChecksumAddress('CFX:TYPE.BUILTIN:AAEJUAAAAAAAAAAAAAAAAAAAAAAAAAAAAJRWUC9JNB').toHex()
-   '0x0888000000000000000000000000000000000002'
-```
-
-----------------------------------------
-
-## NET_NAME <a id="CONST.js/NET_NAME"></a>
-
-Conflux net name
-> others named `NET${chainId}`
-
-- `CFXTEST` 'CFX': conflux main-net
-- `CFXTEST` 'CFXTEST': conflux test-net
-
-----------------------------------------
-
-## ADDRESS_TYPE <a id="CONST.js/ADDRESS_TYPE"></a>
-
-address type
-
-- `null` 'NULL': full zero address
-- `builtin` 'BUILTIN': starts with 0x0
-- `user` 'USER': starts with 0x1
-- `contract` 'CONTRACT': starts with 0x8
-
-----------------------------------------
-
 ## BLOCK_NUMBER <a id="CONST.js/BLOCK_NUMBER"></a>
 
 blockNumber label
 
-- `LATEST` 'latest': latest block.
-- `PENDING` 'pending': TODO
+- `PENDING` 'pending': the currently mined block (including pending transactions)
+- `LATEST` 'latest': the latest block (current head of the block chain)
 - `EARLIEST` 'earliest': earliest epoch number, same as 0.
-
-----------------------------------------
-
-## MIN_GAS_PRICE <a id="CONST.js/MIN_GAS_PRICE"></a>
-
-`number`
-
-min gas price for transaction
-
-* **Examples**
-
-```
-> CONST.MIN_GAS_PRICE
- 1
-```
 
 ----------------------------------------
 
@@ -438,14 +145,6 @@ gas use for pure transfer transaction
 > CONST.TRANSACTION_GAS
  21000
 ```
-
-----------------------------------------
-
-## TRANSACTION_STORAGE_LIMIT <a id="CONST.js/TRANSACTION_STORAGE_LIMIT"></a>
-
-`number`
-
-storage limit for pure transfer transaction
 
 ----------------------------------------
 
@@ -472,7 +171,7 @@ options          | `object`  | true     |         |
 options.abi      | `array`   | true     |         | The json interface for the contract to instantiate
 options.address  | `string`  | false    |         | The address of the smart contract to call, can be added later using `contract.address = '0x1234...'`
 options.bytecode | `string`  | false    |         | The byte code of the contract, can be added later using `contract.constructor.code = '0x1234...'`
-conflux          | `Conflux` | true     |         | Conflux instance.
+client           | `Conflux` | true     |         | Conflux instance.
 
 * **Returns**
 
@@ -481,7 +180,7 @@ conflux          | `Conflux` | true     |         | Conflux instance.
 * **Examples**
 
 ```
-> const contract = conflux.Contract({ abi, bytecode, address });
+> const contract = client.Contract({ abi, bytecode, address });
    {
       abi: ContractABI { contract: [Circular *1] },
       address: '0x8e2f2e68eb75bb8b18caafe9607242d4748f8d98',
@@ -504,7 +203,7 @@ conflux          | `Conflux` | true     |         | Conflux instance.
 ```
 
 ```
-> const contract = conflux.Contract({
+> const contract = client.Contract({
    address: '0x8e2f2e68eb75bb8b18caafe9607242d4748f8d98',
    abi: [
       {
@@ -536,10 +235,10 @@ conflux          | `Conflux` | true     |         | Conflux instance.
 > await contract.name(); // call a method without parameter, get decoded return value.
    "FansCoin"
 > await contract.name().call({ to: '0x8b8689c7f3014a4d86e4d1d0daaf74a47f5e0f27' }); // call a method with options
-   "conflux USDT"
+   "client USDT"
 > await contract.balanceOf('0x19c742cec42b9e4eff3b84cdedcde2f58a36f44f'); // call a method with parameters, get decoded return value.
    10000000000000000000n
-> transaction = await conflux.getTransactionByHash('0x2055f3287f1a6ce77d91f5dfdf7517a531b3a560fee1265f27dc1ff92314530b');
+> transaction = await client.getTransactionByHash('0x2055f3287f1a6ce77d91f5dfdf7517a531b3a560fee1265f27dc1ff92314530b');
 > contract.abi.decodeData(transaction.data)
    {
       name: 'send',
@@ -557,7 +256,7 @@ conflux          | `Conflux` | true     |         | Conflux instance.
         data: <Buffer 1f 3c 6b 96 96 60 4c dc 3c e1 ca 27 7d 4c 69 a9 c2 77 0c 9f>
       }
     }
-> receipt = await conflux.getTransactionReceipt('0x2055f3287f1a6ce77d91f5dfdf7517a531b3a560fee1265f27dc1ff92314530b');
+> receipt = await client.getTransactionReceipt('0x2055f3287f1a6ce77d91f5dfdf7517a531b3a560fee1265f27dc1ff92314530b');
 > contract.abi.decodeLog(receipt.logs[1]);
    {
       name: 'Transfer',
@@ -579,112 +278,9 @@ conflux          | `Conflux` | true     |         | Conflux instance.
 
 ----------------------------------------
 
-## Drip <a id="Drip.js/Drip"></a>
-
-Positive decimal integer string in `Drip`
-
-### Drip.fromCFX <a id="Drip.js/Drip/(static)fromCFX"></a>
-
-Get `Drip` string from `CFX`
-
-* **Parameters**
-
-Name  | Type            | Required | Default | Description
-------|-----------------|----------|---------|------------
-value | `string,number` | true     |         |
-
-* **Returns**
-
-`Drip` 
-
-* **Examples**
-
-```
-> Drip.fromCFX(3.14)
-   [String (Drip): '3140000000000000000']
-> Drip.fromCFX('0xab')
-   [String (Drip): '171000000000000000000']
-```
-
-### Drip.fromGDrip <a id="Drip.js/Drip/(static)fromGDrip"></a>
-
-Get `Drip` string from `GDrip`
-
-* **Parameters**
-
-Name  | Type            | Required | Default | Description
-------|-----------------|----------|---------|------------
-value | `string,number` | true     |         |
-
-* **Returns**
-
-`Drip` 
-
-* **Examples**
-
-```
-> Drip.fromGDrip(3.14)
-   [String (Drip): '3140000000']
-> Drip.fromGDrip('0xab')
-   [String (Drip): '171000000000']
-```
-
-### Drip.prototype.**constructor** <a id="Drip.js/Drip/**constructor**"></a>
-
-* **Parameters**
-
-Name  | Type            | Required | Default | Description
-------|-----------------|----------|---------|------------
-value | `number,string` | true     |         |
-
-* **Returns**
-
-`Drip` 
-
-* **Examples**
-
-```
-> Drip(1.00)
-   [String (Drip): '1']
-> Drip('0xab')
-   [String (Drip): '171']
-```
-
-### Drip.prototype.toCFX <a id="Drip.js/Drip/toCFX"></a>
-
-Get `CFX` number string
-
-* **Returns**
-
-`string` 
-
-* **Examples**
-
-```
-> Drip(1e9).toCFX()
-   "0.000000001"
-```
-
-### Drip.prototype.toGDrip <a id="Drip.js/Drip/toGDrip"></a>
-
-Get `GDrip` number string
-
-* **Returns**
-
-`string` 
-
-* **Examples**
-
-```
-> Drip(1e9).toGDrip()
-   "1"
-```
-
-----------------------------------------
-
 ## Ethereum <a id="Ethereum.js/Ethereum"></a>
 
-A sdk of conflux.
+A sdk of ethereum.
 
 ### Ethereum.prototype.**constructor** <a id="Ethereum.js/Ethereum/**constructor**"></a>
 
@@ -701,12 +297,7 @@ options.logger          | `Object`        | false    |         | Logger object w
 * **Examples**
 
 ```
-> const { Conflux } = require('js-conflux-sdk');
-> const conflux = new Conflux({url:'http://test.confluxrpc.org'});
-```
-
-```
-> const conflux = new Conflux({
+> const client = new Ethereum({
      url: 'http://localhost:8000',
      defaultGasPrice: 100,
      logger: console,
@@ -725,12 +316,6 @@ Provider for rpc call
 
 Wallet for `sendTransaction` to get `Account` by `from` field
 
-### Ethereum.prototype.netName <a id="Ethereum.js/Ethereum/netName"></a>
-
-`string`
-
-Default net name
-
 ### ~~Ethereum.prototype.defaultGasPrice~~ <a id="Ethereum.js/Ethereum/defaultGasPrice"></a>
 
 `number,string`
@@ -740,7 +325,7 @@ Default gas price for following methods:
 
 ### Ethereum.prototype.Contract <a id="Ethereum.js/Ethereum/Contract"></a>
 
-A shout cut for `new Contract(options, conflux);`
+A shout cut for `new Contract(options, client);`
 
 * **Parameters**
 
@@ -752,71 +337,6 @@ options | `object` | true     |         | See [Contract.constructor](#Contract.j
 
 `Contract` - A Contract instance
 
-### Ethereum.prototype.InternalContract <a id="Ethereum.js/Ethereum/InternalContract"></a>
-
-Create internal contract by default abi and address
-
-- [AdminControl](https://github.com/Conflux-Chain/conflux-rust/blob/master/internal_contract/contracts/AdminControl.sol)
-- [SponsorWhitelistControl](https://github.com/Conflux-Chain/conflux-rust/blob/master/internal_contract/contracts/SponsorWhitelistControl.sol)
-- [Staking](https://github.com/Conflux-Chain/conflux-rust/blob/master/internal_contract/contracts/Staking.sol)
-
-* **Parameters**
-
-Name | Type                                                 | Required | Default | Description
------|------------------------------------------------------|----------|---------|-----------------------
-name | `"AdminControl","SponsorWhitelistControl","Staking"` | true     |         | Internal contract name
-
-* **Returns**
-
-`Contract` 
-
-* **Examples**
-
-```
-> conflux.InternalContract('AdminControl')
-   {
-    constructor: [Function: bound call],
-    abi: ContractABI { * },
-    address: '0x0888000000000000000000000000000000000000',
-    destroy: [Function: bound call],
-    getAdmin: [Function: bound call],
-    setAdmin: [Function: bound call],
-    'destroy(address)': [Function: bound call],
-    '0x00f55d9d': [Function: bound call],
-    'getAdmin(address)': [Function: bound call],
-    '0x64efb22b': [Function: bound call],
-    'setAdmin(address,address)': [Function: bound call],
-    '0xc55b6bb7': [Function: bound call]
-  }
-```
-
-### Ethereum.prototype.ChecksumAddress <a id="Ethereum.js/Ethereum/ChecksumAddress"></a>
-
-A shout cut for `ChecksumAddress(string)`, `ChecksumAddress.fromSimple(string)` or `ChecksumAddress.fromHex(string, conflux.netName)`
-
-* **Parameters**
-
-Name   | Type     | Required | Default | Description
--------|----------|----------|---------|-------------------------------------------------
-string | `string` | true     |         | Hex, checksum address or simple checksum address
-
-* **Returns**
-
- ChecksumAddress
-
-* **Examples**
-
-```
-> conflux.ChecksumAddress('0x0000000000000000000000000000000000000000');
-   [String (ChecksumAddress): 'CFX:TYPE.NULL:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0SFBNJM2']
-
-   > conflux.ChecksumAddress('cfx:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa0sfbnjm2');
-   [String (ChecksumAddress): 'CFX:TYPE.NULL:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0SFBNJM2']
-
-   > conflux.ChecksumAddress('CFX:TYPE.NULL:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0SFBNJM2');
-   [String (ChecksumAddress): 'CFX:TYPE.NULL:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0SFBNJM2']
-```
-
 ### Ethereum.prototype.close <a id="Ethereum.js/Ethereum/close"></a>
 
 close connection.
@@ -824,38 +344,51 @@ close connection.
 * **Examples**
 
 ```
-> conflux.close();
+> client.close();
 ```
 
-### Ethereum.prototype.getStatus <a id="Ethereum.js/Ethereum/getStatus"></a>
-
-Get status
+### Ethereum.prototype.getNetVersion <a id="Ethereum.js/Ethereum/getNetVersion"></a>
 
 * **Returns**
 
-`Promise.<object>` Status information object
-- chainId `number`: Chain id
-- epochNumber `number`: Epoch number
-- blockNumber `number`: Block number
-- pendingTxNumber `number`: Pending transaction number
-- bestHash `string`: The block hash of best pivot block
+`Promise.<string>` 
 
 * **Examples**
 
 ```
-> await conflux.getStatus()
-   {
-      chainId: 1029,
-      epochNumber: 1117476,
-      blockNumber: 2230973,
-      pendingTxNumber: 4531,
-      bestHash: '0x8d581f13fa0548f2751450a7dabd871777875c9ccdf0d8bd629e07a7a5a7917a'
-   }
+> await client.getNetVersion()
+   "Mainnet"
+```
+
+### Ethereum.prototype.getChainId <a id="Ethereum.js/Ethereum/getChainId"></a>
+
+* **Returns**
+
+`Promise.<number>` 
+
+* **Examples**
+
+```
+> await client.getChainId()
+   42
+```
+
+### Ethereum.prototype.getProtocolVersion <a id="Ethereum.js/Ethereum/getProtocolVersion"></a>
+
+* **Returns**
+
+`Promise.<number>` 
+
+* **Examples**
+
+```
+> await client.getProtocolVersion()
+   65
 ```
 
 ### Ethereum.prototype.getGasPrice <a id="Ethereum.js/Ethereum/getGasPrice"></a>
 
-Returns the current price per gas in Drip.
+Returns the current price per gas in Wei.
 
 * **Returns**
 
@@ -864,113 +397,8 @@ Returns the current price per gas in Drip.
 * **Examples**
 
 ```
-> await conflux.getGasPrice();
+> await client.getGasPrice();
    1n
-```
-
-### Ethereum.prototype.getSupplyInfo <a id="Ethereum.js/Ethereum/getSupplyInfo"></a>
-
-Get CFX total supply info
-
-* **Parameters**
-
-Name        | Type            | Required | Default        | Description
-------------|-----------------|----------|----------------|---------------------------------------------------------------------
-epochNumber | `string,number` | false    | 'latest_state' | See [format.epochNumber](#util/format.js/format/(static)epochNumber)
-
-* **Returns**
-
-`Promise.<object>` Supply info
-
-* **Examples**
-
-```
-> await conflux.getSupplyInfo();
-   {
-    totalCirculating: 10000000061346204857053386048036690n,
-    totalCollateral: 109158125000000000000000n,
-    totalIssued: 10000005061346154857053386048036690n,
-    totalStaking: 41923206238928855616779914n
-  }
-```
-
-### Ethereum.prototype.getInterestRate <a id="Ethereum.js/Ethereum/getInterestRate"></a>
-
-Returns the interest rate of given parameter.
-
-* **Parameters**
-
-Name        | Type            | Required | Default        | Description
-------------|-----------------|----------|----------------|---------------------------------------------------------------------
-epochNumber | `string,number` | false    | 'latest_state' | See [format.epochNumber](#util/format.js/format/(static)epochNumber)
-
-* **Returns**
-
-`Promise.<BigInt>` The interest rate of given parameter.
-
-* **Examples**
-
-```
-> await conflux.getInterestRate();
-   2522880000000n
-```
-
-### Ethereum.prototype.getAccumulateInterestRate <a id="Ethereum.js/Ethereum/getAccumulateInterestRate"></a>
-
-Returns the accumulate interest rate of given parameter.
-
-* **Parameters**
-
-Name        | Type            | Required | Default        | Description
-------------|-----------------|----------|----------------|---------------------------------------------------------------------
-epochNumber | `string,number` | false    | 'latest_state' | See [format.epochNumber](#util/format.js/format/(static)epochNumber)
-
-* **Returns**
-
-`Promise.<BigInt>` The accumulate interest rate of given parameter.
-
-* **Examples**
-
-```
-> await conflux.getAccumulateInterestRate()
-   76357297457647044505744908994993n
-```
-
-### Ethereum.prototype.getAccount <a id="Ethereum.js/Ethereum/getAccount"></a>
-
-Return account related states of the given account
-
-* **Parameters**
-
-Name        | Type            | Required | Default        | Description
-------------|-----------------|----------|----------------|---------------------------------------------------------------------
-address     | `string`        | true     |                | address to get account.
-epochNumber | `string,number` | false    | 'latest_state' | See [format.epochNumber](#util/format.js/format/(static)epochNumber)
-
-* **Returns**
-
-`Promise.<object>` Return the states of the given account:
-- balance `BigInt`: the balance of the account.
-- nonce `BigInt`: the nonce of the account's next transaction.
-- codeHash `string`: the code hash of the account.
-- stakingBalance `BigInt`: the staking balance of the account.
-- collateralForStorage `BigInt`: the collateral storage of the account.
-- accumulatedInterestReturn `BigInt`: accumulated unterest return of the account.
-- admin `string`: admin of the account.
-
-* **Examples**
-
-```
-> await conflux.getAccount('0x1c1e72f0c37968557b3d85a3f32747792798bbde');
-   {
-      accumulatedInterestReturn: 0n,
-      balance: 824812401057514588670n,
-      collateralForStorage: 174187500000000000000n,
-      nonce: 1449n,
-      stakingBalance: 0n,
-      admin: 'NET1921:TYPE.NULL:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE1FWAT0M',
-      codeHash: '0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470'
-   }
 ```
 
 ### Ethereum.prototype.getBalance <a id="Ethereum.js/Ethereum/getBalance"></a>
@@ -979,45 +407,23 @@ Returns the balance of the account of given address.
 
 * **Parameters**
 
-Name        | Type            | Required | Default        | Description
-------------|-----------------|----------|----------------|---------------------------------------------------------------------
-address     | `string`        | true     |                | The address to get the balance of.
-epochNumber | `string,number` | false    | 'latest_state' | See [format.epochNumber](#util/format.js/format/(static)epochNumber)
+Name        | Type            | Required | Default                   | Description
+------------|-----------------|----------|---------------------------|---------------------------------------------------------------------
+address     | `string`        | true     |                           | The address to get the balance of.
+blockNumber | `string,number` | false    | CONST.BLOCK_NUMBER.LATEST | See [format.epochNumber](#util/format.js/format/(static)epochNumber)
 
 * **Returns**
 
-`Promise.<BigInt>` The balance in Drip.
+`Promise.<BigInt>` The balance in Wei.
 
 * **Examples**
 
 ```
-> await conflux.getBalance("0x1c1e72f0c37968557b3d85a3f32747792798bbde");
+> await client.getBalance("0x1c1e72f0c37968557b3d85a3f32747792798bbde");
    824812401057514588670n
 ```
 
-### Ethereum.prototype.getStakingBalance <a id="Ethereum.js/Ethereum/getStakingBalance"></a>
-
-Returns the balance of the staking account of given address.
-
-* **Parameters**
-
-Name        | Type            | Required | Default        | Description
-------------|-----------------|----------|----------------|---------------------------------------------------------------------
-address     | `string`        | true     |                | Address to check for staking balance.
-epochNumber | `string,number` | false    | 'latest_state' | See [format.epochNumber](#util/format.js/format/(static)epochNumber)
-
-* **Returns**
-
-`Promise.<BigInt>` The staking balance in Drip.
-
-* **Examples**
-
-```
-> await conflux.getStakingBalance('0x1c1e72f0c37968557b3d85a3f32747792798bbde', 'latest_state');
-   0n
-```
-
-### Ethereum.prototype.getNextNonce <a id="Ethereum.js/Ethereum/getNextNonce"></a>
+### Ethereum.prototype.getTransactionCount <a id="Ethereum.js/Ethereum/getTransactionCount"></a>
 
 Returns the next nonce should be used by given address.
 
@@ -1026,77 +432,18 @@ Returns the next nonce should be used by given address.
 Name        | Type            | Required | Default | Description
 ------------|-----------------|----------|---------|---------------------------------------------------------------------
 address     | `string`        | true     |         | The address to get the numbers of transactions from.
-epochNumber | `string,number` | false    |         | See [format.epochNumber](#util/format.js/format/(static)epochNumber)
+blockNumber | `string,number` | false    |         | See [format.blockNumber](#util/format.js/format/(static)blockNumber)
 
 * **Returns**
 
-`Promise.<BigInt>` The next nonce should be used by given address.
+`Promise.<number>` The next nonce should be used by given address.
 
 * **Examples**
 
 ```
-> await conflux.getNextNonce("0x1c1e72f0c37968557b3d85a3f32747792798bbde");
+> await client.getTransactionCount("0x1c1e72f0c37968557b3d85a3f32747792798bbde");
    1449n
 ```
-
-### Ethereum.prototype.getAdmin <a id="Ethereum.js/Ethereum/getAdmin"></a>
-
-Returns the admin of given contract.
-
-* **Parameters**
-
-Name        | Type            | Required | Default        | Description
-------------|-----------------|----------|----------------|---------------------------------------------------------------------
-address     | `string`        | true     |                | Address to contract.
-epochNumber | `string,number` | false    | 'latest_state' | See [format.epochNumber](#util/format.js/format/(static)epochNumber)
-
-* **Returns**
-
-`Promise.<string>` Address to admin, or `null` if the contract does not exist.
-
-* **Examples**
-
-```
-> conflux.getAdmin('0x8e2f2e68eb75bb8b18caafe9607242d4748f8d98')
-   'NET1921:TYPE.NULL:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE1FWAT0M'
-```
-
-### Ethereum.prototype.getVoteList <a id="Ethereum.js/Ethereum/getVoteList"></a>
-
-Returns vote list of the given account.
-
-* **Parameters**
-
-Name        | Type            | Required | Default        | Description
-------------|-----------------|----------|----------------|---------------------------------------------------------------------
-address     | `string`        | true     |                | Address to contract.
-epochNumber | `string,number` | false    | 'latest_state' | See [format.epochNumber](#util/format.js/format/(static)epochNumber)
-
-* **Returns**
-
-`Promise.<Array.<object>>` Vote list
-- `array`:
-  - amount `BigInt`: This is the number of tokens should be locked before
-  - unlockBlockNumber `number`: This is the timestamp when the vote right will be invalid, measured in, the number of past blocks.
-
-### Ethereum.prototype.getDepositList <a id="Ethereum.js/Ethereum/getDepositList"></a>
-
-Returns deposit list of the given account.
-
-* **Parameters**
-
-Name        | Type            | Required | Default        | Description
-------------|-----------------|----------|----------------|---------------------------------------------------------------------
-address     | `string`        | true     |                | Address to contract.
-epochNumber | `string,number` | false    | 'latest_state' | See [format.epochNumber](#util/format.js/format/(static)epochNumber)
-
-* **Returns**
-
-`Promise.<Array.<object>>` Deposit list
-- `array`:
-  - amount `BigInt`: the number of tokens deposited
-  - accumulatedInterestRate: `BigInt`: the accumulated interest rate at the time of the deposit
-  - depositTime `number`: the time of the deposit
 
 ### Ethereum.prototype.getBlockNumber <a id="Ethereum.js/Ethereum/getBlockNumber"></a>
 
@@ -1109,7 +456,7 @@ Returns the epoch number of given parameter.
 * **Examples**
 
 ```
-> await conflux.getEpochNumber();
+> await client.getEpochNumber();
    443
 ```
 
@@ -1131,44 +478,8 @@ detail      | `boolean`       | false    | false   | If `true` it returns the fu
 * **Examples**
 
 ```
-> await conflux.getBlockByEpochNumber('latest_mined', true);
+> await client.getBlockByEpochNumber('latest_mined', true);
    {...}
-```
-
-### Ethereum.prototype.getBlocksByEpochNumber <a id="Ethereum.js/Ethereum/getBlocksByEpochNumber"></a>
-
-Returns hashes of blocks located in some epoch.
-
-* **Parameters**
-
-Name        | Type            | Required | Default | Description
-------------|-----------------|----------|---------|---------------------------------------------------------------------
-epochNumber | `string,number` | true     |         | See [format.epochNumber](#util/format.js/format/(static)epochNumber)
-
-* **Returns**
-
-`Promise.<Array.<string>>` Array of block hashes, sorted by execution(topological) order.
-
-* **Examples**
-
-```
-> await conflux.getBlocksByEpochNumber(0);
-   ['0xe677ae5206a5d67d9efa183d867b4b986ed82a3e62174a1488cf8364d58534ec']
-```
-
-### Ethereum.prototype.getBestBlockHash <a id="Ethereum.js/Ethereum/getBestBlockHash"></a>
-
-Returns the hash of best block.
-
-* **Returns**
-
-`Promise.<string>` hash of the best block.
-
-* **Examples**
-
-```
-> await conflux.getBestBlockHash();
-   "0xb8bb355bfeaf055a032d5b7df719917c090ee4fb6fee42383004dfe8911d7daf"
 ```
 
 ### Ethereum.prototype.getBlockByHash <a id="Ethereum.js/Ethereum/getBlockByHash"></a>
@@ -1208,7 +519,7 @@ detail    | `boolean` | false    | false   | If `true` it returns the full trans
 * **Examples**
 
 ```
-> await conflux.getBlockByHash('0xaf4136d04e9e2cc470703251ec46f5913ab7955d526feed43771705e89c77390');
+> await client.getBlockByHash('0xaf4136d04e9e2cc470703251ec46f5913ab7955d526feed43771705e89c77390');
    {
       epochNumber: 6,
       blame: 0,
@@ -1238,42 +549,6 @@ detail    | `boolean` | false    | false   | If `true` it returns the full trans
     }
 ```
 
-### Ethereum.prototype.getConfirmationRiskByHash <a id="Ethereum.js/Ethereum/getConfirmationRiskByHash"></a>
-
-Get the risk of the block could be reverted.
-All block in one same epoch returned same risk number
-
-* **Parameters**
-
-Name      | Type     | Required | Default | Description
-----------|----------|----------|---------|----------------
-blockHash | `string` | true     |         | Hash of a block
-
-* **Returns**
-
-`Promise.<(number|null)>` Number >0 and <1
-
-* **Examples**
-
-```
-> await conflux.getConfirmationRiskByHash('0xaf4136d04e9e2cc470703251ec46f5913ab7955d526feed43771705e89c77390')
-   1e-8
-```
-
-### Ethereum.prototype.traceBlock <a id="Ethereum.js/Ethereum/traceBlock"></a>
-
-Get block trace
-
-* **Parameters**
-
-Name      | Type     | Required | Default | Description
-----------|----------|----------|---------|----------------
-blockHash | `string` | true     |         | Hash of a block
-
-* **Returns**
-
-`Promise.<object>,null` 
-
 ### Ethereum.prototype.getTransactionByHash <a id="Ethereum.js/Ethereum/getTransactionByHash"></a>
 
 Returns the information about a transaction requested by transaction hash.
@@ -1293,7 +568,7 @@ transactionHash | `string` | true     |         | hash of a transaction
 - epochHeight `number`: epoch height
 - from `string`: address of the sender.
 - gas `BigInt`: gas provided by the sender.
-- gasPrice `number`: gas price provided by the sender in Drip.
+- gasPrice `number`: gas price provided by the sender in Wei.
 - hash `string`: hash of the transaction.
 - nonce `BigInt`: the number of transactions made by the sender prior to this one.
 - r `string`: ECDSA signature r
@@ -1304,12 +579,12 @@ transactionHash | `string` | true     |         | hash of a transaction
 - to `string`: address of the receiver. null when its a contract creation transaction.
 - transactionIndex `number`: integer of the transactions's index position in the block. `null` when its pending.
 - v `string`: ECDSA recovery id
-- value `BigInt`: value transferred in Drip.
+- value `BigInt`: value transferred in Wei.
 
 * **Examples**
 
 ```
-> await conflux.getTransactionByHash('0xbf7110474779ba2404433ef39a24cb5b277186ef1e6cb199b0b60907b029a1ce');
+> await client.getTransactionByHash('0xbf7110474779ba2404433ef39a24cb5b277186ef1e6cb199b0b60907b029a1ce');
    {
       nonce: 0n,
       gasPrice: 10n,
@@ -1367,7 +642,7 @@ transactionHash | `string` | true     |         | Hash of a transaction
 * **Examples**
 
 ```
-> await conflux.getTransactionReceipt('0xbf7110474779ba2404433ef39a24cb5b277186ef1e6cb199b0b60907b029a1ce');
+> await client.getTransactionReceipt('0xbf7110474779ba2404433ef39a24cb5b277186ef1e6cb199b0b60907b029a1ce');
    {
       index: 1,
       epochNumber: 6,
@@ -1410,119 +685,21 @@ hex  | `string,Buffer` | true     |         | The signed transaction data.
 * **Examples**
 
 ```
-> await conflux.sendRawTransaction('0xf85f800382520894bbd9e9b...');
+> await client.sendRawTransaction('0xf85f800382520894bbd9e9b...');
    "0xbe007c3eca92d01f3917f33ae983f40681182cf618defe75f490a65aac016914"
 ```
 
 ### Ethereum.prototype.sendTransaction <a id="Ethereum.js/Ethereum/sendTransaction"></a>
 
-Sign and send transaction
-if `from` field in `conflux.wallet`, sign by local account and send raw transaction,
-else call `cfx_sendTransaction` and sign by remote wallet
-
 * **Parameters**
 
-Name     | Type     | Required | Default | Description
----------|----------|----------|---------|---------------------------------------------------------------
-options  | `object` | true     |         | See [Transaction](#Transaction.js/Transaction/**constructor**)
-password | `string` | false    |         | Password for remote node.
+Name    | Type     | Required | Default | Description
+--------|----------|----------|---------|------------
+options | `object` | true     |         |
 
 * **Returns**
 
-`Promise.<PendingTransaction>` The PendingTransaction object.
-
-* **Examples**
-
-```
-> txHash = await conflux.sendTransaction({from:account, to:address, value:0}); // send and get transaction hash
-   "0xb2ba6cca35f0af99a9601d09ee19c1949d8130312550e3f5413c520c6d828f88"
-```
-
-```
-> packedTx = await conflux.sendTransaction({from:account, to:address, value:0}).get(); // await till transaction packed
-   {
-    "nonce": 8n,
-    "value": 0n,
-    "gasPrice": 1000000000n,
-    "gas": 21000n,
-    "v": 0,
-    "transactionIndex": null,
-    "status": null,
-    "storageLimit": 0n,
-    "chainId": 1,
-    "epochHeight": 791394,
-    "blockHash": null,
-    "contractCreated": null,
-    "data": "0x",
-    "from": "0x1bd9e9be525ab967e633bcdaeac8bd5723ed4d6b",
-    "hash": "0xb2ba6cca35f0af99a9601d09ee19c1949d8130312550e3f5413c520c6d828f88",
-    "r": "0x245a1a86ae405eb72c1eaf98f5e22baa326fcf8262abad2c4a3e5bdcf2e912b5",
-    "s": "0x4df8058887a4dd8aaf60208accb3e57292a50ff06a117df6e54f7f56176248c0",
-    "to": "0x1bd9e9be525ab967e633bcdaeac8bd5723ed4d6b"
-   }
-```
-
-```
-> minedTx = await conflux.sendTransaction({from:account, to:address, value:0}).mined(); // await till transaction mined
-   {
-    "nonce": 8n,
-    "value": 0n,
-    "gasPrice": 1000000000n,
-    "gas": 21000n,
-    "v": 0,
-    "transactionIndex": 0,
-    "status": 0,
-    "storageLimit": 0n,
-    "chainId": 1,
-    "epochHeight": 791394,
-    "blockHash": "0xdb2d2d438dcdee8d61c6f495bd363b1afb68cb0fdff16582c08450a9ca487852",
-    "contractCreated": null,
-    "data": "0x",
-    "from": "0x1bd9e9be525ab967e633bcdaeac8bd5723ed4d6b",
-    "hash": "0xb2ba6cca35f0af99a9601d09ee19c1949d8130312550e3f5413c520c6d828f88",
-    "r": "0x245a1a86ae405eb72c1eaf98f5e22baa326fcf8262abad2c4a3e5bdcf2e912b5",
-    "s": "0x4df8058887a4dd8aaf60208accb3e57292a50ff06a117df6e54f7f56176248c0",
-    "to": "0x1bd9e9be525ab967e633bcdaeac8bd5723ed4d6b"
-   }
-```
-
-```
-> executedReceipt = await conflux.sendTransaction({from:account, to:address, value:0}).executed(); // await till transaction executed
-   {
-    "index": 0,
-    "epochNumber": 791402,
-    "outcomeStatus": 0,
-    "gasUsed": 21000n,
-    "gasFee": 21000000000000n,
-    "blockHash": "0xdb2d2d438dcdee8d61c6f495bd363b1afb68cb0fdff16582c08450a9ca487852",
-    "contractCreated": null,
-    "from": "0x1bd9e9be525ab967e633bcdaeac8bd5723ed4d6b",
-    "logs": [],
-    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-    "stateRoot": "0x510d680cdbf60d34bcd987b3bf9925449c0839a7381dc8fd8222d2c7ee96122d",
-    "to": "0x1bd9e9be525ab967e633bcdaeac8bd5723ed4d6b",
-    "transactionHash": "0xb2ba6cca35f0af99a9601d09ee19c1949d8130312550e3f5413c520c6d828f88"
-   }
-```
-
-```
-> confirmedReceipt = await conflux.sendTransaction({from:account, to:address, value:0}).confirmed(); // await till risk coefficient < threshold (default 1e-8)
-   {
-    "index": 0,
-    "epochNumber": 791402,
-    "outcomeStatus": 0,
-    "gasUsed": 21000n,
-    "gasFee": 21000000000000n,
-    "blockHash": "0xdb2d2d438dcdee8d61c6f495bd363b1afb68cb0fdff16582c08450a9ca487852",
-    "contractCreated": null,
-    "from": "0x1bd9e9be525ab967e633bcdaeac8bd5723ed4d6b",
-    "logs": [],
-    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-    "stateRoot": "0x510d680cdbf60d34bcd987b3bf9925449c0839a7381dc8fd8222d2c7ee96122d",
-    "to": "0x1bd9e9be525ab967e633bcdaeac8bd5723ed4d6b",
-    "transactionHash": "0xb2ba6cca35f0af99a9601d09ee19c1949d8130312550e3f5413c520c6d828f88"
-   }
-```
+`Promise.<PendingTransaction>` 
 
 ### Ethereum.prototype.getCode <a id="Ethereum.js/Ethereum/getCode"></a>
 
@@ -1530,10 +707,10 @@ Returns the code of given contract.
 
 * **Parameters**
 
-Name        | Type            | Required | Default        | Description
-------------|-----------------|----------|----------------|---------------------------------------------------------------------
-address     | `string`        | true     |                | Address to contract.
-epochNumber | `string,number` | false    | 'latest_state' | See [format.epochNumber](#util/format.js/format/(static)epochNumber)
+Name        | Type            | Required | Default                   | Description
+------------|-----------------|----------|---------------------------|---------------------------------------------------------------------
+address     | `string`        | true     |                           | Address to contract.
+blockNumber | `string,number` | false    | CONST.BLOCK_NUMBER.LATEST | See [format.blockNumber](#util/format.js/format/(static)blockNumber)
 
 * **Returns**
 
@@ -1542,7 +719,7 @@ epochNumber | `string,number` | false    | 'latest_state' | See [format.epochNum
 * **Examples**
 
 ```
-> await conflux.getCode('0xb385b84f08161f92a195953b980c8939679e906a');
+> await client.getCode('0xb385b84f08161f92a195953b980c8939679e906a');
    "0x6080604052348015600f57600080fd5b506004361060325760003560e01c806306661abd1460375780638..."
 ```
 
@@ -1556,7 +733,7 @@ Name        | Type            | Required | Default        | Description
 ------------|-----------------|----------|----------------|---------------------------------------------------------------------
 address     | `string`        | true     |                | Address to contract.
 position    | `string`        | true     |                | The given position.
-epochNumber | `string,number` | false    | 'latest_state' | See [format.epochNumber](#util/format.js/format/(static)epochNumber)
+blockNumber | `string,number` | false    | 'latest_state' | See [format.blockNumber](#util/format.js/format/(static)blockNumber)
 
 * **Returns**
 
@@ -1565,92 +742,8 @@ epochNumber | `string,number` | false    | 'latest_state' | See [format.epochNum
 * **Examples**
 
 ```
-> await conflux.getStorageAt('0x866aca87ff33a0ae05d2164b3d999a804f583222', '0x6661e9d6d8b923d5bbaab1b96e1dd51ff6ea2a93520fdc9eb75d059238b8c5e9')
+> await client.getStorageAt('0x866aca87ff33a0ae05d2164b3d999a804f583222', '0x6661e9d6d8b923d5bbaab1b96e1dd51ff6ea2a93520fdc9eb75d059238b8c5e9')
    "0x000000000000000000000000000000000000000000000000000000000000162e"
-```
-
-### Ethereum.prototype.getStorageRoot <a id="Ethereum.js/Ethereum/getStorageRoot"></a>
-
-Returns the storage root of a given contract.
-
-* **Parameters**
-
-Name        | Type            | Required | Default        | Description
-------------|-----------------|----------|----------------|---------------------------------------------------------------------
-address     | `string`        | true     |                | Address to contract.
-epochNumber | `string,number` | false    | 'latest_state' | See [format.epochNumber](#util/format.js/format/(static)epochNumber)
-
-* **Returns**
-
-`Promise.<object>` A storage root object, or `null` if the contract does not exist
-- delta `string`: storage root in the delta trie.
-- intermediate `string`: storage root in the intermediate trie.
-- snapshot `string`: storage root in the snapshot.
-
-* **Examples**
-
-```
-> await conflux.getStorageRoot('0x866aca87ff33a0ae05d2164b3d999a804f583222')
-   {
-      "delta": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
-      "intermediate": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
-      "snapshot": "0x7bb7d43152e56f529fbef709aab7371b0672f2332ae0fb4786da350f664df5b4"
-   }
-```
-
-### Ethereum.prototype.getSponsorInfo <a id="Ethereum.js/Ethereum/getSponsorInfo"></a>
-
-Returns the sponsor info of given contract.
-
-* **Parameters**
-
-Name        | Type            | Required | Default        | Description
-------------|-----------------|----------|----------------|---------------------------------------------------------------------
-address     | `string`        | true     |                | Address to contract.
-epochNumber | `string,number` | false    | 'latest_state' | See [format.epochNumber](#util/format.js/format/(static)epochNumber)
-
-* **Returns**
-
-`Promise.<object>` A sponsor info object, if the contract doesn't have a sponsor, then the all fields in returned object will be 0:
-- sponsorBalanceForCollateral `BigInt`: the sponsored balance for storage.
-- sponsorBalanceForGas `BigInt`: the sponsored balance for gas.
-- sponsorGasBound `BigInt`: the max gas could be sponsored for one transaction.
-- sponsorForCollateral `string`: the address of the storage sponsor.
-- sponsorForGas `string`: the address of the gas sponsor.
-
-* **Examples**
-
-```
-> await conflux.getSponsorInfo('0x8e2f2e68eb75bb8b18caafe9607242d4748f8d98')
-   {
-      sponsorBalanceForCollateral: 410625000000000000000n,
-      sponsorBalanceForGas: 9999999993626232440n,
-      sponsorGasBound: 10000000000n,
-      sponsorForCollateral: '0x8d5adbcaf5714924830591586f05302bf87f74bd',
-      sponsorForGas: '0x8d5adbcaf5714924830591586f05302bf87f74bd'
-   }
-```
-
-### Ethereum.prototype.getCollateralForStorage <a id="Ethereum.js/Ethereum/getCollateralForStorage"></a>
-
-Returns the size of the collateral storage of given address, in Byte.
-
-* **Parameters**
-
-Name        | Type     | Required | Default        | Description
-------------|----------|----------|----------------|---------------------------------------------------------------------
-address     | `string` | true     |                | Address to check for collateral storage.
-epochNumber |          | false    | 'latest_state' | See [format.epochNumber](#util/format.js/format/(static)epochNumber)
-
-* **Returns**
-
-`Promise.<BigInt>` - The collateral storage in Byte.
-
-* **Examples**
-
-```
-> await conflux.getCollateralForStorage('0x8e2f2e68eb75bb8b18caafe9607242d4748f8d98')
-   89375000000000000000n
 ```
 
 ### Ethereum.prototype.call <a id="Ethereum.js/Ethereum/call"></a>
@@ -1668,16 +761,16 @@ blockNumber | `string,number` | false    | CONST.BLOCK_NUMBER.LATEST | See [form
 
 `Promise.<string>` The output data.
 
-### Ethereum.prototype.estimateGasAndCollateral <a id="Ethereum.js/Ethereum/estimateGasAndCollateral"></a>
+### Ethereum.prototype.estimateGas <a id="Ethereum.js/Ethereum/estimateGas"></a>
 
 Virtually call a contract, return the estimate gas used and storage collateralized.
 
 * **Parameters**
 
-Name        | Type            | Required | Default        | Description
-------------|-----------------|----------|----------------|---------------------------------------------------------------------
-options     | `object`        | true     |                | See [Transaction](#Transaction.js/Transaction/**constructor**)
-epochNumber | `string,number` | false    | 'latest_state' | See [format.epochNumber](#util/format.js/format/(static)epochNumber)
+Name        | Type            | Required | Default                   | Description
+------------|-----------------|----------|---------------------------|---------------------------------------------------------------------
+options     | `object`        | true     |                           | See [Transaction](#Transaction.js/Transaction/**constructor**)
+blockNumber | `string,number` | false    | CONST.BLOCK_NUMBER.LATEST | See [format.epochNumber](#util/format.js/format/(static)epochNumber)
 
 * **Returns**
 
@@ -1692,15 +785,14 @@ Returns logs matching the filter provided.
 
 * **Parameters**
 
-Name                | Type                    | Required | Default             | Description
---------------------|-------------------------|----------|---------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-options             | `object`                | false    |                     |
-options.fromEpoch   | `string,number`         | false    | 'latest_checkpoint' | See [format.epochNumber](#util/format.js/format/(static)epochNumber). Search will be applied from this epoch number.
-options.toEpoch     | `string,number`         | false    | 'latest_state'      | See [format.epochNumber](#util/format.js/format/(static)epochNumber). Search will be applied up until (and including) this epoch number.
-options.blockHashes | `Array.<string>`        | false    |                     | Array of up to 128 block hashes that the search will be applied to. This will override from/to epoch fields if it's not null
-options.address     | `string,Array.<string>` | false    |                     | Search contract addresses. If null, match all. If specified, log must be produced by one of these addresses.
-options.topics      | `array`                 | false    |                     | Search topics. Logs can have 4 topics: the function signature and up to 3 indexed event arguments. The elements of topics match the corresponding log topics. Example: ["0xA", null, ["0xB", "0xC"], null] matches logs with "0xA" as the 1st topic AND ("0xB" OR "0xC") as the 3rd topic. If null, match all.
-options.limit       | `number`                | false    |                     | Return the last limit logs
+Name              | Type                    | Required | Default                   | Description
+------------------|-------------------------|----------|---------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+options           | `object`                | false    |                           |
+options.fromBlock | `string,number`         | false    | CONST.BLOCK_NUMBER.LATEST | See [format.blockNumber](#util/format.js/format/(static)blockNumber). Search will be applied from this epoch number.
+options.toBlock   | `string,number`         | false    | CONST.BLOCK_NUMBER.LATEST | See [format.blockNumber](#util/format.js/format/(static)blockNumber). Search will be applied up until (and including) this epoch number.
+options.blockHash | `string`                | false    |                           | Array of up to 128 block hashes that the search will be applied to. This will override from/to epoch fields if it's not null
+options.address   | `string,Array.<string>` | false    |                           | Search contract addresses. If null, match all. If specified, log must be produced by one of these addresses.
+options.topics    | `array`                 | false    |                           | Search topics. Logs can have 4 topics: the function signature and up to 3 indexed event arguments. The elements of topics match the corresponding log topics. Example: ["0xA", null, ["0xB", "0xC"], null] matches logs with "0xA" as the 1st topic AND ("0xB" OR "0xC") as the 3rd topic. If null, match all.
 
 * **Returns**
 
@@ -1718,7 +810,7 @@ options.limit       | `number`                | false    |                     |
 * **Examples**
 
 ```
-> await conflux.getLogs({
+> await client.getLogs({
       address: '0x8e2f2e68eb75bb8b18caafe9607242d4748f8d98',
       fromEpoch: 39802,
       toEpoch: 39802,
@@ -1749,7 +841,7 @@ options.limit       | `number`                | false    |                     |
 
 Subscribe event by name and got id, and provider will emit event by id
 
-> Note: suggest use `conflux.subscribeXXX` to subscribe
+> Note: suggest use `client.subscribeXXX` to subscribe
 
 * **Parameters**
 
@@ -1765,52 +857,16 @@ name    | `string` | true     |         | Subscription name
 * **Examples**
 
 ```
-> conflux = new Conflux({url:'ws://127.0.0.1:12535'})
-> id = await conflux.subscribe('epochs');
+> client = new Conflux({url:'ws://127.0.0.1:12535'})
+> id = await client.subscribe('epochs');
    "0x8fe7879a1681e9b9"
-> conflux.provider.on(id, data=>console.log(data));
+> client.provider.on(id, data=>console.log(data));
    {
      epochHashesOrdered: [
        '0x0eff33578346b8e8347af3bae948eb7f4f5c27add9dbcfeb55eaf7cb3640088f',
        '0xb0cedac34a06ebcb42c3446a6bb2df1f0dcd9d83061f550460e387d19a4d8e91'
      ],
      epochNumber: '0x8cb32'
-   }
-```
-
-### Ethereum.prototype.subscribeEpochs <a id="Ethereum.js/Ethereum/subscribeEpochs"></a>
-
-The epochs topic streams consensus results: the total order of blocks, as expressed by a sequence of epochs.
-The returned series of epoch numbers is monotonically increasing with an increment of one.
-If you see the same epoch twice, this suggests a pivot chain reorg has happened (this might happen for recent epochs).
-For each epoch, the last hash in epochHashesOrdered is the hash of the pivot block.
-
-* **Returns**
-
-`Promise.<Subscription>` EventEmitter instance with the follow events:
-- 'data':
-  - epochNumber `number`: epoch number
-  - epochHashesOrdered `array`: epoch block hash in order
-    - `string`: block hash
-
-* **Examples**
-
-```
-> subscription = await conflux.subscribeEpochs()
-> subscription.on('data', data=>console.log(data))
-   {
-     epochNumber: 566031,
-     epochHashesOrdered: [
-       '0x2820dbb5c4126455ad37bc88c635ae1f35e0d4f85c74300c01828f57ea1e5969',
-       '0xd66b801335ba01e2448df52e59da584b54fc7ee7c2f8160943c097e1ebd23038'
-     ]
-    }
-   {
-     epochNumber: 566032,
-     epochHashesOrdered: [
-       '0x899606b462f0141d672aaea8497c82aebbd7b16d266fad71e9d5093b5c6d392e',
-       '0xf6093d19c4df3645cd972e9f791fe0db3a1ab70881023a8aee63f64e0c3ca152'
-     ]
    }
 ```
 
@@ -1826,26 +882,25 @@ The newHeads topic streams all new block headers participating in the consensus.
 * **Examples**
 
 ```
-> subscription = await conflux.subscribeNewHeads()
+> subscription = await client.subscribeNewHeads()
 > subscription.on('data', data=>console.log(data))
    {
-      difficulty: 368178587115n,
-      epochNumber: null,
-      gasLimit: 30000000n,
-      height: 1118247,
-      timestamp: 1605005752,
-      adaptive: false,
-      blame: 0,
-      deferredLogsBloomHash: '0xd397b3b043d87fcd6fad1291ff0bfd16401c274896d8c63a923727f077b8e0b5',
-      deferredReceiptsRoot: '0x7ae0d5716513206755b6f7c95272b79dbc225759b6e17727e19c2f15c3166bda',
-      deferredStateRoot: '0x3cf5deba77c8aa9072f1e972d6a97db487a0ce88455f371eb8ac8fa77321cb9d',
-      hash: '0x194675173abbc5aab50326136008774eea1a289e6722c973dfed12b703ee5f2a',
-      miner: '0x189121b8f0cdfef0b56eb22d9cb76c97b9c7cfbc',
-      nonce: '0x799d35f695950fd6',
-      parentHash: '0x4af3cf8cb358e75acad282ffa4b578b6211ea9eeb7cf87c282f120d8a1c809df',
-      powQuality: '0xe7ac17feab',
-      refereeHashes: [],
-      transactionsRoot: '0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470'
+      number: 24908378,
+      hash: '0xb6b8641011e90f747c8addb8ae38c622348f07e852af50f688c2bcbd975b4402',
+      parentHash: '0xf6ef56360d258f7ae1eb91c3dcee477c2022d1ce5e0780f9852b5a1ea953ae5b',
+      sha3Uncles: '0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347',
+      logsBloom: '0x000000400000200001000080000000000000010000100800020800000010000001800000000020000000040000000000002000100000000000000000002000000000002000000000000400080000000000010200000802000000a400c000000400000801820000008004601000002a20200000000000800010002030002000400800040200008010240000000900000001804001008000000000100080080200021000000000002000000010000103000000000000000000000000a00000020000020002000000000000800000000000000800000000080000008020800020020010000040080008000001000000200008000000800000480000000000814000',
+      transactionsRoot: '0xf499abdb0439a896543f0bc9ca5b6f110452b3d1b3fa672626e917065b52139b',
+      stateRoot: '0x0225ba245d86c0f64bd4cd7690b6af2a41ccef62034353f22ec6f72e8dc87b58',
+      receiptsRoot: '0xb61ec060497fbb6208bc17255553ced836d1e9a468154d2f1a415825a1e66e57',
+      miner: '0x03801efb0efe2a25ede5dd3a003ae880c0292e4d',
+      author: '0x03801efb0efe2a25ede5dd3a003ae880c0292e4d',
+      difficulty: 340282366920938463463374607431768211454n,
+      extraData: '0xdb830302058c4f70656e457468657265756d86312e34372e30826c69',
+      size: 5925,
+      gasLimit: 12499988n,
+      gasUsed: 1853185n,
+      timestamp: 1621323232,
     }
 ```
 
@@ -1867,13 +922,12 @@ options.topics  | `array`                 | false    |         | Search topics. 
 
 `Promise.<Subscription>` EventEmitter instance with the follow events:
 - 'data': see `getLogs`
-- 'revert':
-  - revertTo 'number': epoch number
+- 'removed': see `getLogs`
 
 * **Examples**
 
 ```
-> subscription = await conflux.subscribeLogs()
+> subscription = await client.subscribeLogs()
 > subscription.on('data', data=>console.log(data))
    {
      epochNumber: 568224,
@@ -1893,10 +947,14 @@ options.topics  | `array`                 | false    |         | Search topics. 
 ```
 
 ```
-> subscription.on('revert', data=>console.log(data))
-   { revertTo: 568230 }
-   { revertTo: 568231 }
+> subscription.on('removed', data=>console.log(data))
 ```
+
+### Ethereum.prototype.subscribeNewPendingTransactions <a id="Ethereum.js/Ethereum/subscribeNewPendingTransactions"></a>
+
+* **Returns**
+
+`Promise.<Subscription>` 
 
 ### Ethereum.prototype.unsubscribe <a id="Ethereum.js/Ethereum/unsubscribe"></a>
 
@@ -1915,148 +973,18 @@ id   | `string,Subscription` | true     |         | Subscription id
 * **Examples**
 
 ```
-> id = await conflux.subscribe('epochs');
-> await conflux.unsubscribe(id);
+> id = await client.subscribe('epochs');
+> await client.unsubscribe(id);
    true
-> await conflux.unsubscribe(id);
+> await client.unsubscribe(id);
    false
 ```
 
 ```
-> subscription = await conflux.subscribeLogs();
-> await conflux.unsubscribe(subscription);
+> subscription = await client.subscribeLogs();
+> await client.unsubscribe(subscription);
    true
 ```
-
-----------------------------------------
-
-## Message <a id="Message.js/Message"></a>
-
-
-
-### Message.sign <a id="Message.js/Message/(static)sign"></a>
-
-Signs the hash with the privateKey.
-
-> TODO support [CIP 23](https://github.com/Conflux-Chain/CIPs/blob/master/CIPs/cip-23.md)
-
-* **Parameters**
-
-Name        | Type            | Required | Default | Description
-------------|-----------------|----------|---------|------------
-privateKey  | `string,Buffer` | true     |         |
-messageHash | `string,Buffer` | true     |         |
-
-* **Returns**
-
-`string` The signature as hex string.
-
-* **Examples**
-
-```
-> Message.sign(
-   '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef', // privateKey
-   '0x592fa743889fc7f92ac2a37bb1f5ba1daf2a5c84741ca0e0061d243a2e6707ba',
-   )
-   "0x6e913e2b76459f19ebd269b82b51a70e912e909b2f5c002312efc27bcc280f3c29134d382aad0dbd3f0ccc9f0eb8f1dbe3f90141d81574ebb6504156b0d7b95f01"
-```
-
-### Message.recover <a id="Message.js/Message/(static)recover"></a>
-
-Recovers the signers publicKey from the signature.
-
-* **Parameters**
-
-Name        | Type            | Required | Default | Description
-------------|-----------------|----------|---------|------------
-signature   | `string,Buffer` | true     |         |
-messageHash | `string,Buffer` | true     |         |
-
-* **Returns**
-
-`string` The publicKey as hex string.
-
-* **Examples**
-
-```
-> Message.recover(
-   '0x6e913e2b76459f19ebd269b82b51a70e912e909b2f5c002312efc27bcc280f3c29134d382aad0dbd3f0ccc9f0eb8f1dbe3f90141d81574ebb6504156b0d7b95f01',
-   '0x592fa743889fc7f92ac2a37bb1f5ba1daf2a5c84741ca0e0061d243a2e6707ba',
-   )
-   "0x4646ae5047316b4230d0086c8acec687f00b1cd9d1dc634f6cb358ac0a9a8ffffe77b4dd0a4bfb95851f3b7355c781dd60f8418fc8a65d14907aff47c903a559"
-```
-
-### Message.prototype.**constructor** <a id="Message.js/Message/**constructor**"></a>
-
-* **Parameters**
-
-Name    | Type     | Required | Default | Description
---------|----------|----------|---------|------------
-message | `string` | true     |         |
-
-* **Returns**
-
-`Message` 
-
-* **Examples**
-
-```
-> msg = new Message('Hello World');
-   Message {
-      message: 'Hello World',
-    }
-> msg.sign('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef');
-   Message {
-      message: 'Hello World',
-      signature: '0x6e913e2b76459f19ebd269b82b51a70e912e909b2f5c002312efc27bcc280f3c29134d382aad0dbd3f0ccc9f0eb8f1dbe3f90141d81574ebb6504156b0d7b95f01'
-    }
-> msg.signature
-   "0x6e913e2b76459f19ebd269b82b51a70e912e909b2f5c002312efc27bcc280f3c29134d382aad0dbd3f0ccc9f0eb8f1dbe3f90141d81574ebb6504156b0d7b95f01"
-> msg.hash
-   "0x592fa743889fc7f92ac2a37bb1f5ba1daf2a5c84741ca0e0061d243a2e6707ba"
-> msg.from
-   "0x1cad0b19bb29d4674531d6f115237e16afce377c"
-> msg.r
-   "0x6e913e2b76459f19ebd269b82b51a70e912e909b2f5c002312efc27bcc280f3c"
-> msg.s
-   "0x29134d382aad0dbd3f0ccc9f0eb8f1dbe3f90141d81574ebb6504156b0d7b95f"
-> msg.v
-   1
-```
-
-### Message.prototype.hash <a id="Message.js/Message/hash(getter)"></a>
-
-Getter of message hash include signature.
-
-> Note: calculate every time.
-
-* **Returns**
-
-`string` 
-
-### Message.prototype.from <a id="Message.js/Message/from(getter)"></a>
-
-Getter of sender address.
-
-> Note: calculate every time.
-
-* **Returns**
-
-`string,undefined` If ECDSA recover success return address, else return undefined.
-
-### Message.prototype.sign <a id="Message.js/Message/sign"></a>
-
-Sign message and set 'r','s','v' and 'hash'.
-
-* **Parameters**
-
-Name       | Type     | Required | Default | Description
------------|----------|----------|---------|------------------------
-privateKey | `string` | true     |         | Private key hex string.
-
-* **Returns**
-
-`Message` 
 
 ----------------------------------------
 
@@ -2233,22 +1161,19 @@ Create a transaction.
 
 * **Parameters**
 
-Name                 | Type            | Required | Default | Description
----------------------|-----------------|----------|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------
-options              | `object`        | true     |         |
-options.from         | `string`        | false    |         | The sender address.
-options.nonce        | `string,number` | false    |         | This allows to overwrite your own pending transactions that use the same nonce.
-options.gasPrice     | `string,number` | false    |         | The price of gas for this transaction in drip.
-options.gas          | `string,number` | false    |         | The amount of gas to use for the transaction (unused gas is refunded).
-options.to           | `string`        | false    |         | The destination address of the message, left undefined for a contract-creation transaction.
-options.value        | `string,number` | false    |         | The value transferred for the transaction in drip, also the endowment if it’s a contract-creation transaction.
-options.storageLimit | `string,number` | false    |         | The storage limit specified by the sender.
-options.epochHeight  | `string,number` | false    |         | The epoch proposed by the sender. Note that this is NOT the epoch of the block containing this transaction.
-options.chainId      | `string,number` | false    |         | The chain ID specified by the sender.
-options.data         | `string,Buffer` | false    |         | Either a ABI byte string containing the data of the function call on a contract, or in the case of a contract-creation transaction the initialisation code.
-options.r            | `string,Buffer` | false    |         | ECDSA signature r
-options.s            | `string,Buffer` | false    |         | ECDSA signature s
-options.v            | `number`        | false    |         | ECDSA recovery id
+Name             | Type            | Required | Default | Description
+-----------------|-----------------|----------|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------
+options          | `object`        | true     |         |
+options.from     | `string`        | false    |         | The sender address.
+options.nonce    | `string,number` | false    |         | This allows to overwrite your own pending transactions that use the same nonce.
+options.gasPrice | `string,number` | false    |         | The price of gas for this transaction in drip.
+options.to       | `string`        | false    |         | The destination address of the message, left undefined for a contract-creation transaction.
+options.value    | `string,number` | false    |         | The value transferred for the transaction in drip, also the endowment if it’s a contract-creation transaction.
+options.chainId  | `string,number` | false    |         | The chain ID specified by the sender.
+options.data     | `string,Buffer` | false    |         | Either a ABI byte string containing the data of the function call on a contract, or in the case of a contract-creation transaction the initialisation code.
+options.r        | `string,Buffer` | false    |         | ECDSA signature r
+options.s        | `string,Buffer` | false    |         | ECDSA signature s
+options.v        | `number`        | false    |         | ECDSA recovery id
 
 * **Returns**
 
@@ -2289,6 +1214,7 @@ Recover public key from signed Transaction.
 ### Transaction.prototype.encode <a id="Transaction.js/Transaction/encode"></a>
 
 Encode rlp.
+> TODO: EIP-2718, EIP-2930
 
 * **Parameters**
 
@@ -2474,27 +1400,6 @@ arg  | `number,string,BigInt` | true     |         |
  Error('Invalid number')
 ```
 
-#### format.fixed64 <a id="util/format.js/format/(static)fixed64"></a>
-
-* **Parameters**
-
-Name | Type                       | Required | Default | Description
------|----------------------------|----------|---------|------------
-arg  | `string,number,BigInt,Big` | true     |         |
-
-* **Returns**
-
-`Number` 
-
-* **Examples**
-
-```
-> format.fixed64('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff')
- 1
-> format.fixed64('0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff')
- 0.5
-```
-
 #### format.blockNumber <a id="util/format.js/format/(static)blockNumber"></a>
 
 * **Parameters**
@@ -2516,6 +1421,28 @@ arg  | `number,string` | true     |         | number or label, See [BLOCK_NUMBER
  "latest"
 > format.blockNumber('earliest')
  "earliest"
+```
+
+#### format.address <a id="util/format.js/format/(static)address"></a>
+
+Checks if a given string is a valid address.
+It will also check the checksum, if the address has upper and lowercase letters.
+
+* **Parameters**
+
+Name | Type            | Required | Default | Description
+-----|-----------------|----------|---------|------------
+arg  | `string,Buffer` | true     |         |
+
+* **Returns**
+
+`string` Hex string
+
+* **Examples**
+
+```
+> format.address('0xbbb62a2252f998225886fed4f2a9dac3c94de681')
+ "0xBbb62A2252F998225886FEd4f2A9DaC3C94dE681"
 ```
 
 #### format.hex <a id="util/format.js/format/(static)hex"></a>
@@ -2547,49 +1474,6 @@ arg  | `number,BigInt,string,Buffer,boolean,null` | true     |         |
  "0x010aff"
 > format.hex("0x0a")
  "0x0a"
-```
-
-#### format.checksumAddress <a id="util/format.js/format/(static)checksumAddress"></a>
-
-* **Parameters**
-
-Name | Type     | Required | Default | Description
------|----------|----------|---------|------------
-arg  | `string` | true     |         |
-
-* **Returns**
-
-`string` Checksum address
-
-* **Examples**
-
-```
-> format.checksumAddress('CFX:TYPE.USER:AAR1C5CVHATHREAS1MX3XGWJUYJ4K2T7BJTZ1R2N2N')
- 'CFX:TYPE.USER:AAR1C5CVHATHREAS1MX3XGWJUYJ4K2T7BJTZ1R2N2N'
-> format.checksumAddress('cfx:aar1c5cvhathreas1mx3xgwjuyj4k2t7bjtz1r2n2n')
- 'CFX:TYPE.USER:AAR1C5CVHATHREAS1MX3XGWJUYJ4K2T7BJTZ1R2N2N'
-```
-
-#### format.address <a id="util/format.js/format/(static)address"></a>
-
-Checks if a given string is a valid address.
-It will also check the checksum, if the address has upper and lowercase letters.
-
-* **Parameters**
-
-Name | Type            | Required | Default | Description
------|-----------------|----------|---------|------------
-arg  | `string,Buffer` | true     |         |
-
-* **Returns**
-
-`string` Hex string
-
-* **Examples**
-
-```
-> format.address('0x0123456789012345678901234567890123456789')
- "0x0123456789012345678901234567890123456789"
 ```
 
 #### format.blockHash <a id="util/format.js/format/(static)blockHash"></a>
@@ -2778,49 +1662,6 @@ arg  | `string,Buffer` | true     |         |
 
 ----------------------------------------
 
-### convertBit <a id="util/sign.js/convertBit"></a>
-
-convert inBits buffer  to outBits uint array
-
-* **Parameters**
-
-Name    | Type      | Required | Default | Description
---------|-----------|----------|---------|------------
-buffer  | `Buffer`  | true     |         |
-inBits  | `number`  | true     |         |
-outBits | `number`  | true     |         |
-pad     | `boolean` | false    |         |
-
-* **Returns**
-
-`Array.<number>` 
-
-* **Examples**
-
-```
-> convertBit(Buffer.from([1, 1]), 8, 5, true)
-[0, 4, 0, 16]
-```
-
-----------------------------------------
-
-### polyMod <a id="util/sign.js/polyMod"></a>
-
-* **Parameters**
-
-Name   | Type     | Required | Default | Description
--------|----------|----------|---------|------------
-buffer | `Buffer` | true     |         |
-
-* **Returns**
-
-`BigInt` > polyMod([])
- 0n
-> polyMod([0,0])
- 1025n
-
-----------------------------------------
-
 ### keccak256 <a id="util/sign.js/keccak256"></a>
 
 keccak 256
@@ -2840,6 +1681,32 @@ buffer | `Buffer` | true     |         |
 ```
 > keccak256(Buffer.from(''))
  <Buffer c5 d2 46 01 86 f7 23 3c 92 7e 7d b2 dc c7 03 c0 e5 00 b6 53 ca 82 27 3b 7b fa d8 04 5d 85 a4 70>
+```
+
+----------------------------------------
+
+### checksumAddress <a id="util/sign.js/checksumAddress"></a>
+
+Makes a checksum address
+
+> Note: support [EIP-55](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-55.md)
+> Note: not support [RSKIP60](https://github.com/rsksmart/RSKIPs/blob/master/IPs/RSKIP60.md) yet
+
+* **Parameters**
+
+Name    | Type     | Required | Default | Description
+--------|----------|----------|---------|------------
+address | `string` | true     |         | Hex string
+
+* **Returns**
+
+`string` 
+
+* **Examples**
+
+```
+> checksumAddress('0x1b716c51381e76900ebaa7999a488511a4e1fd0a')
+ "0x1B716c51381e76900EBAA7999A488511A4E1fD0a"
 ```
 
 ----------------------------------------
@@ -2995,7 +1862,7 @@ privateKey | `Buffer` | true     |         |
  {
   r: <Buffer 21 ab b4 c3 fd 51 75 81 e6 c7 e7 e0 7f 40 4f a2 2c ba 8d 8f 71 27 0b 29 58 42 b8 3c 44 b5 a4 c6>,
   s: <Buffer 08 59 7b 69 8f 8f 3c c2 ba 0b 45 ee a7 7f 55 29 ad f9 5c a5 51 41 e7 9b 56 53 77 3d 00 5d 18 58>,
-  v: 0
+  recovery: 0
  }
 ```
 
@@ -3007,13 +1874,13 @@ Recover ecdsa
 
 * **Parameters**
 
-Name      | Type     | Required | Default | Description
-----------|----------|----------|---------|------------
-hash      | `Buffer` | true     |         |
-options   | `object` | true     |         |
-options.r | `Buffer` | true     |         |
-options.s | `Buffer` | true     |         |
-options.v | `number` | true     |         |
+Name             | Type     | Required | Default | Description
+-----------------|----------|----------|---------|------------
+hash             | `Buffer` | true     |         |
+options          | `object` | true     |         |
+options.r        | `Buffer` | true     |         |
+options.s        | `Buffer` | true     |         |
+options.recovery | `number` | true     |         |
 
 * **Returns**
 

@@ -7,56 +7,54 @@ const ADDRESS = '0x0123456789012345678901234567890123456789';
 const PASSWORD = 'password';
 
 // ----------------------------------------------------------------------------
-const conflux = new Ethereum({});
-conflux.provider = new MockProvider();
-const account = conflux.wallet.addPrivateKey(PRIVATE_KEY);
+const client = new Ethereum({});
+client.provider = new MockProvider();
+const account = client.wallet.addPrivateKey(PRIVATE_KEY);
 
 test('sendTransaction error', async () => {
-  await expect(conflux.sendTransaction()).rejects.toThrow('Cannot read property');
+  await expect(client.sendTransaction()).rejects.toThrow('Cannot read property');
 });
 
 test('sendTransaction remote', async () => {
-  const call = jest.spyOn(conflux.provider, 'call');
-
-  expect(conflux.wallet.has(ADDRESS)).toEqual(false);
-
-  await conflux.sendTransaction({}, PASSWORD);
-  expect(call).toHaveBeenLastCalledWith('cfx_sendTransaction', {}, PASSWORD);
-
-  await conflux.sendTransaction({
-    from: ADDRESS,
-    gasPrice: 10,
-    gas: format.bigUInt(1024),
-    storageLimit: format.bigUInt(2048),
-  }, PASSWORD);
-
-  expect(call).toHaveBeenLastCalledWith('cfx_sendTransaction', {
-    from: conflux.ChecksumAddress(ADDRESS),
-    gasPrice: '0xa',
-    gas: '0x400',
-    storageLimit: '0x800',
-  }, PASSWORD);
-
-  call.mockRestore();
+  // const call = jest.spyOn(client.provider, 'call');
+  //
+  // expect(client.wallet.has(ADDRESS)).toEqual(false);
+  //
+  // await client.sendTransaction({}, PASSWORD);
+  // expect(call).toHaveBeenLastCalledWith('eth_sendTransaction', {}, PASSWORD);
+  //
+  // await client.sendTransaction({
+  //   from: ADDRESS,
+  //   gasPrice: 10,
+  //   gas: format.bigUInt(1024),
+  //   storageLimit: format.bigUInt(2048),
+  // }, PASSWORD);
+  //
+  // expect(call).toHaveBeenLastCalledWith('eth_sendTransaction', {
+  //   from: ADDRESS,
+  //   gasPrice: '0xa',
+  //   gas: '0x400',
+  //   storageLimit: '0x800',
+  // }, PASSWORD);
+  //
+  // call.mockRestore();
 });
 
 test('sendTransaction local', async () => {
-  const call = jest.spyOn(conflux.provider, 'call');
+  const call = jest.spyOn(client.provider, 'call');
 
-  await conflux.sendTransaction({
+  await client.sendTransaction({
     from: account,
     to: account,
     nonce: 100,
     gasPrice: 10,
     gas: format.bigUInt(1024),
     value: 0,
-    storageLimit: format.bigUInt(2048),
-    epochHeight: 1000,
     chainId: 1,
     data: undefined,
   });
 
-  expect(call).toHaveBeenLastCalledWith('cfx_sendRawTransaction', '0xf867e3640a820400941cad0b19bb29d4674531d6f115237e16afce377c808208008203e8018080a07408093a0a059d285f8b064e41ebca856c5c2369af32ebcdadb0b5e2446d9eaea043624cf0731d4ad618ef055a95cef1e05708b7b45e675205be9d050581820afc');
+  expect(call).toHaveBeenLastCalledWith('eth_sendRawTransaction', '0xf85f640a82520894fcad0b19bb29d4674531d6f115237e16afce377c808026a0bc73fd0eb4e7acd990f0ccbf69ffa884169b5583ee0eb37fe6103440a7efb232a05a328b08fac46973429e7e0f2f5398eb314faea1213678e6cdc9edb47d8f9063');
 
   call.mockRestore();
 });
@@ -64,23 +62,23 @@ test('sendTransaction local', async () => {
 test('sendTransaction defaultGasPrice', async () => {
   const signTransaction = jest.spyOn(account, 'signTransaction');
 
-  conflux.defaultGasPrice = 1;
+  client.defaultGasPrice = 1;
 
-  await conflux.sendTransaction({
+  await client.sendTransaction({
     from: account,
     nonce: 100,
     gasPrice: undefined,
-    gas: format.bigUInt(1024),
+    gasLimit: format.bigUInt(1024),
     storageLimit: format.bigUInt(2048),
     epochHeight: 1000,
     chainId: 1,
   });
 
   expect(signTransaction).toHaveBeenLastCalledWith({
-    from: conflux.ChecksumAddress(account),
+    from: account,
     nonce: 100,
-    gasPrice: conflux.defaultGasPrice,
-    gas: format.bigUInt(1024),
+    gasPrice: client.defaultGasPrice,
+    gasLimit: format.bigUInt(1024),
     to: undefined,
     value: undefined,
     storageLimit: format.bigUInt(2048),
@@ -90,34 +88,30 @@ test('sendTransaction defaultGasPrice', async () => {
   });
 
   signTransaction.mockRestore();
-  conflux.defaultGasPrice = undefined;
+  client.defaultGasPrice = undefined;
 });
 
-test('sendTransaction MIN_GAS_PRICE', async () => {
+test('sendTransaction gasPrice:0', async () => {
   const signTransaction = jest.spyOn(account, 'signTransaction');
 
-  const getGasPrice = jest.spyOn(conflux, 'getGasPrice');
-  getGasPrice.mockReturnValue('0');
+  const getGasPrice = jest.spyOn(client, 'getGasPrice');
+  getGasPrice.mockReturnValue(JSBI.BigInt(0));
 
-  await conflux.sendTransaction({
+  await client.sendTransaction({
     from: account,
     nonce: 100,
     gasPrice: undefined,
-    gas: format.bigUInt(1024),
-    storageLimit: format.bigUInt(2048),
-    epochHeight: 1000,
+    gasLimit: format.bigUInt(1024),
     chainId: 1,
   });
 
   expect(signTransaction).toHaveBeenLastCalledWith({
-    from: conflux.ChecksumAddress(account),
+    from: account,
     nonce: 100,
-    gasPrice: CONST.MIN_GAS_PRICE,
-    gas: format.bigUInt(1024),
+    gasLimit: JSBI.BigInt(1024),
+    gasPrice: JSBI.BigInt(0),
     to: undefined,
     value: undefined,
-    storageLimit: format.bigUInt(2048),
-    epochHeight: 1000,
     chainId: 1,
     data: undefined,
   });
@@ -127,106 +121,88 @@ test('sendTransaction MIN_GAS_PRICE', async () => {
 });
 
 test('sendTransaction auto', async () => {
-  const getNextNonce = jest.spyOn(conflux, 'getNextNonce');
-  getNextNonce.mockReturnValue('100');
+  const getTransactionCount = jest.spyOn(client, 'getTransactionCount');
+  getTransactionCount.mockReturnValue('100');
 
-  const getStatus = jest.spyOn(conflux, 'getStatus');
-  getStatus.mockReturnValue({ chainId: format.uInt(1) });
+  const getChainId = jest.spyOn(client, 'getChainId');
+  getChainId.mockReturnValue(1);
 
-  const getEpochNumber = jest.spyOn(conflux, 'getEpochNumber');
-  getEpochNumber.mockReturnValue(1000);
-
-  const getGasPrice = jest.spyOn(conflux, 'getGasPrice');
+  const getGasPrice = jest.spyOn(client, 'getGasPrice');
   getGasPrice.mockReturnValue('10');
 
-  const estimateGasAndCollateral = jest.spyOn(conflux, 'estimateGasAndCollateral');
-  estimateGasAndCollateral.mockReturnValue({
-    gasLimit: format.bigUInt(1024),
-    storageCollateralized: format.bigUInt(2048),
-  });
+  const estimateGas = jest.spyOn(client, 'estimateGas');
+  estimateGas.mockReturnValue(format.bigUInt(1024));
 
-  const call = jest.spyOn(conflux.provider, 'call');
+  const call = jest.spyOn(client.provider, 'call');
   const signTransaction = jest.spyOn(account, 'signTransaction');
 
-  await conflux.sendTransaction({
+  await client.sendTransaction({
     from: account.address,
     to: account.address,
   });
-  expect(getNextNonce).toHaveBeenCalledTimes(1);
-  expect(getStatus).toHaveBeenCalledTimes(1);
-  expect(getEpochNumber).toHaveBeenCalledTimes(1);
+  expect(getTransactionCount).toHaveBeenCalledTimes(1);
+  expect(getChainId).toHaveBeenCalledTimes(1);
   expect(getGasPrice).toHaveBeenCalledTimes(1);
-  expect(estimateGasAndCollateral).toHaveBeenCalledTimes(0);
+  expect(estimateGas).toHaveBeenCalledTimes(0);
   expect(signTransaction).toHaveBeenLastCalledWith({
     chainId: 1,
-    epochHeight: 1000,
-    from: conflux.ChecksumAddress(account.address),
-    to: conflux.ChecksumAddress(account.address),
-    gas: CONST.TRANSACTION_GAS,
+    from: account.address,
+    to: account.address,
+    gasLimit: CONST.TRANSACTION_GAS,
     gasPrice: '10',
     nonce: '100',
-    storageLimit: CONST.TRANSACTION_STORAGE_LIMIT,
   });
 
-  await conflux.sendTransaction({
+  await client.sendTransaction({
     from: account.address,
     data: '0xabcd',
   });
-  expect(getNextNonce).toHaveBeenCalledTimes(2);
-  expect(getStatus).toHaveBeenCalledTimes(2);
-  expect(getEpochNumber).toHaveBeenCalledTimes(2);
+  expect(getTransactionCount).toHaveBeenCalledTimes(2);
+  expect(getChainId).toHaveBeenCalledTimes(2);
   expect(getGasPrice).toHaveBeenCalledTimes(2);
-  expect(estimateGasAndCollateral).toHaveBeenCalledTimes(1);
+  expect(estimateGas).toHaveBeenCalledTimes(1);
   expect(signTransaction).toHaveBeenLastCalledWith({
     chainId: 1,
-    epochHeight: 1000,
-    from: conflux.ChecksumAddress(account.address),
-    gas: JSBI.BigInt(1024),
+    from: account.address,
+    gasLimit: JSBI.BigInt(1024),
     gasPrice: '10',
     nonce: '100',
-    storageLimit: JSBI.BigInt(2048),
     data: '0xabcd',
   });
 
-  await conflux.sendTransaction({
+  await client.sendTransaction({
     from: account.address,
-    gas: 1000,
+    gasLimit: 1000,
     data: '0xabcd',
   });
-  expect(estimateGasAndCollateral).toHaveBeenCalledTimes(2);
+  expect(estimateGas).toHaveBeenCalledTimes(1);
   expect(signTransaction).toHaveBeenLastCalledWith({
     chainId: 1,
-    epochHeight: 1000,
-    from: conflux.ChecksumAddress(account.address),
-    gas: 1000,
+    from: account.address,
+    gasLimit: 1000,
     gasPrice: '10',
     nonce: '100',
-    storageLimit: JSBI.BigInt(2048),
     data: '0xabcd',
   });
 
-  await conflux.sendTransaction({
+  await client.sendTransaction({
     from: account.address,
-    storageLimit: 2000,
     data: '0xabcd',
   });
-  expect(estimateGasAndCollateral).toHaveBeenCalledTimes(3);
+  expect(estimateGas).toHaveBeenCalledTimes(2);
   expect(signTransaction).toHaveBeenLastCalledWith({
     chainId: 1,
-    epochHeight: 1000,
-    from: conflux.ChecksumAddress(account.address),
-    gas: JSBI.BigInt(1024),
+    from: account.address,
+    gasLimit: JSBI.BigInt(1024),
     gasPrice: '10',
     nonce: '100',
-    storageLimit: 2000,
     data: '0xabcd',
   });
 
   signTransaction.mockRestore();
   call.mockRestore();
-  estimateGasAndCollateral.mockRestore();
+  estimateGas.mockRestore();
   getGasPrice.mockRestore();
-  getEpochNumber.mockRestore();
-  getStatus.mockRestore();
-  getNextNonce.mockRestore();
+  getChainId.mockRestore();
+  getTransactionCount.mockRestore();
 });

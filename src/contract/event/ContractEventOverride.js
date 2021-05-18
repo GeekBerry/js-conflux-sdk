@@ -1,6 +1,7 @@
 const lodash = require('lodash');
 const callable = require('../../util/callable');
 
+// FIXME: to extend `EventCoder`
 class ContractEventOverride {
   constructor(events, contract, client) {
     this.signatureToEvent = lodash.keyBy(events, 'signature');

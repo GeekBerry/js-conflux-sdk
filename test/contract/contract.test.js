@@ -1,5 +1,5 @@
 const JSBI = require('../../src/util/jsbi');
-const { Ethereum, Contract, format } = require('../../src');
+const { Ethereum, Contract, format, CONST } = require('../../src');
 const { MockProvider } = require('../../mock');
 const { abi, bytecode, address } = require('./contract.json');
 const ContractConstructor = require('../../src/contract/method/ContractConstructor');
@@ -8,10 +8,10 @@ const ADDRESS = '0x1cad0b19bb29d4674531d6f115237e16afce377c';
 const HEX64 = '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';
 
 // ----------------------------------------------------------------------------
-const conflux = new Ethereum();
-conflux.provider = new MockProvider();
+const client = new Ethereum();
+client.provider = new MockProvider();
 
-const contract = conflux.Contract({ abi, bytecode, address });
+const contract = client.Contract({ abi, bytecode, address });
 
 test('without code', async () => {
   const contractWithoutCode = new Contract({ abi, address });
@@ -39,30 +39,17 @@ test('Contract', async () => {
   expect(value.toString()).toEqual('100');
 });
 
-test('Internal Contract', async () => {
-  const adminControl = conflux.InternalContract('AdminControl');
-  expect(adminControl.address).toEqual('0x0888000000000000000000000000000000000000');
-
-  const sponsorWhitelistControl = conflux.InternalContract('SponsorWhitelistControl');
-  expect(sponsorWhitelistControl.address).toEqual('0x0888000000000000000000000000000000000001');
-
-  const staking = conflux.InternalContract('Staking');
-  expect(staking.address).toEqual('0x0888000000000000000000000000000000000002');
-
-  expect(() => conflux.InternalContract('xxx')).toThrow('can not find internal contract');
-});
-
 test('contract.call', async () => {
-  const call = jest.spyOn(conflux.provider, 'call');
+  const call = jest.spyOn(client.provider, 'call');
   call.mockReturnValueOnce('0x00000000000000000000000000000000000000000000000000000000000000ff');
 
   const value = await contract.count();
   expect(value.toString()).toEqual('255');
 
-  expect(call).toHaveBeenLastCalledWith('cfx_call', {
-    to: conflux.ChecksumAddress(address),
+  expect(call).toHaveBeenLastCalledWith('eth_call', {
+    to: address,
     data: '0x06661abd',
-  }, undefined);
+  }, CONST.BLOCK_NUMBER.LATEST);
 
   const error = new Error();
   error.data = '0x08c379a0' +
@@ -79,7 +66,7 @@ test('contract.call', async () => {
 });
 
 test('contract.call catch', async () => {
-  const call = jest.spyOn(conflux.provider, 'call');
+  const call = jest.spyOn(client.provider, 'call');
 
   call.mockReturnValueOnce('0x00000000000000000000000000000000000000000000000000000000000000ff');
   const value = await contract.count().catch(v => v);
@@ -93,7 +80,7 @@ test('contract.call catch', async () => {
 });
 
 test('contract.call finally', async () => {
-  const call = jest.spyOn(conflux.provider, 'call');
+  const call = jest.spyOn(client.provider, 'call');
 
   let called;
 
@@ -115,43 +102,43 @@ test('contract.call finally', async () => {
   call.mockRestore();
 });
 
-test('contract.estimateGasAndCollateral', async () => {
-  const call = jest.spyOn(conflux.provider, 'call');
+test('contract.estimateGas', async () => {
+  const call = jest.spyOn(client.provider, 'call');
 
-  await contract.count().estimateGasAndCollateral({});
+  await contract.count().estimateGas({});
 
-  expect(call).toHaveBeenLastCalledWith('cfx_estimateGasAndCollateral', {
-    to: conflux.ChecksumAddress(address),
+  expect(call).toHaveBeenLastCalledWith('eth_estimateGas', {
+    to: address,
     data: '0x06661abd',
-  }, undefined);
+  }, CONST.BLOCK_NUMBER.LATEST);
 
   call.mockRestore();
 });
 
 test('contract.sendTransaction', async () => {
-  const call = jest.spyOn(conflux.provider, 'call');
-
-  await contract.count().sendTransaction({ from: ADDRESS, gasPrice: 0, gas: 0, storageLimit: 0 });
-
-  expect(call).toHaveBeenLastCalledWith('cfx_sendTransaction', {
-    from: conflux.ChecksumAddress(ADDRESS),
-    to: conflux.ChecksumAddress(address),
-    data: '0x06661abd',
-    gasPrice: '0x0',
-    gas: '0x0',
-    storageLimit: '0x0',
-  }, undefined);
-
-  call.mockRestore();
+  // const call = jest.spyOn(conflux.provider, 'call');
+  //
+  // await contract.count().sendTransaction({ from: ADDRESS, gasPrice: 0, gas: 0, storageLimit: 0 });
+  //
+  // expect(call).toHaveBeenLastCalledWith('eth_sendTransaction', {
+  //   from: ADDRESS,
+  //   to: address,
+  //   data: '0x06661abd',
+  //   gasPrice: '0x0',
+  //   gas: '0x0',
+  //   storageLimit: '0x0',
+  // }, undefined);
+  //
+  // call.mockRestore();
 });
 
 test('contract.getLogs', async () => {
-  const call = jest.spyOn(conflux.provider, 'call');
+  const call = jest.spyOn(client.provider, 'call');
 
   const topics = [format.keccak256('StringEvent(string)'), format.keccak256('string')];
   call.mockReturnValueOnce([
     {
-      epochNumber: '0x0',
+      blockNumber: '0x0',
       logIndex: '0x0',
       transactionIndex: '0x0',
       transactionLogIndex: '0x0',
@@ -163,8 +150,8 @@ test('contract.getLogs', async () => {
   const result = await contract.StringEvent('string').getLogs();
   expect(result[0].arguments).toEqual([topics[1]]);
 
-  expect(call).toHaveBeenLastCalledWith('cfx_getLogs', {
-    address: conflux.ChecksumAddress(address),
+  expect(call).toHaveBeenLastCalledWith('eth_getLogs', {
+    address: address,
     topics,
   });
 
@@ -342,9 +329,9 @@ test('decodeLog', () => {
     fullName: 'SelfEvent(address indexed sender, uint256 current)',
     type: 'SelfEvent(address,uint256)',
     signature: '0xc4c01f6de493c58245fb681341f3a76bba9551ce81b11cbbb5d6d297844594df',
-    array: ['0xa000000000000000000000000000000000000001', JSBI.BigInt(100)],
+    array: ['0xA000000000000000000000000000000000000001', JSBI.BigInt(100)],
     object: {
-      sender: '0xa000000000000000000000000000000000000001',
+      sender: '0xA000000000000000000000000000000000000001',
       current: JSBI.BigInt(100),
     },
   });

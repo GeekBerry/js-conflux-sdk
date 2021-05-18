@@ -3,7 +3,7 @@
 const EventEmitter = require('events');
 const lodash = require('lodash');
 const { toHex, padHex, randomHex, HexStruct } = require('./util');
-const { Contract, ChecksumAddress } = require('../src');
+const { Contract } = require('../src');
 
 const contract = new Contract({
   abi: [
@@ -35,9 +35,8 @@ class MockProvider extends EventEmitter {
     epochBlockCount = 5,
     blockTxCount = 2,
     epochTxCount = 2,
-    chainId = 1029,
-    netName = 'CFX',
-    dataBytes = 0,
+    chainId = 0,
+    dataSize = 0,
   } = {}) {
     super();
 
@@ -48,13 +47,12 @@ class MockProvider extends EventEmitter {
     this.blockTxCount = blockTxCount;
     this.epochTxCount = epochTxCount;
     this.chainId = chainId;
-    this.netName = netName;
-    this.dataBytes = dataBytes;
+    this.dataSize = dataSize;
 
     this.accountAddressArray = lodash.range(addressCount)
-      .map(i => ChecksumAddress.fromHex(accountAddressStruct.encode({ address: i }), netName).toString());
+      .map(i => accountAddressStruct.encode({ address: i }));
     this.tokenAddressArray = lodash.range(epochTxCount)
-      .map(i => ChecksumAddress.fromHex(tokenAddressStruct.encode({ index: i }), netName).toString());
+      .map(i => tokenAddressStruct.encode({ index: i }));
   }
 
   async call(method, ...params) {
@@ -64,63 +62,32 @@ class MockProvider extends EventEmitter {
   close() {}
 
   // --------------------------------------------------------------------------
-  cfx_clientVersion() {
+  web3_clientVersion() {
     return 'mock';
   }
 
-  cfx_getStatus() {
-    return {
-      chainId: toHex(this.chainId),
-      epochNumber: randomHex(4),
-      blockNumber: randomHex(4),
-      pendingTxNumber: randomHex(4),
-      bestHash: randomHex(64),
-    };
+  net_version() {
+    return 'mock';
   }
 
-  cfx_gasPrice() {
+  eth_chainId() {
+    return toHex(this.chainId);
+  }
+
+  eth_protocolVersion() {
+    return 0;
+  }
+
+  eth_gasPrice() {
     return randomHex(2);
   }
 
-  cfx_getSupplyInfo(epochNumber) {
-    return {
-      totalIssued: randomHex(20),
-      totalStaking: randomHex(18),
-      totalCollateral: randomHex(18),
-      totalCirculating: randomHex(18),
-    };
-  }
-
-  cfx_getInterestRate(epochNumber) {
-    return randomHex(10);
-  }
-
-  cfx_getAccumulateInterestRate(epochNumber) {
-    return randomHex(10);
-  }
-
   // ------------------------------- address ----------------------------------
-  cfx_getAccount(address, epochNumber) {
-    return {
-      accumulatedInterestReturn: randomHex(4),
-      balance: randomHex(8),
-      collateralForStorage: randomHex(4),
-      nonce: randomHex(2),
-      stakingBalance: randomHex(2),
-      admin: ChecksumAddress.fromHex('0x0000000000000000000000000000000000000000', this.netName),
-      codeHash: randomHex(64),
-    };
-  }
-
-  cfx_getBalance(address, epochNumber) {
+  eth_getBalance(address, epochNumber) {
     return Number(epochNumber) ? randomHex(8) : '0x0';
   }
 
-  cfx_getStakingBalance(address, epochNumber) {
-    return Number(epochNumber) ? randomHex(8) : '0x0';
-  }
-
-  cfx_getNextNonce(address, epochNumber) {
+  eth_getTransactionCount(address, epochNumber) {
     if ([undefined, 'latest_state', 'latest_mined'].includes(epochNumber)) {
       return toHex(Number.MAX_SAFE_INTEGER);
     }
@@ -129,65 +96,20 @@ class MockProvider extends EventEmitter {
     return toHex(Math.floor(number));
   }
 
-  cfx_getAdmin(address, epochNumber) {
-    return ChecksumAddress.fromHex('0x0000000000000000000000000000000000000000', this.netName);
-  }
-
-  cfx_getVoteList(address, epochNumber) {
-    return lodash.range(2).map(() => ({
-      amount: randomHex(8),
-      unlockBlockNumber: epochNumber === undefined ? lodash.random(0, 1000) : epochNumber * 2,
-    }));
-  }
-
-  cfx_getDepositList(address, epochNumber) {
-    return lodash.range(2).map(() => ({
-      amount: randomHex(8),
-      accumulatedInterestRate: randomHex(16),
-      depositTime: epochNumber === undefined ? lodash.random(100000, 999999) : epochNumber,
-    }));
-  }
-
-  // -------------------------------- epoch -----------------------------------
-  cfx_epochNumber(epochNumber) {
-    if (/^0x[0-9a-f]+$/.test(epochNumber)) {
-      return epochNumber;
+  // -------------------------------- block -----------------------------------
+  eth_blockNumber(blockNumber) {
+    if (/^0x[0-9a-f]+$/.test(blockNumber)) {
+      return blockNumber;
     }
     return toHex(this.epochNumber);
   }
 
-  cfx_getBlocksByEpoch(epochNumber) {
-    const blockHashArray = lodash.range(this.epochBlockCount).map(
-      i => blockHashStruct.encode({ epochNumber, blockIndex: i }),
-    );
-    return blockHashArray.reverse(); // pivot to last one
+  eth_getBlockByNumber(epochNumber, detail) {
+    const blockHash = blockHashStruct.encode({ epochNumber, blockIndex: 0 });
+    return this.eth_getBlockByHash(blockHash, detail);
   }
 
-  cfx_getBlockByEpochNumber(epochNumber, detail) {
-    const blockHashArray = this.cfx_getBlocksByEpoch(epochNumber);
-    return this.cfx_getBlockByHash(lodash.last(blockHashArray), detail);
-  }
-
-  cfx_getBlockRewardInfo(epochNumber) {
-    const blockHashArray = this.cfx_getBlocksByEpoch(epochNumber);
-    return blockHashArray.map(blockHash => {
-      const block = this.cfx_getBlockByHash(blockHash);
-      return {
-        blockHash,
-        author: block.miner,
-        baseReward: randomHex(8),
-        totalReward: randomHex(10),
-        txFee: randomHex(12),
-      };
-    });
-  }
-
-  // -------------------------------- block -----------------------------------
-  cfx_getBestBlockHash() {
-    return blockHashStruct.encode({ epochNumber: 0, blockIndex: 0 });
-  }
-
-  cfx_getBlockByHash(blockHash, detail = false) {
+  eth_getBlockByHash(blockHash, detail = false) {
     const { epochNumber, blockIndex } = blockHashStruct.decode(blockHash);
     const blockCount = epochNumber * this.epochBlockCount + blockIndex;
     const timestamp = this.startTimestamp + (blockCount * this.blockDelta); // in secords
@@ -204,7 +126,7 @@ class MockProvider extends EventEmitter {
     );
 
     if (detail) {
-      transactions = transactions.map(transactionHash => this.cfx_getTransactionByHash(transactionHash));
+      transactions = transactions.map(transactionHash => this.eth_getTransactionByHash(transactionHash));
     }
 
     return {
@@ -232,33 +154,8 @@ class MockProvider extends EventEmitter {
     };
   }
 
-  cfx_getBlockByHashWithPivotAssumption(blockHash, pivotHash, epochNumber) {
-    const blockHashArray = this.cfx_getBlocksByEpoch(epochNumber);
-    if (lodash.last(blockHashArray) !== pivotHash || !blockHashArray.includes(blockHash)) {
-      throw new Error('{"code":-32602,"message":"Error: pivot chain assumption failed"}');
-    }
-
-    return this.cfx_getBlockByHash(blockHash, true);
-  }
-
-  cfx_getConfirmationRiskByHash() {
-    return randomHex(64);
-  }
-
-  trace_block(blockHash) {
-    const { transactions } = this.cfx_getBlockByHash(blockHash, true);
-    return {
-      transactionTraces: transactions.map(({ from, to, value, gas, data }) => ({
-        traces: [{
-          type: 'call',
-          action: { callType: 'call', from, to: to || from, value, gas, input: data },
-        }],
-      })),
-    };
-  }
-
   // ----------------------------- transaction --------------------------------
-  cfx_getTransactionByHash(transactionHash) {
+  eth_getTransactionByHash(transactionHash) {
     const { epochNumber, blockIndex, transactionIndex } = txHashStruct.decode(transactionHash);
     const blockCount = epochNumber * this.epochBlockCount + blockIndex;
     const txCount = blockCount * this.blockTxCount + transactionIndex;
@@ -267,13 +164,13 @@ class MockProvider extends EventEmitter {
     const nonce = Math.floor(txCount / this.accountAddressArray.length);
     const from = this.accountAddressArray[txCount % this.accountAddressArray.length];
     const to = transactionIndex === 0 ? null : this.accountAddressArray[(txCount + 1) % this.accountAddressArray.length];
-    const contractCreated = to ? null : ChecksumAddress.fromHex(contractAddressStruct.encode({ epochNumber, blockIndex }), this.netName).toString();
+    const contractCreated = to ? null : contractAddressStruct.encode({ epochNumber, blockIndex });
 
     return {
       blockHash,
       chainId: toHex(this.chainId),
       contractCreated,
-      data: randomHex(this.dataBytes * 2),
+      data: randomHex(this.dataSize * 2),
       epochHeight: epochNumber,
       from,
       gas: randomHex(5), // gasLimit
@@ -291,9 +188,9 @@ class MockProvider extends EventEmitter {
     };
   }
 
-  cfx_getTransactionReceipt(transactionHash) {
+  eth_getTransactionReceipt(transactionHash) {
     const { epochNumber } = txHashStruct.decode(transactionHash);
-    const { blockHash, contractCreated, from, to, transactionIndex, status } = this.cfx_getTransactionByHash(transactionHash);
+    const { blockHash, contractCreated, from, to, transactionIndex, status } = this.eth_getTransactionByHash(transactionHash);
 
     return {
       blockHash,
@@ -319,64 +216,38 @@ class MockProvider extends EventEmitter {
     };
   }
 
-  cfx_sendRawTransaction(hex) {
+  eth_sendRawTransaction(hex) {
     return randomHex(64);
   }
 
-  cfx_sendTransaction(options) {
+  eth_sendTransaction(options) {
     return randomHex(64);
   }
 
   // ------------------------------ contract ----------------------------------
-  cfx_getCode(address, epochNumber) {
+  eth_getCode(address, epochNumber) {
     return randomHex(100);
   }
 
-  cfx_getStorageAt(address, position, epochNumber) {
+  eth_getStorageAt(address, position, epochNumber) {
     return randomHex(64);
   }
 
-  cfx_getStorageRoot(address, epochNumber) {
-    return {
-      delta: randomHex(64),
-      intermediate: randomHex(64),
-      snapshot: randomHex(64),
-    };
-  }
-
-  cfx_getSponsorInfo(address, epochNumber) {
-    return {
-      sponsorBalanceForCollateral: randomHex(2),
-      sponsorBalanceForGas: randomHex(2),
-      sponsorGasBound: randomHex(2),
-      sponsorForCollateral: ChecksumAddress.fromHex('0x0000000000000000000000000000000000000000', this.netName).toString(),
-      sponsorForGas: ChecksumAddress.fromHex('0x0000000000000000000000000000000000000000', this.netName).toString(),
-    };
-  }
-
-  cfx_getCollateralForStorage(address, epochNumber) {
-    return randomHex(10);
-  }
-
-  cfx_call(hex) {
+  eth_call(hex) {
     return padHex(100, 64);
   }
 
-  cfx_estimateGasAndCollateral(hex, epochNumber) {
-    return {
-      gasUsed: randomHex(4),
-      gasLimit: randomHex(4),
-      storageCollateralized: randomHex(4),
-    };
+  eth_estimateGas(hex, epochNumber) {
+    return randomHex(4);
   }
 
-  cfx_getLogs({ blockHashes, address, topics, fromEpoch, toEpoch, limit }) {
+  eth_getLogs({ blockHashes, address, topics, fromEpoch, toEpoch, limit }) {
     const epochNumber = Number(fromEpoch); // Number or NaN
     if (!Number.isInteger(epochNumber)) {
       return [];
     }
 
-    const { hash: blockHash, transactions: [transactionHash] } = this.cfx_getBlockByEpochNumber(epochNumber);
+    const { hash: blockHash, transactions: [transactionHash] } = this.eth_getBlockByEpochNumber(epochNumber);
 
     return lodash.range(this.epochTxCount).map(index => {
       const { topics: topicArray, data } = contract.Transfer(
@@ -399,11 +270,12 @@ class MockProvider extends EventEmitter {
     });
   }
 
-  cfx_subscribe() {
+  // ----------------------------- subscription -------------------------------
+  eth_subscribe() {
     return randomHex(16);
   }
 
-  cfx_unsubscribe() {
+  eth_unsubscribe() {
     return lodash.sample([true, false]);
   }
 }

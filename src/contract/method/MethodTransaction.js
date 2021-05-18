@@ -27,11 +27,11 @@ class MethodTransaction extends Transaction {
    * set contract method encode as `data`.
    *
    * @param options {object} - See [Transaction](#Transaction.js/Transaction/**constructor**)
-   * @param epochNumber {string|number} - See [Conflux.estimateGasAndCollateral](#Conflux.js/estimateGasAndCollateral)
+   * @param epochNumber {string|number} - See [Conflux.estimateGas](#Conflux.js/estimateGas)
    * @return {Promise<object>} The gas used and storage occupied for the simulated call/transaction.
    */
-  async estimateGasAndCollateral(options, epochNumber) {
-    return this.method.client.estimateGasAndCollateral({ ...this, ...options }, epochNumber);
+  async estimateGas(options, epochNumber) {
+    return this.method.client.estimateGas({ ...this, ...options }, epochNumber);
   }
 
   /**

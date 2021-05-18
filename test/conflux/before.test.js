@@ -1,5 +1,5 @@
 const lodash = require('lodash');
-const { Ethereum, ChecksumAddress } = require('../../src');
+const { Ethereum } = require('../../src');
 const { MockProvider } = require('../../mock');
 
 const ADDRESS = '0x1cad0b19bb29d4674531d6f115237e16afce377c';
@@ -8,241 +8,226 @@ const TX_HASH = '0xb0a0000000000000000000000000000000000000000000000000000000000
 const PASSWORD = '123456';
 
 // ----------------------------------------------------------------------------
-const conflux = new Ethereum({
+const client = new Ethereum({
   defaultGasPrice: lodash.random(0, 1000),
 });
-conflux.provider = new MockProvider();
-
-test('ChecksumAddress', () => {
-  expect(() => conflux.ChecksumAddress(null)).toThrow('not match regex');
-  expect(() => conflux.ChecksumAddress(TX_HASH)).toThrow('not match regex');
-  expect(() => conflux.ChecksumAddress(ADDRESS.toUpperCase())).toThrow('not match regex');
-
-  expect(conflux.ChecksumAddress(ADDRESS))
-    .toEqual(ChecksumAddress('CFX:TYPE.USER:AASM4C231PY7J34FGHNTCFKDT2NM9XV1TU0DUKN7M1'));
-
-  expect(conflux.ChecksumAddress('cfx:aasm4c231py7j34fghntcfkdt2nm9xv1tu0dukn7m1'))
-    .toEqual(ChecksumAddress('CFX:TYPE.USER:AASM4C231PY7J34FGHNTCFKDT2NM9XV1TU0DUKN7M1'));
-
-  expect(conflux.ChecksumAddress('CFX:TYPE.USER:AASM4C231PY7J34FGHNTCFKDT2NM9XV1TU0DUKN7M1'))
-    .toEqual(ChecksumAddress('CFX:TYPE.USER:AASM4C231PY7J34FGHNTCFKDT2NM9XV1TU0DUKN7M1'));
-});
+client.provider = new MockProvider();
 
 // ------------------------------- address ----------------------------------
 test('getBalance', async () => {
-  await expect(conflux.getBalance()).rejects.toThrow('not match regex');
+  await expect(client.getBalance()).rejects.toThrow('not match "address"');
 
-  const call = jest.spyOn(conflux.provider, 'call');
+  const call = jest.spyOn(client.provider, 'call');
 
-  await conflux.getBalance(ADDRESS);
-  expect(call).toHaveBeenLastCalledWith('cfx_getBalance', conflux.ChecksumAddress(ADDRESS), undefined);
+  await client.getBalance(ADDRESS);
+  expect(call).toHaveBeenLastCalledWith('eth_getBalance', ADDRESS, undefined);
 
-  await conflux.getBalance(ADDRESS, 'latest_state');
-  expect(call).toHaveBeenLastCalledWith('cfx_getBalance', conflux.ChecksumAddress(ADDRESS), 'latest_state');
+  await client.getBalance(ADDRESS, 'latest_state');
+  expect(call).toHaveBeenLastCalledWith('eth_getBalance', ADDRESS, 'latest_state');
 
-  await conflux.getBalance(ADDRESS, 0);
-  expect(call).toHaveBeenLastCalledWith('cfx_getBalance', conflux.ChecksumAddress(ADDRESS), '0x0');
+  await client.getBalance(ADDRESS, 0);
+  expect(call).toHaveBeenLastCalledWith('eth_getBalance', ADDRESS, '0x0');
 
   call.mockRestore();
 });
 
 test('getNextNonce', async () => {
-  await expect(conflux.getNextNonce()).rejects.toThrow('not match regex');
+  await expect(client.getNextNonce()).rejects.toThrow('not match regex');
 
-  const call = jest.spyOn(conflux.provider, 'call');
+  const call = jest.spyOn(client.provider, 'call');
 
-  await conflux.getNextNonce(ADDRESS);
-  expect(call).toHaveBeenLastCalledWith('cfx_getNextNonce', conflux.ChecksumAddress(ADDRESS), undefined);
+  await client.getNextNonce(ADDRESS);
+  expect(call).toHaveBeenLastCalledWith('eth_getNextNonce', ADDRESS, undefined);
 
-  await conflux.getNextNonce(ADDRESS, 'latest_state');
-  expect(call).toHaveBeenLastCalledWith('cfx_getNextNonce', conflux.ChecksumAddress(ADDRESS), 'latest_state');
+  await client.getNextNonce(ADDRESS, 'latest_state');
+  expect(call).toHaveBeenLastCalledWith('eth_getNextNonce', ADDRESS, 'latest_state');
 
-  await conflux.getNextNonce(ADDRESS, 0);
-  expect(call).toHaveBeenLastCalledWith('cfx_getNextNonce', conflux.ChecksumAddress(ADDRESS), '0x0');
+  await client.getNextNonce(ADDRESS, 0);
+  expect(call).toHaveBeenLastCalledWith('eth_getNextNonce', ADDRESS, '0x0');
 
   call.mockRestore();
 });
 
 test('getAdmin', async () => {
-  await expect(conflux.getAdmin()).rejects.toThrow('not match regex');
+  await expect(client.getAdmin()).rejects.toThrow('not match regex');
 
-  const call = jest.spyOn(conflux.provider, 'call');
+  const call = jest.spyOn(client.provider, 'call');
 
-  await conflux.getAdmin(ADDRESS);
-  expect(call).toHaveBeenLastCalledWith('cfx_getAdmin', conflux.ChecksumAddress(ADDRESS), undefined);
+  await client.getAdmin(ADDRESS);
+  expect(call).toHaveBeenLastCalledWith('eth_getAdmin', ADDRESS, undefined);
 
-  await conflux.getAdmin(ADDRESS, 'latest_state');
-  expect(call).toHaveBeenLastCalledWith('cfx_getAdmin', conflux.ChecksumAddress(ADDRESS), 'latest_state');
+  await client.getAdmin(ADDRESS, 'latest_state');
+  expect(call).toHaveBeenLastCalledWith('eth_getAdmin', ADDRESS, 'latest_state');
 
-  await conflux.getAdmin(ADDRESS, 0);
-  expect(call).toHaveBeenLastCalledWith('cfx_getAdmin', conflux.ChecksumAddress(ADDRESS), '0x0');
+  await client.getAdmin(ADDRESS, 0);
+  expect(call).toHaveBeenLastCalledWith('eth_getAdmin', ADDRESS, '0x0');
 
   call.mockRestore();
 });
 
 test('getVoteList', async () => {
-  await expect(conflux.getVoteList()).rejects.toThrow('not match regex');
+  await expect(client.getVoteList()).rejects.toThrow('not match regex');
 
-  const call = jest.spyOn(conflux.provider, 'call');
+  const call = jest.spyOn(client.provider, 'call');
 
-  await conflux.getVoteList(ADDRESS);
-  expect(call).toHaveBeenLastCalledWith('cfx_getVoteList', conflux.ChecksumAddress(ADDRESS), undefined);
+  await client.getVoteList(ADDRESS);
+  expect(call).toHaveBeenLastCalledWith('eth_getVoteList', ADDRESS, undefined);
 
-  await conflux.getVoteList(ADDRESS, 'latest_state');
-  expect(call).toHaveBeenLastCalledWith('cfx_getVoteList', conflux.ChecksumAddress(ADDRESS), 'latest_state');
+  await client.getVoteList(ADDRESS, 'latest_state');
+  expect(call).toHaveBeenLastCalledWith('eth_getVoteList', ADDRESS, 'latest_state');
 
-  await conflux.getVoteList(ADDRESS, 0);
-  expect(call).toHaveBeenLastCalledWith('cfx_getVoteList', conflux.ChecksumAddress(ADDRESS), '0x0');
+  await client.getVoteList(ADDRESS, 0);
+  expect(call).toHaveBeenLastCalledWith('eth_getVoteList', ADDRESS, '0x0');
 
   call.mockRestore();
 });
 
 test('getDepositList', async () => {
-  await expect(conflux.getDepositList()).rejects.toThrow('not match regex');
+  await expect(client.getDepositList()).rejects.toThrow('not match regex');
 
-  const call = jest.spyOn(conflux.provider, 'call');
+  const call = jest.spyOn(client.provider, 'call');
 
-  await conflux.getDepositList(ADDRESS);
-  expect(call).toHaveBeenLastCalledWith('cfx_getDepositList', conflux.ChecksumAddress(ADDRESS), undefined);
+  await client.getDepositList(ADDRESS);
+  expect(call).toHaveBeenLastCalledWith('eth_getDepositList', ADDRESS, undefined);
 
-  await conflux.getDepositList(ADDRESS, 'latest_state');
-  expect(call).toHaveBeenLastCalledWith('cfx_getDepositList', conflux.ChecksumAddress(ADDRESS), 'latest_state');
+  await client.getDepositList(ADDRESS, 'latest_state');
+  expect(call).toHaveBeenLastCalledWith('eth_getDepositList', ADDRESS, 'latest_state');
 
-  await conflux.getDepositList(ADDRESS, 0);
-  expect(call).toHaveBeenLastCalledWith('cfx_getDepositList', conflux.ChecksumAddress(ADDRESS), '0x0');
+  await client.getDepositList(ADDRESS, 0);
+  expect(call).toHaveBeenLastCalledWith('eth_getDepositList', ADDRESS, '0x0');
 
   call.mockRestore();
 });
 
 // -------------------------------- epoch -----------------------------------
 test('getEpochNumber', async () => {
-  await expect(conflux.getEpochNumber(null)).rejects.toThrow('not match any');
-  await expect(conflux.getEpochNumber('xxx')).rejects.toThrow('not match any');
-  await expect(conflux.getEpochNumber('EARLIEST')).rejects.toThrow('not match any');
+  await expect(client.getEpochNumber(null)).rejects.toThrow('not match any');
+  await expect(client.getEpochNumber('xxx')).rejects.toThrow('not match any');
+  await expect(client.getEpochNumber('EARLIEST')).rejects.toThrow('not match any');
 
-  const call = jest.spyOn(conflux.provider, 'call');
+  const call = jest.spyOn(client.provider, 'call');
 
-  await conflux.getEpochNumber();
-  expect(call).toHaveBeenLastCalledWith('cfx_epochNumber', undefined);
+  await client.getEpochNumber();
+  expect(call).toHaveBeenLastCalledWith('eth_blockNumber', undefined);
 
-  await conflux.getEpochNumber(0);
-  expect(call).toHaveBeenLastCalledWith('cfx_epochNumber', '0x0');
+  await client.getEpochNumber(0);
+  expect(call).toHaveBeenLastCalledWith('eth_blockNumber', '0x0');
 
-  await conflux.getEpochNumber('100');
-  expect(call).toHaveBeenLastCalledWith('cfx_epochNumber', '0x64');
+  await client.getEpochNumber('100');
+  expect(call).toHaveBeenLastCalledWith('eth_blockNumber', '0x64');
 
-  await conflux.getEpochNumber('0x0a');
-  expect(call).toHaveBeenLastCalledWith('cfx_epochNumber', '0xa');
+  await client.getEpochNumber('0x0a');
+  expect(call).toHaveBeenLastCalledWith('eth_blockNumber', '0xa');
 
-  await conflux.getEpochNumber('earliest');
-  expect(call).toHaveBeenLastCalledWith('cfx_epochNumber', 'earliest');
+  await client.getEpochNumber('earliest');
+  expect(call).toHaveBeenLastCalledWith('eth_blockNumber', 'earliest');
 
-  await conflux.getEpochNumber('latest_checkpoint');
-  expect(call).toHaveBeenLastCalledWith('cfx_epochNumber', 'latest_checkpoint');
+  await client.getEpochNumber('latest_checkpoint');
+  expect(call).toHaveBeenLastCalledWith('eth_blockNumber', 'latest_checkpoint');
 
-  await conflux.getEpochNumber('latest_confirmed');
-  expect(call).toHaveBeenLastCalledWith('cfx_epochNumber', 'latest_confirmed');
+  await client.getEpochNumber('latest_confirmed');
+  expect(call).toHaveBeenLastCalledWith('eth_blockNumber', 'latest_confirmed');
 
-  await conflux.getEpochNumber('latest_state');
-  expect(call).toHaveBeenLastCalledWith('cfx_epochNumber', 'latest_state');
+  await client.getEpochNumber('latest_state');
+  expect(call).toHaveBeenLastCalledWith('eth_blockNumber', 'latest_state');
 
-  await conflux.getEpochNumber('latest_mined');
-  expect(call).toHaveBeenLastCalledWith('cfx_epochNumber', 'latest_mined');
+  await client.getEpochNumber('latest_mined');
+  expect(call).toHaveBeenLastCalledWith('eth_blockNumber', 'latest_mined');
 
   call.mockRestore();
 });
 
 test('getBlockByEpochNumber', async () => {
-  await expect(conflux.getBlockByEpochNumber()).rejects.toThrow('Cannot convert undefined to a BigInt');
-  await expect(conflux.getBlockByEpochNumber(0, 1)).rejects.toThrow('not match "boolean"');
+  await expect(client.getBlockByEpochNumber()).rejects.toThrow('Cannot convert undefined to a BigInt');
+  await expect(client.getBlockByEpochNumber(0, 1)).rejects.toThrow('not match "boolean"');
 
-  const call = jest.spyOn(conflux.provider, 'call');
+  const call = jest.spyOn(client.provider, 'call');
   call.mockReturnValue(null);
 
-  await conflux.getBlockByEpochNumber('latest_state', false);
-  expect(call).toHaveBeenLastCalledWith('cfx_getBlockByEpochNumber', 'latest_state', false);
+  await client.getBlockByEpochNumber('latest_state', false);
+  expect(call).toHaveBeenLastCalledWith('eth_getBlockByEpochNumber', 'latest_state', false);
 
-  await conflux.getBlockByEpochNumber(0, true);
-  expect(call).toHaveBeenLastCalledWith('cfx_getBlockByEpochNumber', '0x0', true);
+  await client.getBlockByEpochNumber(0, true);
+  expect(call).toHaveBeenLastCalledWith('eth_getBlockByEpochNumber', '0x0', true);
 
   call.mockRestore();
 });
 
 test('getBlocksByEpochNumber', async () => {
-  await expect(conflux.getBlocksByEpochNumber()).rejects.toThrow('Cannot convert undefined to a BigInt');
+  await expect(client.getBlocksByEpochNumber()).rejects.toThrow('Cannot convert undefined to a BigInt');
 
-  const call = jest.spyOn(conflux.provider, 'call');
+  const call = jest.spyOn(client.provider, 'call');
 
-  await conflux.getBlocksByEpochNumber(0);
-  expect(call).toHaveBeenLastCalledWith('cfx_getBlocksByEpoch', '0x0');
+  await client.getBlocksByEpochNumber(0);
+  expect(call).toHaveBeenLastCalledWith('eth_getBlocksByEpoch', '0x0');
 
   call.mockRestore();
 });
 
 test('getBlockRewardInfo', async () => {
-  await expect(conflux.getBlockRewardInfo()).rejects.toThrow('Cannot convert undefined to a BigInt');
+  await expect(client.getBlockRewardInfo()).rejects.toThrow('Cannot convert undefined to a BigInt');
 
-  const call = jest.spyOn(conflux.provider, 'call');
+  const call = jest.spyOn(client.provider, 'call');
 
-  await conflux.getBlockRewardInfo(10);
-  expect(call).toHaveBeenLastCalledWith('cfx_getBlockRewardInfo', '0xa');
+  await client.getBlockRewardInfo(10);
+  expect(call).toHaveBeenLastCalledWith('eth_getBlockRewardInfo', '0xa');
 
   call.mockRestore();
 });
 
 // -------------------------------- block -----------------------------------
 test('getBlockByHash', async () => {
-  await expect(conflux.getBlockByHash()).rejects.toThrow('not match "hex"');
-  await expect(conflux.getBlockByHash(ADDRESS)).rejects.toThrow('not match "hex64"');
-  await expect(conflux.getBlockByHash(BLOCK_HASH, 0)).rejects.toThrow('not match "boolean"');
+  await expect(client.getBlockByHash()).rejects.toThrow('not match "hex"');
+  await expect(client.getBlockByHash(ADDRESS)).rejects.toThrow('not match "hex64"');
+  await expect(client.getBlockByHash(BLOCK_HASH, 0)).rejects.toThrow('not match "boolean"');
 
-  const call = jest.spyOn(conflux.provider, 'call');
+  const call = jest.spyOn(client.provider, 'call');
 
-  await conflux.getBlockByHash(BLOCK_HASH);
-  expect(call).toHaveBeenLastCalledWith('cfx_getBlockByHash', BLOCK_HASH, false);
+  await client.getBlockByHash(BLOCK_HASH);
+  expect(call).toHaveBeenLastCalledWith('eth_getBlockByHash', BLOCK_HASH, false);
 
-  await conflux.getBlockByHash(BLOCK_HASH, false);
-  expect(call).toHaveBeenLastCalledWith('cfx_getBlockByHash', BLOCK_HASH, false);
+  await client.getBlockByHash(BLOCK_HASH, false);
+  expect(call).toHaveBeenLastCalledWith('eth_getBlockByHash', BLOCK_HASH, false);
 
-  await conflux.getBlockByHash(BLOCK_HASH, true);
-  expect(call).toHaveBeenLastCalledWith('cfx_getBlockByHash', BLOCK_HASH, true);
+  await client.getBlockByHash(BLOCK_HASH, true);
+  expect(call).toHaveBeenLastCalledWith('eth_getBlockByHash', BLOCK_HASH, true);
 
   call.mockRestore();
 });
 
 test('getBlockByHashWithPivotAssumption', async () => {
-  await expect(conflux.getBlockByHashWithPivotAssumption()).rejects.toThrow('undefined not match "hex"');
-  await expect(conflux.getBlockByHashWithPivotAssumption(BLOCK_HASH)).rejects.toThrow('undefined not match "hex"');
-  await expect(conflux.getBlockByHashWithPivotAssumption(BLOCK_HASH, BLOCK_HASH)).rejects.toThrow('Cannot convert undefined to a BigInt');
+  await expect(client.getBlockByHashWithPivotAssumption()).rejects.toThrow('undefined not match "hex"');
+  await expect(client.getBlockByHashWithPivotAssumption(BLOCK_HASH)).rejects.toThrow('undefined not match "hex"');
+  await expect(client.getBlockByHashWithPivotAssumption(BLOCK_HASH, BLOCK_HASH)).rejects.toThrow('Cannot convert undefined to a BigInt');
 
-  const epochNumber = 100;
-  const blockHashArray = await conflux.getBlocksByEpochNumber(epochNumber);
+  const blockNumber = 100;
+  const blockHashArray = await client.getBlocksByEpochNumber(blockNumber);
   const blockHash = lodash.first(blockHashArray);
   const pivotHash = lodash.last(blockHashArray);
 
-  const call = jest.spyOn(conflux.provider, 'call');
+  const call = jest.spyOn(client.provider, 'call');
 
-  await conflux.getBlockByHashWithPivotAssumption(blockHash, pivotHash, epochNumber);
-  expect(call).toHaveBeenLastCalledWith('cfx_getBlockByHashWithPivotAssumption', blockHash, pivotHash, '0x64');
+  await client.getBlockByHashWithPivotAssumption(blockHash, pivotHash, blockNumber);
+  expect(call).toHaveBeenLastCalledWith('eth_getBlockByHashWithPivotAssumption', blockHash, pivotHash, '0x64');
 
   call.mockRestore();
 });
 
 test('getConfirmationRiskByHash', async () => {
-  await expect(conflux.getConfirmationRiskByHash()).rejects.toThrow('not match "hex"');
+  await expect(client.getConfirmationRiskByHash()).rejects.toThrow('not match "hex"');
 
-  const call = jest.spyOn(conflux.provider, 'call');
+  const call = jest.spyOn(client.provider, 'call');
 
-  await conflux.getConfirmationRiskByHash(BLOCK_HASH);
-  expect(call).toHaveBeenLastCalledWith('cfx_getConfirmationRiskByHash', BLOCK_HASH);
+  await client.getConfirmationRiskByHash(BLOCK_HASH);
+  expect(call).toHaveBeenLastCalledWith('eth_getConfirmationRiskByHash', BLOCK_HASH);
 
   call.mockRestore();
 });
 
 test('traceBlock', async () => {
-  const call = jest.spyOn(conflux.provider, 'call');
+  const call = jest.spyOn(client.provider, 'call');
 
-  await conflux.traceBlock(BLOCK_HASH);
+  await client.traceBlock(BLOCK_HASH);
   expect(call).toHaveBeenLastCalledWith('trace_block', BLOCK_HASH);
 
   call.mockRestore();
@@ -250,46 +235,46 @@ test('traceBlock', async () => {
 
 // ----------------------------- transaction --------------------------------
 test('getTransactionByHash', async () => {
-  await expect(conflux.getTransactionByHash()).rejects.toThrow('not match "hex"');
-  await expect(conflux.getTransactionByHash(ADDRESS)).rejects.toThrow('not match "hex64"');
+  await expect(client.getTransactionByHash()).rejects.toThrow('not match "hex"');
+  await expect(client.getTransactionByHash(ADDRESS)).rejects.toThrow('not match "hex64"');
 
-  const call = jest.spyOn(conflux.provider, 'call');
+  const call = jest.spyOn(client.provider, 'call');
 
-  await conflux.getTransactionByHash(TX_HASH);
-  expect(call).toHaveBeenLastCalledWith('cfx_getTransactionByHash', TX_HASH);
+  await client.getTransactionByHash(TX_HASH);
+  expect(call).toHaveBeenLastCalledWith('eth_getTransactionByHash', TX_HASH);
 
   call.mockRestore();
 });
 
 test('getTransactionReceipt', async () => {
-  await expect(conflux.getTransactionReceipt()).rejects.toThrow('not match "hex"');
-  await expect(conflux.getTransactionReceipt(ADDRESS)).rejects.toThrow('not match "hex64"');
+  await expect(client.getTransactionReceipt()).rejects.toThrow('not match "hex"');
+  await expect(client.getTransactionReceipt(ADDRESS)).rejects.toThrow('not match "hex64"');
 
-  const call = jest.spyOn(conflux.provider, 'call');
+  const call = jest.spyOn(client.provider, 'call');
 
-  await conflux.getTransactionReceipt(TX_HASH);
-  expect(call).toHaveBeenLastCalledWith('cfx_getTransactionReceipt', TX_HASH);
+  await client.getTransactionReceipt(TX_HASH);
+  expect(call).toHaveBeenLastCalledWith('eth_getTransactionReceipt', TX_HASH);
 
   call.mockRestore();
 });
 
 test('sendRawTransaction', async () => {
-  await expect(conflux.sendRawTransaction()).rejects.toThrow('not match "hex"');
+  await expect(client.sendRawTransaction()).rejects.toThrow('not match "hex"');
 
-  const call = jest.spyOn(conflux.provider, 'call');
+  const call = jest.spyOn(client.provider, 'call');
 
-  await conflux.sendRawTransaction('0x1ff');
-  expect(call).toHaveBeenLastCalledWith('cfx_sendRawTransaction', '0x01ff');
+  await client.sendRawTransaction('0x1ff');
+  expect(call).toHaveBeenLastCalledWith('eth_sendRawTransaction', '0x01ff');
 
-  await conflux.sendRawTransaction(Buffer.from([1, 255]));
-  expect(call).toHaveBeenLastCalledWith('cfx_sendRawTransaction', '0x01ff');
+  await client.sendRawTransaction(Buffer.from([1, 255]));
+  expect(call).toHaveBeenLastCalledWith('eth_sendRawTransaction', '0x01ff');
 
   call.mockRestore();
 });
 
 test('sendTransaction', async () => {
-  const call = jest.spyOn(conflux.provider, 'call');
-  await conflux.sendTransaction({
+  const call = jest.spyOn(client.provider, 'call');
+  await client.sendTransaction({
     from: ADDRESS,
     nonce: 100,
     gasPrice: '0x0abc',
@@ -302,8 +287,8 @@ test('sendTransaction', async () => {
     data: '0xabcd',
   }, PASSWORD);
 
-  expect(call).toHaveBeenLastCalledWith('cfx_sendTransaction', {
-    from: conflux.ChecksumAddress(ADDRESS),
+  expect(call).toHaveBeenLastCalledWith('eth_sendTransaction', {
+    from: ADDRESS,
     nonce: '0x64',
     gasPrice: '0xabc',
     gas: '0x64',
@@ -320,45 +305,45 @@ test('sendTransaction', async () => {
 
 // ------------------------------ contract ----------------------------------
 test('getCode', async () => {
-  await expect(conflux.getCode()).rejects.toThrow('not match regex');
+  await expect(client.getCode()).rejects.toThrow('not match regex');
 
-  const call = jest.spyOn(conflux.provider, 'call');
+  const call = jest.spyOn(client.provider, 'call');
 
-  await conflux.getCode(ADDRESS);
-  expect(call).toHaveBeenLastCalledWith('cfx_getCode', conflux.ChecksumAddress(ADDRESS), undefined);
+  await client.getCode(ADDRESS);
+  expect(call).toHaveBeenLastCalledWith('eth_getCode', ADDRESS, undefined);
 
-  await conflux.getCode(ADDRESS, 0);
-  expect(call).toHaveBeenLastCalledWith('cfx_getCode', conflux.ChecksumAddress(ADDRESS), '0x0');
+  await client.getCode(ADDRESS, 0);
+  expect(call).toHaveBeenLastCalledWith('eth_getCode', ADDRESS, '0x0');
 
   call.mockRestore();
 });
 
 test('getCollateralForStorage', async () => {
-  await expect(conflux.getCollateralForStorage()).rejects.toThrow('not match regex');
+  await expect(client.getCollateralForStorage()).rejects.toThrow('not match regex');
 
-  const call = jest.spyOn(conflux.provider, 'call');
+  const call = jest.spyOn(client.provider, 'call');
 
-  await conflux.getCollateralForStorage(ADDRESS);
-  expect(call).toHaveBeenLastCalledWith('cfx_getCollateralForStorage', conflux.ChecksumAddress(ADDRESS), undefined);
+  await client.getCollateralForStorage(ADDRESS);
+  expect(call).toHaveBeenLastCalledWith('eth_getCollateralForStorage', ADDRESS, undefined);
 
-  await conflux.getCollateralForStorage(ADDRESS, 0);
-  expect(call).toHaveBeenLastCalledWith('cfx_getCollateralForStorage', conflux.ChecksumAddress(ADDRESS), '0x0');
+  await client.getCollateralForStorage(ADDRESS, 0);
+  expect(call).toHaveBeenLastCalledWith('eth_getCollateralForStorage', ADDRESS, '0x0');
 
   call.mockRestore();
 });
 
 test('call', async () => {
-  await expect(conflux.call()).rejects.toThrow('undefined');
+  await expect(client.call()).rejects.toThrow('undefined');
 
-  const call = jest.spyOn(conflux.provider, 'call');
-  await conflux.call({ from: ADDRESS, to: ADDRESS });
-  expect(call).toHaveBeenLastCalledWith('cfx_call', {
-    from: conflux.ChecksumAddress(ADDRESS),
+  const call = jest.spyOn(client.provider, 'call');
+  await client.call({ from: ADDRESS, to: ADDRESS });
+  expect(call).toHaveBeenLastCalledWith('eth_call', {
+    from: ADDRESS,
     nonce: undefined,
     gasPrice: undefined,
     gas: undefined,
     storageLimit: undefined,
-    to: conflux.ChecksumAddress(ADDRESS),
+    to: ADDRESS,
     value: undefined,
     data: undefined,
     chainId: undefined,
@@ -368,25 +353,25 @@ test('call', async () => {
   call.mockRestore();
 });
 
-test('estimateGasAndCollateral', async () => {
-  await expect(conflux.estimateGasAndCollateral()).rejects.toThrow('undefined');
+test('estimateGas', async () => {
+  await expect(client.estimateGas()).rejects.toThrow('undefined');
 
-  const call = jest.spyOn(conflux.provider, 'call');
-  await conflux.estimateGasAndCollateral({ to: ADDRESS });
-  expect(call).toHaveBeenLastCalledWith('cfx_estimateGasAndCollateral', {
+  const call = jest.spyOn(client.provider, 'call');
+  await client.estimateGas({ to: ADDRESS });
+  expect(call).toHaveBeenLastCalledWith('eth_estimateGas', {
     from: undefined,
     nonce: undefined,
     gasPrice: undefined,
     gas: undefined,
     storageLimit: undefined,
-    to: conflux.ChecksumAddress(ADDRESS),
+    to: ADDRESS,
     value: undefined,
     data: undefined,
     chainId: undefined,
     epochHeight: undefined,
   }, undefined);
 
-  await conflux.estimateGasAndCollateral(
+  await client.estimateGas(
     {
       from: ADDRESS,
       to: ADDRESS,
@@ -396,13 +381,13 @@ test('estimateGasAndCollateral', async () => {
       data: '0x',
     },
   );
-  expect(call).toHaveBeenLastCalledWith('cfx_estimateGasAndCollateral', {
-    from: conflux.ChecksumAddress(ADDRESS),
+  expect(call).toHaveBeenLastCalledWith('eth_estimateGas', {
+    from: ADDRESS,
     nonce: undefined,
     gasPrice: undefined,
     gas: '0x1',
     storageLimit: undefined,
-    to: conflux.ChecksumAddress(ADDRESS),
+    to: ADDRESS,
     value: '0x64',
     data: '0x',
     chainId: '0x1',
@@ -413,14 +398,14 @@ test('estimateGasAndCollateral', async () => {
 });
 
 test('getLogs', async () => {
-  await expect(conflux.getLogs()).rejects.toThrow('Cannot read property');
-  await expect(conflux.getLogs({ blockHashes: [], fromEpoch: 0 })).rejects.toThrow('OverrideError');
-  await expect(conflux.getLogs({ topics: [[null]] })).rejects.toThrow('not match "hex"');
+  await expect(client.getLogs()).rejects.toThrow('Cannot read property');
+  await expect(client.getLogs({ blockHashes: [], fromEpoch: 0 })).rejects.toThrow('OverrideError');
+  await expect(client.getLogs({ topics: [[null]] })).rejects.toThrow('not match "hex"');
 
-  const call = jest.spyOn(conflux.provider, 'call');
+  const call = jest.spyOn(client.provider, 'call');
 
-  await conflux.getLogs({});
-  expect(call).toHaveBeenLastCalledWith('cfx_getLogs', {
+  await client.getLogs({});
+  expect(call).toHaveBeenLastCalledWith('eth_getLogs', {
     fromEpoch: undefined,
     toEpoch: undefined,
     address: undefined,
@@ -429,31 +414,31 @@ test('getLogs', async () => {
     limit: undefined,
   });
 
-  await conflux.getLogs({
+  await client.getLogs({
     blockHashes: BLOCK_HASH,
     address: ADDRESS,
     topics: [TX_HASH, null],
     limit: 100,
   });
-  expect(call).toHaveBeenLastCalledWith('cfx_getLogs', {
+  expect(call).toHaveBeenLastCalledWith('eth_getLogs', {
     fromEpoch: undefined,
     toEpoch: undefined,
-    address: conflux.ChecksumAddress(ADDRESS),
+    address: ADDRESS,
     blockHashes: BLOCK_HASH,
     topics: [TX_HASH, null],
     limit: '0x64',
   });
 
-  await conflux.getLogs({
+  await client.getLogs({
     blockHashes: [BLOCK_HASH, BLOCK_HASH],
     address: [ADDRESS, ADDRESS],
     topics: [[TX_HASH, TX_HASH], null],
     limit: 100,
   });
-  expect(call).toHaveBeenLastCalledWith('cfx_getLogs', {
+  expect(call).toHaveBeenLastCalledWith('eth_getLogs', {
     fromEpoch: undefined,
     toEpoch: undefined,
-    address: [conflux.ChecksumAddress(ADDRESS), conflux.ChecksumAddress(ADDRESS)],
+    address: [ADDRESS, ADDRESS],
     blockHashes: [BLOCK_HASH, BLOCK_HASH],
     topics: [[TX_HASH, TX_HASH], null],
     limit: '0x64',
@@ -464,50 +449,50 @@ test('getLogs', async () => {
 
 // ------------------------------- subscribe ----------------------------------
 test('subscribe', async () => {
-  const id = await conflux.subscribe('epochs');
+  const id = await client.subscribe('epochs');
 
   expect(id).toMatch(/^0x[\da-f]+$/);
 });
 
 test('subscribeEpochs', async () => {
-  const call = jest.spyOn(conflux.provider, 'call');
+  const call = jest.spyOn(client.provider, 'call');
 
-  await conflux.subscribeEpochs();
-  expect(call).toHaveBeenLastCalledWith('cfx_subscribe', 'epochs');
+  await client.subscribeEpochs();
+  expect(call).toHaveBeenLastCalledWith('eth_subscribe', 'epochs');
 
   call.mockRestore();
 });
 
 test('subscribeNewHeads', async () => {
-  const call = jest.spyOn(conflux.provider, 'call');
+  const call = jest.spyOn(client.provider, 'call');
 
-  await conflux.subscribeNewHeads();
-  expect(call).toHaveBeenLastCalledWith('cfx_subscribe', 'newHeads');
+  await client.subscribeNewHeads();
+  expect(call).toHaveBeenLastCalledWith('eth_subscribe', 'newHeads');
 
   call.mockRestore();
 });
 
 test('subscribeLogs', async () => {
-  const call = jest.spyOn(conflux.provider, 'call');
+  const call = jest.spyOn(client.provider, 'call');
 
-  await conflux.subscribeLogs();
-  expect(call).toHaveBeenLastCalledWith('cfx_subscribe', 'logs', {});
+  await client.subscribeLogs();
+  expect(call).toHaveBeenLastCalledWith('eth_subscribe', 'logs', {});
 
-  await conflux.subscribeLogs({
+  await client.subscribeLogs({
     address: ADDRESS,
     topics: [TX_HASH, null],
   });
-  expect(call).toHaveBeenLastCalledWith('cfx_subscribe', 'logs', {
-    address: conflux.ChecksumAddress(ADDRESS),
+  expect(call).toHaveBeenLastCalledWith('eth_subscribe', 'logs', {
+    address: ADDRESS,
     topics: [TX_HASH, null],
   });
 
-  await conflux.subscribeLogs({
+  await client.subscribeLogs({
     address: [ADDRESS, ADDRESS],
     topics: [[TX_HASH, TX_HASH], null],
   });
-  expect(call).toHaveBeenLastCalledWith('cfx_subscribe', 'logs', {
-    address: [conflux.ChecksumAddress(ADDRESS), conflux.ChecksumAddress(ADDRESS)],
+  expect(call).toHaveBeenLastCalledWith('eth_subscribe', 'logs', {
+    address: [ADDRESS, ADDRESS],
     topics: [[TX_HASH, TX_HASH], null],
   });
 
@@ -515,7 +500,7 @@ test('subscribeLogs', async () => {
 });
 
 test('unsubscribe', async () => {
-  const result = await conflux.unsubscribe('');
+  const result = await client.unsubscribe('');
 
   expect(lodash.isBoolean(result)).toEqual(true);
 });

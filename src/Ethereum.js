@@ -172,10 +172,10 @@ class Ethereum {
    *
    * @param address {string} - The address to get the numbers of transactions from.
    * @param [blockNumber] {string|number} - See [format.blockNumber](#util/format.js/format/(static)blockNumber)
-   * @return {Promise<BigInt>} The next nonce should be used by given address.
+   * @return {Promise<number>} The next nonce should be used by given address.
    *
    * @example
-   * > await client.getNextNonce("0x1c1e72f0c37968557b3d85a3f32747792798bbde");
+   * > await client.getTransactionCount("0x1c1e72f0c37968557b3d85a3f32747792798bbde");
    1449n
    */
   async getTransactionCount(address, blockNumber = CONST.BLOCK_NUMBER.LATEST) {
@@ -186,7 +186,7 @@ class Ethereum {
     return format.uInt(result);
   }
 
-  // -------------------------------- epoch -----------------------------------
+  // -------------------------------- block -----------------------------------
   /**
    * Returns the epoch number of given parameter.
    *
@@ -221,7 +221,6 @@ class Ethereum {
     return format.block.$or(null)(result);
   }
 
-  // -------------------------------- block -----------------------------------
   /**
    * Returns information about a block by hash.
    *

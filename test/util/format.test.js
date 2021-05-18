@@ -129,12 +129,6 @@ test('big', () => {
   expect(() => format.big('-0x10')).toThrow('Invalid number');
 });
 
-test('fixed64', () => {
-  expect(format.fixed64('0x0')).toEqual(0);
-  expect(format.fixed64('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff')).toEqual(1);
-  expect(format.fixed64('0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff')).toEqual(0.5);
-});
-
 test('blockNumber', () => {
   expect(() => format.blockNumber(-1)).toThrow('not match any');
   expect(format.blockNumber(0)).toEqual('0x0');
@@ -144,21 +138,21 @@ test('blockNumber', () => {
   expect(() => format.blockNumber('LATEST')).toThrow('not match any');
 });
 
-test('hex40', () => {
-  expect(format.hex40(HEX_40)).toEqual(HEX_40);
-  expect(format.hex40(HEX_40.toUpperCase())).toEqual(HEX_40);
-  expect(() => format.hex40(HEX_64)).toThrow('not match "hex40"');
-});
-
 test('address', () => {
   expect(() => format.address()).toThrow('not match');
+  expect(() => format.address(null)).toThrow('not match');
 
-  expect(format.address('0x1b716c51381e76900ebaa7999a488511a4e1fd0a'))
-    .toEqual('0x1b716c51381e76900ebaa7999a488511a4e1fd0a');
-  expect(format.address('0X1B716C51381E76900EBAA7999A488511A4E1FD0A'))
-    .toEqual('0x1b716c51381e76900ebaa7999a488511a4e1fd0a');
-  expect(format.address('0x1B716c51381e76900EBAA7999A488511A4E1fD0a'))
-    .toEqual('0x1b716c51381e76900ebaa7999a488511a4e1fd0a');
+  expect(format.address(Buffer.from('bbb62a2252f998225886fed4f2a9dac3c94de681', 'hex')))
+    .toEqual('0xBbb62A2252F998225886FEd4f2A9DaC3C94dE681');
+  expect(format.address('0xbbb62a2252f998225886fed4f2a9dac3c94de681'))
+    .toEqual('0xBbb62A2252F998225886FEd4f2A9DaC3C94dE681');
+  expect(format.address('0XBBB62A2252F998225886FED4F2A9DAC3C94DE681'))
+    .toEqual('0xBbb62A2252F998225886FEd4f2A9DaC3C94dE681');
+  expect(format.address('0xBbb62A2252F998225886FEd4f2A9DaC3C94dE681'))
+    .toEqual('0xBbb62A2252F998225886FEd4f2A9DaC3C94dE681');
+
+  expect(() => format.address('0xbbb62A2252F998225886FEd4f2A9DaC3C94dE681'))
+    .toThrow('checksum error');
 });
 
 test('hex64', () => {
