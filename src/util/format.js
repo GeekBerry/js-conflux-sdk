@@ -424,6 +424,7 @@ format.log = format({
   blockNumber: format.uInt,
   logIndex: format.uInt,
   transactionIndex: format.uInt,
+  transactionLogIndex: format.uInt,
 });
 
 format.logs = format([format.log]);
@@ -435,6 +436,15 @@ format.receipt = format({
   status: (format.uInt).$or(null),
   transactionIndex: format.uInt,
   logs: format.logs,
+});
+
+format.subscribeHead = format({
+  difficulty: format.bigUInt,
+  gasLimit: format.bigUInt,
+  gasUsed: format.bigUInt,
+  number: format.uInt,
+  size: format.uInt,
+  timestamp: format.uInt,
 });
 
 module.exports = format;

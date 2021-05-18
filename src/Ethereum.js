@@ -624,45 +624,44 @@ class Ethereum {
     return this.provider.call('eth_subscribe', name, ...args);
   }
 
-  // /**
-  //  * The newHeads topic streams all new block headers participating in the consensus.
-  //  *
-  //  * @return {Promise<Subscription>} EventEmitter instance with the follow events:
-  //  * - 'data': see `getBlockByHash`
-  //  *
-  //  * @example
-  //  * > subscription = await client.subscribeNewHeads()
-  //  * > subscription.on('data', data=>console.log(data))
-  //  {
-  //     difficulty: 368178587115n,
-  //     epochNumber: null,
-  //     gasLimit: 30000000n,
-  //     height: 1118247,
-  //     timestamp: 1605005752,
-  //     adaptive: false,
-  //     blame: 0,
-  //     deferredLogsBloomHash: '0xd397b3b043d87fcd6fad1291ff0bfd16401c274896d8c63a923727f077b8e0b5',
-  //     deferredReceiptsRoot: '0x7ae0d5716513206755b6f7c95272b79dbc225759b6e17727e19c2f15c3166bda',
-  //     deferredStateRoot: '0x3cf5deba77c8aa9072f1e972d6a97db487a0ce88455f371eb8ac8fa77321cb9d',
-  //     hash: '0x194675173abbc5aab50326136008774eea1a289e6722c973dfed12b703ee5f2a',
-  //     miner: '0x189121b8f0cdfef0b56eb22d9cb76c97b9c7cfbc',
-  //     nonce: '0x799d35f695950fd6',
-  //     parentHash: '0x4af3cf8cb358e75acad282ffa4b578b6211ea9eeb7cf87c282f120d8a1c809df',
-  //     powQuality: '0xe7ac17feab',
-  //     refereeHashes: [],
-  //     transactionsRoot: '0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470'
-  //   }
-  //  */
-  // async subscribeNewHeads() {
-  //   const id = await this.subscribe('newHeads');
-  //   const subscription = new Subscription(id);
-  //
-  //   this.provider.on(id, data => {
-  //     subscription.emit('data', format.subscribeHead(data));
-  //   });
-  //
-  //   return subscription;
-  // }
+  /**
+   * The newHeads topic streams all new block headers participating in the consensus.
+   *
+   * @return {Promise<Subscription>} EventEmitter instance with the follow events:
+   * - 'data': see `getBlockByHash`
+   *
+   * @example
+   * > subscription = await client.subscribeNewHeads()
+   * > subscription.on('data', data=>console.log(data))
+   {
+      number: 24908378,
+      hash: '0xb6b8641011e90f747c8addb8ae38c622348f07e852af50f688c2bcbd975b4402',
+      parentHash: '0xf6ef56360d258f7ae1eb91c3dcee477c2022d1ce5e0780f9852b5a1ea953ae5b',
+      sha3Uncles: '0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347',
+      logsBloom: '0x000000400000200001000080000000000000010000100800020800000010000001800000000020000000040000000000002000100000000000000000002000000000002000000000000400080000000000010200000802000000a400c000000400000801820000008004601000002a20200000000000800010002030002000400800040200008010240000000900000001804001008000000000100080080200021000000000002000000010000103000000000000000000000000a00000020000020002000000000000800000000000000800000000080000008020800020020010000040080008000001000000200008000000800000480000000000814000',
+      transactionsRoot: '0xf499abdb0439a896543f0bc9ca5b6f110452b3d1b3fa672626e917065b52139b',
+      stateRoot: '0x0225ba245d86c0f64bd4cd7690b6af2a41ccef62034353f22ec6f72e8dc87b58',
+      receiptsRoot: '0xb61ec060497fbb6208bc17255553ced836d1e9a468154d2f1a415825a1e66e57',
+      miner: '0x03801efb0efe2a25ede5dd3a003ae880c0292e4d',
+      author: '0x03801efb0efe2a25ede5dd3a003ae880c0292e4d',
+      difficulty: 340282366920938463463374607431768211454n,
+      extraData: '0xdb830302058c4f70656e457468657265756d86312e34372e30826c69',
+      size: 5925,
+      gasLimit: 12499988n,
+      gasUsed: 1853185n,
+      timestamp: 1621323232,
+    }
+   */
+  async subscribeNewHeads() {
+    const id = await this.subscribe('newHeads');
+    const subscription = new Subscription(id);
+
+    this.provider.on(id, data => {
+      subscription.emit('data', format.subscribeHead(data));
+    });
+
+    return subscription;
+  }
 
   /**
    * The logs topic streams all logs matching a certain filter, in order.
@@ -674,8 +673,7 @@ class Ethereum {
    * @param [options.topics] {array} - Search topics. Logs can have 4 topics: the function signature and up to 3 indexed event arguments. The elements of topics match the corresponding log topics. Example: ["0xA", null, ["0xB", "0xC"], null] matches logs with "0xA" as the 1st topic AND ("0xB" OR "0xC") as the 3rd topic. If null, match all.
    * @return {Promise<Subscription>} EventEmitter instance with the follow events:
    * - 'data': see `getLogs`
-   * - 'revert':
-   *   - revertTo 'number': epoch number
+   * - 'removed': see `getLogs`
    *
    * @example
    * > subscription = await client.subscribeLogs()
@@ -696,16 +694,32 @@ class Ethereum {
      transactionHash: '0x950ddec9ce3b42c4d8ca120722fa318ae64dc2e24553201f55f68c00bfd9cc4c'
    }
    * @example
-   * > subscription.on('revert', data=>console.log(data))
-   { revertTo: 568230 }
-   { revertTo: 568231 }
+   * > subscription.on('removed', data=>console.log(data))
    */
   async subscribeLogs(options = {}) {
     const id = await this.subscribe('logs', format.getLogs(options));
 
     const subscription = new Subscription(id);
     this.provider.on(id, data => {
-      subscription.emit('data', format.log(data));
+      if (data.removed) {
+        subscription.emit('removed', format.log(data));
+      } else {
+        subscription.emit('data', format.log(data));
+      }
+    });
+
+    return subscription;
+  }
+
+  /**
+   * @return {Promise<Subscription>}
+   */
+  async subscribeNewPendingTransactions() {
+    const id = await this.subscribe('newPendingTransactions');
+
+    const subscription = new Subscription(id);
+    this.provider.on(id, data => {
+      subscription.emit('data', format.transactionHash(data));
     });
 
     return subscription;
@@ -730,7 +744,7 @@ class Ethereum {
    true
    */
   async unsubscribe(id) {
-    return this.provider.call('cfx_unsubscribe', `${id}`);
+    return this.provider.call('eth_unsubscribe', `${id}`);
   }
 }
 

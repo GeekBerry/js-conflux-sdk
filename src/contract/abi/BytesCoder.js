@@ -83,7 +83,9 @@ class BytesCoder extends BaseCoder {
   }
 
   decodeTopic(hex) {
-    return hex;
+    // for static bytesN, hex is bytesN self;
+    // for dynamic bytes, hex is keccak256 hash
+    return hex; // return hash or self hex anyway
   }
 }
 
