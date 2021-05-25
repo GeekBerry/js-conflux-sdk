@@ -14,7 +14,7 @@ class MethodTransaction extends Transaction {
    * > Note: This can alter the smart contract state.
    *
    * @param options {object} - See [Transaction](#Transaction.js/Transaction/**constructor**)
-   * @param [password] {string} - See [client.sendTransaction](#Conflux.js/Conflux/sendTransaction)
+   * @param [password] {string} - See [client.sendTransaction](#Ethereum.js/Ethereum/sendTransaction)
    * @return {Promise<PendingTransaction>} The PendingTransaction object.
    */
   sendTransaction(options, password) {
@@ -27,11 +27,11 @@ class MethodTransaction extends Transaction {
    * set contract method encode as `data`.
    *
    * @param options {object} - See [Transaction](#Transaction.js/Transaction/**constructor**)
-   * @param epochNumber {string|number} - See [Conflux.estimateGas](#Conflux.js/estimateGas)
+   * @param blockNumber {string|number} - See [Ethereum.estimateGas](#Ethereum.js/estimateGas)
    * @return {Promise<object>} The gas used and storage occupied for the simulated call/transaction.
    */
-  async estimateGas(options, epochNumber) {
-    return this.method.client.estimateGas({ ...this, ...options }, epochNumber);
+  async estimateGas(options, blockNumber) {
+    return this.method.client.estimateGas({ ...this, ...options }, blockNumber);
   }
 
   /**
@@ -42,11 +42,11 @@ class MethodTransaction extends Transaction {
    * > Note: Can not alter the smart contract state.
    *
    * @param options {object} - See [Transaction](#Transaction.js/Transaction/**constructor**)
-   * @param epochNumber {string|number} - See [Conflux.call](#Conflux.js/call)
+   * @param blockNumber {string|number} - See [Ethereum.call](#Ethereum.js/call)
    * @return {Promise<*>} Decoded contact call return.
    */
-  async call(options, epochNumber) {
-    const hex = await this.method.client.call({ ...this, ...options }, epochNumber);
+  async call(options, blockNumber) {
+    const hex = await this.method.client.call({ ...this, ...options }, blockNumber);
     return this.method.decodeOutputs(hex);
   }
 

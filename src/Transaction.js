@@ -19,11 +19,11 @@ class Transaction {
    * @param [options.v] {number} - ECDSA recovery id
    * @return {Transaction}
    */
-  constructor({ from, nonce, gasPrice, gasLimit, to, value, data, chainId, v, r, s }) {
+  constructor({ from, nonce, gasPrice, gas, to, value, data, chainId, v, r, s }) {
     this.from = from;
     this.nonce = nonce;
     this.gasPrice = gasPrice;
-    this.gasLimit = gasLimit;
+    this.gas = gas;
     this.to = to;
     this.value = value;
     this.data = data;
@@ -89,11 +89,11 @@ class Transaction {
    * @return {Buffer}
    */
   encode(includeSignature) {
-    const { nonce, gasPrice, gasLimit, to, value, data, chainId, v, r, s } = format.signTx(this);
+    const { nonce, gasPrice, gas, to, value, data, chainId, v, r, s } = format.signTx(this);
 
     const raw = includeSignature
-      ? [nonce, gasPrice, gasLimit, to, value, data, v, r, s]
-      : [nonce, gasPrice, gasLimit, to, value, data, chainId, format.hexBuffer(null), format.hexBuffer(null)];
+      ? [nonce, gasPrice, gas, to, value, data, v, r, s]
+      : [nonce, gasPrice, gas, to, value, data, chainId, format.hexBuffer(null), format.hexBuffer(null)];
 
     return rlp.encode(raw);
   }

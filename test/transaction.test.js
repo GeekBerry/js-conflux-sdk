@@ -1,23 +1,21 @@
 const { Transaction } = require('../src');
 
 const KEY = '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';
-const ADDRESS = '0xFCAd0B19bB29D4674531d6f115237E16AfCE377c';
+const ADDRESS = '0xfcad0b19bb29d4674531d6f115237e16afce377c';
 
 test('Transaction', () => {
   const transaction = new Transaction({
     nonce: 0,
     gasPrice: 1,
-    gasLimit: 21000,
+    gas: 21000,
     to: '0x0123456789012345678901234567890123456789',
     value: 0,
-    storageLimit: 0,
-    epochHeight: 0,
     chainId: 0,
   });
 
   expect(transaction.nonce).toEqual(0);
   expect(transaction.gasPrice).toEqual(1);
-  expect(transaction.gasLimit).toEqual(21000);
+  expect(transaction.gas).toEqual(21000);
   expect(transaction.to).toEqual('0x0123456789012345678901234567890123456789');
   expect(transaction.value).toEqual(0);
   expect(transaction.chainId).toEqual(0);
@@ -43,7 +41,7 @@ test('s starts with 0x00', () => {
   const transaction = new Transaction({
     nonce: 127,
     gasPrice: 1,
-    gasLimit: 21000,
+    gas: 21000,
     to: '0x0123456789012345678901234567890123456789',
     value: 0,
     chainId: 0,

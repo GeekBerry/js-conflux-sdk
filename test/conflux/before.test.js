@@ -2,7 +2,7 @@ const lodash = require('lodash');
 const { Ethereum } = require('../../src');
 const { MockProvider } = require('../../mock');
 
-const ADDRESS = '0x1Cad0B19bB29d4674531d6f115237E16afce377C';
+const ADDRESS = '0xfcad0b19bb29d4674531d6f115237e16afce377c';
 const BLOCK_HASH = '0xe0b0000000000000000000000000000000000000000000000000000000000000';
 const TX_HASH = '0xb0a0000000000000000000000000000000000000000000000000000000000000';
 
@@ -14,7 +14,7 @@ client.provider = new MockProvider();
 
 // ------------------------------- address ----------------------------------
 test('getBalance', async () => {
-  await expect(client.getBalance()).rejects.toThrow('not match "address"');
+  await expect(client.getBalance()).rejects.toThrow('not match "hex"');
 
   const call = jest.spyOn(client.provider, 'call');
 
@@ -31,7 +31,7 @@ test('getBalance', async () => {
 });
 
 test('getTransactionCount', async () => {
-  await expect(client.getTransactionCount()).rejects.toThrow('not match "address"');
+  await expect(client.getTransactionCount()).rejects.toThrow('not match "hex"');
 
   const call = jest.spyOn(client.provider, 'call');
 
@@ -128,8 +128,6 @@ test('sendRawTransaction', async () => {
 //     gas: 100,
 //     to: null,
 //     value: 0,
-//     storageLimit: 1000000,
-//     epochHeight: 200,
 //     chainId: 0,
 //     data: '0xabcd',
 //   }, PASSWORD);
@@ -141,8 +139,6 @@ test('sendRawTransaction', async () => {
 //     gas: '0x64',
 //     to: null,
 //     value: '0x0',
-//     storageLimit: '0xf4240',
-//     epochHeight: '0xc8',
 //     chainId: '0x0',
 //     data: '0xabcd',
 //   }, PASSWORD);
@@ -152,7 +148,7 @@ test('sendRawTransaction', async () => {
 
 // ------------------------------ contract ----------------------------------
 test('getCode', async () => {
-  await expect(client.getCode()).rejects.toThrow('not match "address"');
+  await expect(client.getCode()).rejects.toThrow('not match "hex"');
 
   const call = jest.spyOn(client.provider, 'call');
 
@@ -175,12 +171,10 @@ test('call', async () => {
     nonce: undefined,
     gasPrice: undefined,
     gas: undefined,
-    storageLimit: undefined,
     to: ADDRESS,
     value: undefined,
     data: undefined,
     chainId: undefined,
-    epochHeight: undefined,
   }, 'latest');
 
   call.mockRestore();
@@ -195,7 +189,7 @@ test('estimateGas', async () => {
     from: undefined,
     nonce: undefined,
     gasPrice: undefined,
-    gasLimit: undefined,
+    gas: undefined,
     to: ADDRESS,
     value: undefined,
     data: undefined,
@@ -205,7 +199,7 @@ test('estimateGas', async () => {
     {
       from: ADDRESS,
       to: ADDRESS,
-      gasLimit: '0x01',
+      gas: '0x01',
       value: 100,
       data: '0x',
     },
@@ -214,7 +208,7 @@ test('estimateGas', async () => {
     from: ADDRESS,
     nonce: undefined,
     gasPrice: undefined,
-    gasLimit: '0x1',
+    gas: '0x1',
     to: ADDRESS,
     value: '0x64',
     data: '0x',
@@ -268,7 +262,7 @@ test('getLogs', async () => {
 
 // ------------------------------- subscribe ----------------------------------
 test('subscribe', async () => {
-  const id = await client.subscribe('epochs');
+  const id = await client.subscribe('newHeads');
 
   expect(id).toMatch(/^0x[\da-f]+$/);
 });

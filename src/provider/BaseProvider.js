@@ -52,8 +52,8 @@ class BaseProvider extends EventEmitter {
    * @return {Promise<*>} Json rpc method return value.
    *
    * @example
-   * > await provider.call('cfx_epochNumber');
-   * > await provider.call('cfx_getBlockByHash', blockHash);
+   * > await provider.call('eth_blockNumber');
+   * > await provider.call('eth_getBlockByHash', blockHash);
    */
   async call(method, ...params) {
     const startTime = Date.now();
@@ -79,7 +79,7 @@ class BaseProvider extends EventEmitter {
    *
    * @example
    * > await provider.batch([
-   *   { method: 'cfx_epochNumber' },
+   *   { method: 'cfx_blockNumber' },
    *   { method: 'cfx_getBalance', params: ['0x0123456789012345678901234567890123456789'] },
    *   { method: 'InValidInput' },
    * ])

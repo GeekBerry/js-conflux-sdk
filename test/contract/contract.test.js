@@ -4,7 +4,7 @@ const { MockProvider } = require('../../mock');
 const { abi, bytecode, address } = require('./contract.json');
 const ContractConstructor = require('../../src/contract/method/ContractConstructor');
 
-const ADDRESS = '0x1cad0b19bb29d4674531d6f115237e16afce377c';
+const ADDRESS = '0xfcad0b19bb29d4674531d6f115237e16afce377c';
 const HEX64 = '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';
 
 // ----------------------------------------------------------------------------
@@ -126,7 +126,6 @@ test('contract.sendTransaction', async () => {
   //   data: '0x06661abd',
   //   gasPrice: '0x0',
   //   gas: '0x0',
-  //   storageLimit: '0x0',
   // }, undefined);
   //
   // call.mockRestore();
@@ -151,7 +150,7 @@ test('contract.getLogs', async () => {
   expect(result[0].arguments).toEqual([topics[1]]);
 
   expect(call).toHaveBeenLastCalledWith('eth_getLogs', {
-    address: address,
+    address,
     topics,
   });
 
@@ -329,9 +328,9 @@ test('decodeLog', () => {
     fullName: 'SelfEvent(address indexed sender, uint256 current)',
     type: 'SelfEvent(address,uint256)',
     signature: '0xc4c01f6de493c58245fb681341f3a76bba9551ce81b11cbbb5d6d297844594df',
-    array: ['0xA000000000000000000000000000000000000001', JSBI.BigInt(100)],
+    array: ['0xa000000000000000000000000000000000000001', JSBI.BigInt(100)],
     object: {
-      sender: '0xA000000000000000000000000000000000000001',
+      sender: '0xa000000000000000000000000000000000000001',
       current: JSBI.BigInt(100),
     },
   });

@@ -38,7 +38,7 @@ class PendingTransaction {
    *
    * @param [options] {object}
    * @param [options.delay=0] {number} - Defer execute after `delay` ms.
-   * @return {Promise<Object|null>} See [Conflux.getTransactionByHash](#Conflux.js/getTransactionByHash)
+   * @return {Promise<Object|null>} See [Ethereum.getTransactionByHash](#Ethereum.js/getTransactionByHash)
    */
   async get({ delay = 0 } = {}) {
     await sleep(delay);
@@ -54,7 +54,7 @@ class PendingTransaction {
    * @param [options] {object}
    * @param [options.delta=1000] {number} - Loop transaction interval in ms.
    * @param [options.timeout=60*1000] {number} - Loop timeout in ms.
-   * @return {Promise<object>} See [Conflux.getTransactionByHash](#Conflux.js/getTransactionByHash)
+   * @return {Promise<object>} See [Ethereum.getTransactionByHash](#Ethereum.js/getTransactionByHash)
    */
   async mined({ delta = 1000, timeout = 60 * 1000 } = {}) {
     const startTime = Date.now();
@@ -82,7 +82,7 @@ class PendingTransaction {
    * @param [options] {object}
    * @param [options.delta=1000] {number} - Loop transaction interval in ms.
    * @param [options.timeout=5*60*1000] {number} - Loop timeout in ms.
-   * @return {Promise<object>} See [Conflux.getTransactionReceipt](#Conflux.js/getTransactionReceipt)
+   * @return {Promise<object>} See [Ethereum.getTransactionReceipt](#Ethereum.js/getTransactionReceipt)
    */
   async executed({ delta = 1000, timeout = 5 * 60 * 1000 } = {}) {
     const startTime = Date.now();

@@ -3,7 +3,7 @@ const BaseAccount = require('../src/wallet/Account');
 
 const PRIVATE_KEY = '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';
 const PUBLIC_KEY = '0x4646ae5047316b4230d0086c8acec687f00b1cd9d1dc634f6cb358ac0a9a8ffffe77b4dd0a4bfb95851f3b7355c781dd60f8418fc8a65d14907aff47c903a559';
-const ADDRESS = '0xFCAd0B19bB29D4674531d6f115237E16AfCE377c';
+const ADDRESS = '0xfcad0b19bb29d4674531d6f115237e16afce377c';
 const PASSWORD = 'password';
 
 const KEYSTORE = {
@@ -110,8 +110,7 @@ test('signTransaction', async () => {
   const options = {
     nonce: 0,
     gasPrice: 100,
-    gasLimit: 10000,
-    epochHeight: 100,
+    gas: 10000,
     chainId: 0,
   };
 

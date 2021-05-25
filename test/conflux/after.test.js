@@ -2,7 +2,7 @@ const lodash = require('lodash');
 const { Ethereum } = require('../../src');
 const { MockProvider } = require('../../mock');
 
-const ADDRESS = '0x1Cad0B19bB29d4674531d6f115237E16afce377C';
+const ADDRESS = '0xfcad0b19bb29d4674531d6f115237e16afce377c';
 const BLOCK_HASH = '0xe1b0000000000000000000000000000000000000000000000000000000000001';
 const TX_HASH = '0xb0a0000000000000000000000000000000000000000000000000000000000000';
 
@@ -147,7 +147,6 @@ test('getTransactionReceipt', async () => {
 //     gasPrice: 100,
 //     gas: 21000,
 //     value: 1,
-//     storageLimit: 1000,
 //   });
 //
 //   const transactionHash = await promise;

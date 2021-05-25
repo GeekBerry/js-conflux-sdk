@@ -7,12 +7,12 @@ test('BaseProvider', async () => {
   const provider = providerFactory({});
   expect(provider.constructor.name).toEqual('BaseProvider');
 
-  await expect(provider.call('cfx_epochNumber')).rejects.toThrow('BaseProvider.request not implement');
+  await expect(provider.call('eth_blockNumber')).rejects.toThrow('BaseProvider.request not implement');
 
   expect(await provider.batch([])).toEqual([]);
 
   await expect(
-    provider.batch([{ method: 'cfx_epochNumber' }, { method: 'NOT_EXIST' }]),
+    provider.batch([{ method: 'eth_blockNumber' }, { method: 'NOT_EXIST' }]),
   ).rejects.toThrow('BaseProvider.requestBatch not implement');
 }, 60 * 1000);
 
@@ -26,10 +26,10 @@ test.skip('HttpProvider', async () => {
 
   await expect(provider.call('NOT_EXIST')).rejects.toThrow('Method not found');
 
-  const result = await provider.call('cfx_epochNumber');
+  const result = await provider.call('eth_blockNumber');
   expect(result).toMatch(/^0x[\da-f]+$/);
 
-  const array = await provider.batch([{ method: 'cfx_epochNumber' }, { method: 'NOT_EXIST' }]);
+  const array = await provider.batch([{ method: 'eth_blockNumber' }, { method: 'NOT_EXIST' }]);
   expect(array.length).toEqual(2);
   expect(array[0]).toMatch(/^0x[\da-f]+$/);
   expect(array[1].message).toMatch('Method not found');
@@ -41,17 +41,17 @@ test.skip('WebSocketProvider', async () => {
   const provider = providerFactory({ url: WS_URL });
   expect(provider.constructor.name).toEqual('WebSocketProvider');
 
-  const result = await provider.call('cfx_epochNumber');
+  const result = await provider.call('eth_blockNumber');
   expect(result).toMatch(/^0x[\da-f]+$/);
 
-  const array = await provider.batch([{ method: 'cfx_epochNumber' }]);
+  const array = await provider.batch([{ method: 'eth_blockNumber' }]);
   expect(array.length).toEqual(1);
   expect(array[0]).toMatch(/^0x[\da-f]+$/);
 
-  const id = await provider.call('cfx_subscribe', 'epochs');
+  const id = await provider.call('eth_subscribe', 'newHeads');
   await new Promise(resolve => provider.once(id, resolve));
 
-  const promise = provider.call('cfx_epochNumber');
+  const promise = provider.call('eth_blockNumber');
   provider.close();
   provider.close();
   const error = await promise.catch(e => e);

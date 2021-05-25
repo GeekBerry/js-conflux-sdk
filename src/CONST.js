@@ -15,7 +15,7 @@ const MAX_UINT = JSBI.subtract(UINT_BOUND, JSBI.BigInt(1)); // 2**256-1
  *
  * - `PENDING` 'pending': the currently mined block (including pending transactions)
  * - `LATEST` 'latest': the latest block (current head of the block chain)
- * - `EARLIEST` 'earliest': earliest epoch number, same as 0.
+ * - `EARLIEST` 'earliest': earliest block number, same as 0.
  */
 const BLOCK_NUMBER = {
   PENDING: 'pending',

@@ -29,7 +29,7 @@ function toHex(value) {
   return hex.length % 2 ? `0x0${hex.slice(2)}` : hex;
 }
 
-function toAddress(value) {
+function toChecksumAddress(value) {
   let string;
 
   if (lodash.isString(value)) {
@@ -43,11 +43,11 @@ function toAddress(value) {
     throw new Error(`${value} not match "address"`);
   }
 
-  const address = sign.checksumAddress(string);
-  if (string !== string.toLowerCase() && string !== string.toUpperCase() && string !== address) {
-    throw new Error(`checksum error, expect to be ${address}, got ${string}`);
+  const checksumAddress = sign.checksumAddress(string);
+  if (string !== string.toLowerCase() && string !== string.toUpperCase() && string !== checksumAddress) {
+    throw new Error(`checksum error, expect to be ${checksumAddress}, got ${string}`);
   }
-  return address;
+  return checksumAddress;
 }
 
 function toNumber(value) {
@@ -223,10 +223,12 @@ format.blockNumber = format.bigUIntHex
  * @return {string} Hex string
  *
  * @example
- * > format.address('0xbbb62a2252f998225886fed4f2a9dac3c94de681')
+ * > format.checksumAddress('0xbbb62a2252f998225886fed4f2a9dac3c94de681')
  "0xBbb62A2252F998225886FEd4f2A9DaC3C94dE681"
+ * > format.checksumAddress('0xbbb62A2252F998225886FEd4f2A9DaC3C94dE681')
+ Error('checksum error)
  */
-format.address = format(toAddress);
+format.checksumAddress = format(toChecksumAddress);
 
 /**
  * When encoding UNFORMATTED DATA (byte arrays, account addresses, hashes, bytecode arrays): encode as hex, prefix with "0x", two hex digits per byte.
@@ -249,6 +251,18 @@ format.address = format(toAddress);
  "0x0a"
  */
 format.hex = format(toHex);
+
+/**
+ * @param arg {string|Buffer}
+ * @return {string} Hex string
+ *
+ * @example
+ * > format.checksumAddress('0xBbb62A2252F998225886FEd4f2A9DaC3C94dE681')
+ "0xbbb62a2252f998225886fed4f2a9dac3c94de681"
+ * > format.checksumAddress('0xbbb62A2252F998225886FEd4f2A9DaC3C94dE681')
+ "0xbbb62a2252f998225886fed4f2a9dac3c94de681"
+ */
+format.address = format.hex.$validate(v => v.length === 2 + 40, 'address');
 
 format.hex64 = format.hex.$validate(v => v.length === 2 + 64, 'hex64');
 
@@ -377,7 +391,7 @@ format.getLogs = format({
 format.signTx = format({
   nonce: format.bigUInt.$after(format.hexBuffer),
   gasPrice: format.bigUInt.$after(format.hexBuffer),
-  gasLimit: format.bigUInt.$after(format.hexBuffer),
+  gas: format.bigUInt.$after(format.hexBuffer),
   to: format.address.$or(null).$default(null).$after(format.hexBuffer),
   value: format.bigUInt.$default(0).$after(format.hexBuffer),
   chainId: format.hexBuffer,
@@ -390,7 +404,7 @@ format.signTx = format({
 format.callTx = format({
   from: format.address,
   nonce: format.bigUIntHex,
-  gasLimit: format.bigUIntHex,
+  gas: format.bigUIntHex,
   gasPrice: format.bigUIntHex,
   to: format.address.$or(null),
   value: format.bigUIntHex,

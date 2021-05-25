@@ -24,7 +24,7 @@ class Contract {
    * @param options.abi {array} - The json interface for the contract to instantiate
    * @param [options.address] {string} - The address of the smart contract to call, can be added later using `contract.address = '0x1234...'`
    * @param [options.bytecode] {string} - The byte code of the contract, can be added later using `contract.constructor.code = '0x1234...'`
-   * @param client {Conflux} - Conflux instance.
+   * @param client {Ethereum} - Ethereum instance.
    * @return {object}
    *
    * @example

@@ -138,21 +138,32 @@ test('blockNumber', () => {
   expect(() => format.blockNumber('LATEST')).toThrow('not match any');
 });
 
-test('address', () => {
-  expect(() => format.address()).toThrow('not match');
-  expect(() => format.address(null)).toThrow('not match');
+test('checksumAddress', () => {
+  expect(() => format.checksumAddress()).toThrow('not match');
+  expect(() => format.checksumAddress(null)).toThrow('not match');
 
-  expect(format.address(Buffer.from('bbb62a2252f998225886fed4f2a9dac3c94de681', 'hex')))
+  expect(format.checksumAddress(Buffer.from('bbb62a2252f998225886fed4f2a9dac3c94de681', 'hex')))
     .toEqual('0xBbb62A2252F998225886FEd4f2A9DaC3C94dE681');
-  expect(format.address('0xbbb62a2252f998225886fed4f2a9dac3c94de681'))
+  expect(format.checksumAddress('0xbbb62a2252f998225886fed4f2a9dac3c94de681'))
     .toEqual('0xBbb62A2252F998225886FEd4f2A9DaC3C94dE681');
-  expect(format.address('0XBBB62A2252F998225886FED4F2A9DAC3C94DE681'))
+  expect(format.checksumAddress('0XBBB62A2252F998225886FED4F2A9DAC3C94DE681'))
     .toEqual('0xBbb62A2252F998225886FEd4f2A9DaC3C94dE681');
-  expect(format.address('0xBbb62A2252F998225886FEd4f2A9DaC3C94dE681'))
+  expect(format.checksumAddress('0xBbb62A2252F998225886FEd4f2A9DaC3C94dE681'))
     .toEqual('0xBbb62A2252F998225886FEd4f2A9DaC3C94dE681');
 
-  expect(() => format.address('0xbbb62A2252F998225886FEd4f2A9DaC3C94dE681'))
+  expect(() => format.checksumAddress('0xbbb62A2252F998225886FEd4f2A9DaC3C94dE681'))
     .toThrow('checksum error');
+});
+
+test('address', () => {
+  expect(format.address(HEX_40)).toEqual(HEX_40);
+  expect(() => format.address(null)).toThrow('not match "address"');
+  expect(() => format.address(HEX_64)).toThrow('not match "address"');
+
+  expect(format.address('0xBbb62A2252F998225886FEd4f2A9DaC3C94dE681'))
+    .toEqual('0xbbb62a2252f998225886fed4f2a9dac3c94de681');
+  expect(format.address('0xbbb62A2252F998225886FEd4f2A9DaC3C94dE681'))
+    .toEqual('0xbbb62a2252f998225886fed4f2a9dac3c94de681');
 });
 
 test('hex64', () => {

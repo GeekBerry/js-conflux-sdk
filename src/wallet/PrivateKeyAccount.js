@@ -131,8 +131,6 @@ class PrivateKeyAccount extends Account {
       nonce: 0,
       gasPrice: 100,
       gas: 10000,
-      storageLimit: 10000,
-      epochHeight: 100,
       chainId: 0,
     })
 
@@ -143,8 +141,6 @@ class PrivateKeyAccount extends Account {
       gas: 10000,
       to: undefined,
       value: undefined,
-      storageLimit: 10000,
-      epochHeight: 100,
       chainId: 0,
       data: undefined,
       v: 0,

@@ -3,8 +3,8 @@ const { Ethereum, format, CONST } = require('../../src');
 const { MockProvider } = require('../../mock');
 
 const PRIVATE_KEY = '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';
-const ADDRESS = '0x0123456789012345678901234567890123456789';
-const PASSWORD = 'password';
+// const ADDRESS = '0x0123456789012345678901234567890123456789';
+// const PASSWORD = 'password';
 
 // ----------------------------------------------------------------------------
 const client = new Ethereum({});
@@ -27,14 +27,12 @@ test('sendTransaction remote', async () => {
   //   from: ADDRESS,
   //   gasPrice: 10,
   //   gas: format.bigUInt(1024),
-  //   storageLimit: format.bigUInt(2048),
   // }, PASSWORD);
   //
   // expect(call).toHaveBeenLastCalledWith('eth_sendTransaction', {
   //   from: ADDRESS,
   //   gasPrice: '0xa',
   //   gas: '0x400',
-  //   storageLimit: '0x800',
   // }, PASSWORD);
   //
   // call.mockRestore();
@@ -54,7 +52,7 @@ test('sendTransaction local', async () => {
     data: undefined,
   });
 
-  expect(call).toHaveBeenLastCalledWith('eth_sendRawTransaction', '0xf85f640a82520894fcad0b19bb29d4674531d6f115237e16afce377c808026a0bc73fd0eb4e7acd990f0ccbf69ffa884169b5583ee0eb37fe6103440a7efb232a05a328b08fac46973429e7e0f2f5398eb314faea1213678e6cdc9edb47d8f9063');
+  expect(call).toHaveBeenLastCalledWith('eth_sendRawTransaction', '0xf85f640a82040094fcad0b19bb29d4674531d6f115237e16afce377c808025a0dbfa0a47f171430a8453a2b3c1e98dee7fae94ca07b6db7c0d4e8d85e854c36aa01f362ceceaf662fae6bcf17fb6382264aea207def984ef11764a2219572e46c3');
 
   call.mockRestore();
 });
@@ -68,9 +66,7 @@ test('sendTransaction defaultGasPrice', async () => {
     from: account,
     nonce: 100,
     gasPrice: undefined,
-    gasLimit: format.bigUInt(1024),
-    storageLimit: format.bigUInt(2048),
-    epochHeight: 1000,
+    gas: format.bigUInt(1024),
     chainId: 1,
   });
 
@@ -78,11 +74,10 @@ test('sendTransaction defaultGasPrice', async () => {
     from: account,
     nonce: 100,
     gasPrice: client.defaultGasPrice,
-    gasLimit: format.bigUInt(1024),
+    gas: format.bigUInt(1024),
     to: undefined,
     value: undefined,
-    storageLimit: format.bigUInt(2048),
-    epochHeight: 1000,
+
     chainId: 1,
     data: undefined,
   });
@@ -101,14 +96,14 @@ test('sendTransaction gasPrice:0', async () => {
     from: account,
     nonce: 100,
     gasPrice: undefined,
-    gasLimit: format.bigUInt(1024),
+    gas: format.bigUInt(1024),
     chainId: 1,
   });
 
   expect(signTransaction).toHaveBeenLastCalledWith({
     from: account,
     nonce: 100,
-    gasLimit: JSBI.BigInt(1024),
+    gas: JSBI.BigInt(1024),
     gasPrice: JSBI.BigInt(0),
     to: undefined,
     value: undefined,
@@ -148,7 +143,7 @@ test('sendTransaction auto', async () => {
     chainId: 1,
     from: account.address,
     to: account.address,
-    gasLimit: CONST.TRANSACTION_GAS,
+    gas: CONST.TRANSACTION_GAS,
     gasPrice: '10',
     nonce: '100',
   });
@@ -164,7 +159,7 @@ test('sendTransaction auto', async () => {
   expect(signTransaction).toHaveBeenLastCalledWith({
     chainId: 1,
     from: account.address,
-    gasLimit: JSBI.BigInt(1024),
+    gas: JSBI.BigInt(1024),
     gasPrice: '10',
     nonce: '100',
     data: '0xabcd',
@@ -172,14 +167,14 @@ test('sendTransaction auto', async () => {
 
   await client.sendTransaction({
     from: account.address,
-    gasLimit: 1000,
+    gas: 1000,
     data: '0xabcd',
   });
   expect(estimateGas).toHaveBeenCalledTimes(1);
   expect(signTransaction).toHaveBeenLastCalledWith({
     chainId: 1,
     from: account.address,
-    gasLimit: 1000,
+    gas: 1000,
     gasPrice: '10',
     nonce: '100',
     data: '0xabcd',
@@ -193,7 +188,7 @@ test('sendTransaction auto', async () => {
   expect(signTransaction).toHaveBeenLastCalledWith({
     chainId: 1,
     from: account.address,
-    gasLimit: JSBI.BigInt(1024),
+    gas: JSBI.BigInt(1024),
     gasPrice: '10',
     nonce: '100',
     data: '0xabcd',
