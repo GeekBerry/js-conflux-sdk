@@ -21,37 +21,33 @@ const contract = new Contract({
 });
 
 const accountAddressStruct = new HexStruct('0x10', { address: 6 }, 40);
-const contractAddressStruct = new HexStruct('0x80', { epochNumber: 6, blockIndex: 6 }, 40);
+const contractAddressStruct = new HexStruct('0x80', { blockNumber: 6 }, 40);
 const tokenAddressStruct = new HexStruct('0x80', { index: 6 }, 40);
-const blockHashStruct = new HexStruct('0xb0', { epochNumber: 6, blockIndex: 6 }, 64);
-const txHashStruct = new HexStruct('0xf0', { epochNumber: 6, blockIndex: 6, transactionIndex: 6 }, 64);
+const blockHashStruct = new HexStruct('0xb0', { blockNumber: 6 }, 64);
+const txHashStruct = new HexStruct('0xf0', { blockNumber: 6, transactionIndex: 6 }, 64);
 
 class MockProvider extends EventEmitter {
   constructor({
     startTimestamp = Math.floor(Date.now() / 1000) - 2 * 30 * 24 * 3600,
-    epochNumber = Number.MAX_SAFE_INTEGER,
-    blockDelta = 1, // in secords
-    addressCount = 10,
-    epochBlockCount = 5,
+    blockNumber = Number.MAX_SAFE_INTEGER,
+    blockTime = 15, // in secords
     blockTxCount = 2,
-    epochTxCount = 2,
+    addressCount = 10,
     chainId = 0,
     dataSize = 0,
   } = {}) {
     super();
 
     this.startTimestamp = startTimestamp;
-    this.epochNumber = epochNumber;
-    this.blockDelta = blockDelta;
-    this.epochBlockCount = epochBlockCount;
+    this.blockNumber = blockNumber;
+    this.blockTime = blockTime;
     this.blockTxCount = blockTxCount;
-    this.epochTxCount = epochTxCount;
     this.chainId = chainId;
     this.dataSize = dataSize;
 
     this.accountAddressArray = lodash.range(addressCount)
       .map(i => accountAddressStruct.encode({ address: i }));
-    this.tokenAddressArray = lodash.range(epochTxCount)
+    this.tokenAddressArray = lodash.range(blockTxCount)
       .map(i => tokenAddressStruct.encode({ index: i }));
   }
 
@@ -79,20 +75,20 @@ class MockProvider extends EventEmitter {
   }
 
   eth_gasPrice() {
-    return randomHex(2);
+    return randomHex(10);
   }
 
   // ------------------------------- address ----------------------------------
-  eth_getBalance(address, epochNumber) {
-    return Number(epochNumber) ? randomHex(8) : '0x0';
+  eth_getBalance(address, blockNumber) {
+    return Number(blockNumber) ? randomHex(8) : '0x0';
   }
 
-  eth_getTransactionCount(address, epochNumber) {
-    if ([undefined, 'latest_state', 'latest_mined'].includes(epochNumber)) {
+  eth_getTransactionCount(address, blockNumber) {
+    if ([undefined, 'latest', 'pending'].includes(blockNumber)) {
       return toHex(Number.MAX_SAFE_INTEGER);
     }
 
-    const number = (Number(epochNumber) * this.epochBlockCount * this.blockTxCount) / this.accountAddressArray.length;
+    const number = (Number(blockNumber) * this.blockTxCount) / this.accountAddressArray.length;
     return toHex(Math.floor(number));
   }
 
@@ -101,28 +97,23 @@ class MockProvider extends EventEmitter {
     if (/^0x[0-9a-f]+$/.test(blockNumber)) {
       return blockNumber;
     }
-    return toHex(this.epochNumber);
+    return toHex(this.blockNumber);
   }
 
-  eth_getBlockByNumber(epochNumber, detail) {
-    const blockHash = blockHashStruct.encode({ epochNumber, blockIndex: 0 });
+  eth_getBlockByNumber(blockNumber, detail) {
+    const blockHash = blockHashStruct.encode({ blockNumber });
     return this.eth_getBlockByHash(blockHash, detail);
   }
 
   eth_getBlockByHash(blockHash, detail = false) {
-    const { epochNumber, blockIndex } = blockHashStruct.decode(blockHash);
-    const blockCount = epochNumber * this.epochBlockCount + blockIndex;
-    const timestamp = this.startTimestamp + (blockCount * this.blockDelta); // in secords
-    const miner = this.accountAddressArray[blockCount % this.accountAddressArray.length];
+    const { blockNumber } = blockHashStruct.decode(blockHash);
+    const timestamp = this.startTimestamp + (blockNumber * this.blockTime); // in secords
+    const miner = this.accountAddressArray[blockNumber % this.accountAddressArray.length];
 
-    const parentHash = blockIndex === 0
-      ? blockHashStruct.encode({ epochNumber: epochNumber ? epochNumber - 1 : 0, blockIndex })
-      : blockHashStruct.encode({ epochNumber, blockIndex: blockIndex - 1 });
-
-    const refereeHashes = [blockHashStruct.encode({ epochNumber, blockIndex })];
+    const parentHash = blockHashStruct.encode({ blockNumber: blockNumber ? blockNumber - 1 : 0 });
 
     let transactions = lodash.range(this.blockTxCount).map(
-      i => txHashStruct.encode({ epochNumber, blockIndex, transactionIndex: i }),
+      i => txHashStruct.encode({ blockNumber, transactionIndex: i }),
     );
 
     if (detail) {
@@ -130,57 +121,59 @@ class MockProvider extends EventEmitter {
     }
 
     return {
-      adaptive: lodash.sample([true, false]),
-      blame: randomHex(1),
-      custom: [[1]],
-      deferredLogsBloomHash: randomHex(64),
-      deferredReceiptsRoot: randomHex(64),
-      deferredStateRoot: randomHex(64),
+      author: miner,
       difficulty: randomHex(8),
-      epochNumber: toHex(epochNumber),
+      extraData: randomHex(64), // ??
       gasLimit: randomHex(4),
       gasUsed: randomHex(2),
       hash: blockHash,
-      height: toHex(epochNumber),
+      logsBloom: randomHex(100),
       miner,
-      nonce: randomHex(16),
+      number: toHex(blockNumber),
       parentHash,
-      powQuality: randomHex(4),
-      refereeHashes,
+      receiptsRoot: randomHex(64), // ??
+      sealFields: [],
+      sha3Uncles: randomHex(64),
+      signature: randomHex(64),
       size: randomHex(4),
+      stateRoot: randomHex(64),
+      step: blockNumber.toString(),
       timestamp,
+      totalDifficulty: randomHex(8),
       transactions,
       transactionsRoot: randomHex(64),
+      uncles: [],
     };
   }
 
   // ----------------------------- transaction --------------------------------
   eth_getTransactionByHash(transactionHash) {
-    const { epochNumber, blockIndex, transactionIndex } = txHashStruct.decode(transactionHash);
-    const blockCount = epochNumber * this.epochBlockCount + blockIndex;
-    const txCount = blockCount * this.blockTxCount + transactionIndex;
+    const { blockNumber, transactionIndex } = txHashStruct.decode(transactionHash);
+    const txCount = blockNumber * this.blockTxCount + transactionIndex;
 
-    const blockHash = blockHashStruct.encode({ epochNumber, blockIndex });
+    const blockHash = blockHashStruct.encode({ blockNumber });
     const nonce = Math.floor(txCount / this.accountAddressArray.length);
     const from = this.accountAddressArray[txCount % this.accountAddressArray.length];
     const to = transactionIndex === 0 ? null : this.accountAddressArray[(txCount + 1) % this.accountAddressArray.length];
-    const contractCreated = to ? null : contractAddressStruct.encode({ epochNumber, blockIndex });
+    const creates = to ? null : contractAddressStruct.encode({ blockNumber });
 
     return {
       blockHash,
+      blockNumber,
       chainId: toHex(this.chainId),
-      contractCreated,
-      data: randomHex(this.dataSize * 2),
-      epochHeight: epochNumber,
+      condition: null,
+      creates,
       from,
-      gas: randomHex(5), // gasLimit
+      gas: randomHex(5),
       gasPrice: randomHex(2),
       hash: transactionHash,
+      data: randomHex(this.dataSize * 2),
       nonce: toHex(nonce),
+      publicKey: randomHex(128),
       r: randomHex(64),
+      raw: randomHex(282),
       s: randomHex(64),
-      status: (blockIndex === 0 && transactionIndex === 1) ? '0x1' : '0x0',
-      storageLimit: randomHex(10),
+      standardV: lodash.sample(['0x0', '0x1']),
       to,
       transactionIndex: toHex(transactionIndex),
       v: lodash.sample(['0x0', '0x1']),
@@ -189,30 +182,22 @@ class MockProvider extends EventEmitter {
   }
 
   eth_getTransactionReceipt(transactionHash) {
-    const { epochNumber } = txHashStruct.decode(transactionHash);
-    const { blockHash, contractCreated, from, to, transactionIndex, status } = this.eth_getTransactionByHash(transactionHash);
+    const { blockNumber } = txHashStruct.decode(transactionHash);
+    const { blockHash, contractCreated, from, to, transactionIndex } = this.eth_getTransactionByHash(transactionHash);
 
     return {
       blockHash,
-      contractCreated,
-      epochNumber: toHex(epochNumber),
+      blockNumber: toHex(blockNumber),
+      contractAddress: contractCreated || null,
+      cumulativeGasUsed: randomHex(6),
       from,
-      gasCoveredBySponsor: lodash.sample([true, false]),
-      gasFee: randomHex(5),
       gasUsed: randomHex(5),
-      index: transactionIndex,
       logs: [],
-      logsBloom: randomHex(512),
-      outcomeStatus: status,
-      stateRoot: randomHex(64),
-      storageCollateralized: randomHex(4),
-      storageCoveredBySponsor: lodash.sample([true, false]),
-      storageReleased: [
-        { address: from, collaterals: randomHex(4) },
-      ],
+      logsBloom: randomHex(128),
+      status: toHex(1),
       to,
       transactionHash,
-      txExecErrorMsg: status === null ? null : 'mock error message',
+      transactionIndex,
     };
   }
 
@@ -225,11 +210,11 @@ class MockProvider extends EventEmitter {
   }
 
   // ------------------------------ contract ----------------------------------
-  eth_getCode(address, epochNumber) {
+  eth_getCode(address, blockNumber) {
     return randomHex(100);
   }
 
-  eth_getStorageAt(address, position, epochNumber) {
+  eth_getStorageAt(address, position, blockNumber) {
     return randomHex(64);
   }
 
@@ -237,35 +222,37 @@ class MockProvider extends EventEmitter {
     return padHex(100, 64);
   }
 
-  eth_estimateGas(hex, epochNumber) {
+  eth_estimateGas(hex, blockNumber) {
     return randomHex(4);
   }
 
-  eth_getLogs({ blockHashes, address, topics, fromEpoch, toEpoch, limit }) {
-    const epochNumber = Number(fromEpoch); // Number or NaN
-    if (!Number.isInteger(epochNumber)) {
+  eth_getLogs({ blockHashes, address, topics, fromBlock, toEpoch }) {
+    const blockNumber = Number(fromBlock); // Number or NaN
+    if (!Number.isInteger(blockNumber)) {
       return [];
     }
 
-    const { hash: blockHash, transactions: [transactionHash] } = this.eth_getBlockByEpochNumber(epochNumber);
+    const { hash: blockHash, transactions: [transactionHash] } = this.eth_getBlockByNumber(blockNumber);
 
-    return lodash.range(this.epochTxCount).map(index => {
+    return lodash.range(this.blockTxCount).map(index => {
       const { topics: topicArray, data } = contract.Transfer(
         accountAddressStruct.encode({ address: index }),
         accountAddressStruct.encode({ address: index + 1 }),
-        epochNumber,
+        blockNumber,
       );
 
       return {
         address: this.tokenAddressArray[index],
         blockHash,
+        blockNumber: toHex(blockNumber),
         data,
-        epochNumber: toHex(epochNumber),
         logIndex: randomHex(1),
+        remove: false,
         topics: topicArray,
         transactionHash,
         transactionIndex: toHex(0),
         transactionLogIndex: toHex(index),
+        type: 'mined',
       };
     });
   }
@@ -273,6 +260,21 @@ class MockProvider extends EventEmitter {
   // ----------------------------- subscription -------------------------------
   eth_subscribe() {
     return randomHex(16);
+  }
+
+  _emitNewHeads(id) {
+    const block = this.eth_getBlockByNumber(0);
+
+    this.emit(id, block);
+  }
+
+  _emitNewPendingTransactions(id) {
+    this.emit(id, randomHex(64));
+  }
+
+  _emitLogs(id) {
+    const [log] = this.eth_getLogs({ fromBlock: 0 });
+    this.emit(id, log);
   }
 
   eth_unsubscribe() {
