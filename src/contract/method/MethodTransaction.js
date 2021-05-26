@@ -1,9 +1,11 @@
+const thenable = require('../../util/thenable');
 const Transaction = require('../../Transaction');
 
 class MethodTransaction extends Transaction {
   constructor(options, method) {
     super(options);
     Reflect.defineProperty(this, 'method', { value: method }); // XXX: use defineProperty to avoid from JSON.stringify
+    return thenable(this, () => this.call());
   }
 
   /**
@@ -41,33 +43,13 @@ class MethodTransaction extends Transaction {
    *
    * > Note: Can not alter the smart contract state.
    *
-   * @param options {object} - See [Transaction](#Transaction.js/Transaction/**constructor**)
-   * @param blockNumber {string|number} - See [Ethereum.call](#Ethereum.js/call)
+   * @param [options={}] {object} - See [Transaction](#Transaction.js/Transaction/**constructor**)
+   * @param [blockNumber] {string|number} - See [Ethereum.call](#Ethereum.js/call)
    * @return {Promise<*>} Decoded contact call return.
    */
-  async call(options, blockNumber) {
+  async call(options = {}, blockNumber) {
     const hex = await this.method.client.call({ ...this, ...options }, blockNumber);
     return this.method.decodeOutputs(hex);
-  }
-
-  async then(resolve, reject) {
-    try {
-      return resolve(await this.call());
-    } catch (e) {
-      return reject(e);
-    }
-  }
-
-  async catch(callback) {
-    return this.then(v => v, callback);
-  }
-
-  async finally(callback) {
-    try {
-      return await this;
-    } finally {
-      await callback();
-    }
   }
 }
 

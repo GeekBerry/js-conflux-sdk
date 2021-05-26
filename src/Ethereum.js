@@ -380,9 +380,11 @@ class Ethereum {
     }
 
     if (options.gas === undefined) {
-      options.gas = options.data
-        ? await this.estimateGas(options)
-        : CONST.TRANSACTION_GAS;
+      if (options.data) {
+        options.gas = await this.estimateGas(options);
+      } else {
+        options.gas = CONST.TRANSACTION_GAS;
+      }
     }
 
     return account.signTransaction(options);

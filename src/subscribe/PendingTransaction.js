@@ -1,3 +1,5 @@
+const thenable = require('../util/thenable');
+
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -8,28 +10,11 @@ class PendingTransaction {
     this.func = func;
     this.args = args;
     this.promise = undefined;
-  }
 
-  async then(resolve, reject) {
-    this.promise = this.promise || this.func(...this.args);
-
-    try {
-      return resolve(await this.promise);
-    } catch (e) {
-      return reject(e);
-    }
-  }
-
-  async catch(callback) {
-    return this.then(v => v, callback);
-  }
-
-  async finally(callback) {
-    try {
-      return await this;
-    } finally {
-      await callback();
-    }
+    return thenable(this, () => {
+      this.promise = this.promise || this.func(...this.args);
+      return this.promise;
+    });
   }
 
   // --------------------------------------------------------------------------

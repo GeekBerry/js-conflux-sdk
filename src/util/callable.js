@@ -6,14 +6,14 @@ function callable(object, func) {
   }
 
   return new Proxy(func, {
-    getPrototypeOf: () => Object.getPrototypeOf(object),
+    getPrototypeOf: () => Reflect.getPrototypeOf(object),
     // setPrototypeOf
     // isExtensible
     // preventExtensions
-    getOwnPropertyDescriptor: (_, key) => Object.getOwnPropertyDescriptor(object, key),
-    has: (_, key) => Reflect.has(object, key),
-    get: (_, key) => Reflect.get(object, key),
-    set: (_, key, value) => Reflect.set(object, key, value),
+    getOwnPropertyDescriptor: (_, key) => Reflect.getOwnPropertyDescriptor(object, key),
+    has: (_, key, receiver) => Reflect.has(object, key, receiver),
+    get: (_, key, receiver) => Reflect.get(object, key, receiver),
+    set: (_, key, value, receiver) => Reflect.set(object, key, value, receiver),
     deleteProperty: (_, key) => Reflect.deleteProperty(object, key),
     defineProperty: (_, key, attributes) => Reflect.defineProperty(object, key, attributes),
     enumerate: () => Reflect.enumerate(object),

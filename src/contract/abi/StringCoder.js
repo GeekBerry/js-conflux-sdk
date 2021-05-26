@@ -23,7 +23,7 @@ class StringCoder extends BytesCoder {
     assert(lodash.isString(value), {
       message: 'value type error',
       expect: 'string',
-      got: value.constructor.name,
+      got: value,
       coder: this,
     });
 
@@ -43,7 +43,7 @@ class StringCoder extends BytesCoder {
     assert(lodash.isString(value), {
       message: 'value type error',
       expect: 'string',
-      got: value.constructor.name,
+      got: value,
       coder: this,
     });
 

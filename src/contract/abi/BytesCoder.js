@@ -75,7 +75,7 @@ class BytesCoder extends BaseCoder {
     assert(Buffer.isBuffer(value), {
       message: 'value type error',
       expect: Buffer.name,
-      got: value.constructor.name,
+      got: value,
       coder: this,
     });
 
