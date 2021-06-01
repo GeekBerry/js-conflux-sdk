@@ -5,7 +5,8 @@ function thenable(object, func) {
     throw new Error('except to be function');
   }
 
-  const asyncFunc = async () => func();
+  const asyncFunc = async (...args) => func(...args);
+
   return new Proxy(object, {
     get(_, key, receiver) {
       switch (key) {

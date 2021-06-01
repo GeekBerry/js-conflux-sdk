@@ -285,6 +285,17 @@ describe('tuple', () => {
     expect(() => valueCoder({ type: 'tuple' })).toThrow();
   });
 
+  test('tuple(0)', () => {
+    const coder = valueCoder({
+      type: 'tuple',
+      components: [{ type: 'uint8' }],
+    });
+
+    testEncodeAndDecode(coder, [0], '0x' +
+      '0000000000000000000000000000000000000000000000000000000000000000',
+    );
+  });
+
   test('tuple(static)', () => {
     const coder = valueCoder({
       type: 'tuple',
