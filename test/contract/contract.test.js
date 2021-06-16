@@ -171,31 +171,45 @@ test('contract.override', () => {
   expect(() => contract.OverrideEvent()).toThrow('can not match override "OverrideEvent(bytes),OverrideEvent(string),OverrideEvent(uint256,string)" with args ()');
 
   event = contract.OverrideEvent('str');
-  expect(event.topics).toEqual([
-    format.keccak256('OverrideEvent(string)'),
-    format.keccak256('str'),
-  ]);
+  expect(event).toEqual({
+    address,
+    topics: [
+      format.keccak256('OverrideEvent(string)'),
+      format.keccak256('str'),
+    ],
+    data: '0x',
+  });
 
   event = contract.OverrideEvent(Buffer.from('bytes'));
-  expect(event.topics).toEqual([
-    format.keccak256('OverrideEvent(bytes)'),
-    format.keccak256('bytes'),
-  ]);
+  expect(event).toEqual({
+    address,
+    topics: [
+      format.keccak256('OverrideEvent(bytes)'),
+      format.keccak256('bytes'),
+    ],
+    data: '0x',
+  });
 
   event = contract.OverrideEvent(100, null);
-  expect(event.topics).toEqual([
-    format.keccak256('OverrideEvent(uint256,string)'),
-    '0x0000000000000000000000000000000000000000000000000000000000000064',
-  ]);
+  expect(event).toEqual({
+    address,
+    topics: [
+      format.keccak256('OverrideEvent(uint256,string)'),
+      '0x0000000000000000000000000000000000000000000000000000000000000064',
+    ],
+  });
 
   expect(() => contract.OverrideEvent(100)).toThrow('can not match override "OverrideEvent(bytes),OverrideEvent(string),OverrideEvent(uint256,string)" with args (100)');
   expect(() => contract.OverrideEvent(null)).toThrow('can not determine override "OverrideEvent(bytes)|OverrideEvent(string)" with args ()');
 
   event = contract.OverrideEvent(null, null);
-  expect(event.topics).toEqual([
-    format.keccak256('OverrideEvent(uint256,string)'),
-    null,
-  ]);
+  expect(event).toEqual({
+    address,
+    topics: [
+      format.keccak256('OverrideEvent(uint256,string)'),
+      null,
+    ],
+  });
 
   const result = contract.OverrideEvent.decodeLog({
     topics: [
@@ -217,13 +231,9 @@ test('contract.StringEvent', () => {
   const result = contract.abi.decodeLog({ data: '0x', topics });
   expect(result).toEqual({
     name: 'StringEvent',
-    fullName: 'StringEvent(string indexed _string)',
     type: 'StringEvent(string)',
-    signature: format.keccak256('StringEvent(string)'),
-    array: [format.keccak256('string')],
-    object: {
-      _string: format.keccak256('string'),
-    },
+    signature: '0x617cf8a4400dd7963ed519ebe655a16e8da1282bb8fea36a21f634af912f54ab',
+    arguments: [format.keccak256('string')],
   });
 });
 
@@ -239,13 +249,9 @@ test('contract.ArrayEvent', () => {
   const result = contract.abi.decodeLog({ data: '0x', topics });
   expect(result).toEqual({
     name: 'ArrayEvent',
-    fullName: 'ArrayEvent(string[3] indexed _array)',
     type: 'ArrayEvent(string[3])',
-    signature: format.keccak256('ArrayEvent(string[3])'),
-    array: [HEX64],
-    object: {
-      _array: HEX64,
-    },
+    signature: '0xf0649dda320ad8f215db285953bf6fe6d78d3c6daf333e1df5efe1ba4b6af7b1',
+    arguments: [HEX64],
   });
 });
 
@@ -261,13 +267,9 @@ test('contract.StructEvent', () => {
   const result = contract.abi.decodeLog({ data: '0x', topics });
   expect(result).toEqual({
     name: 'StructEvent',
-    fullName: 'StructEvent((string,int32) indexed _struct)',
     type: 'StructEvent((string,int32))',
-    signature: format.keccak256('StructEvent((string,int32))'),
-    array: [HEX64],
-    object: {
-      _struct: HEX64,
-    },
+    signature: '0x7d981fdb9aef6924cc36d62bd0e5f0412d0ab59392f22611254d824379a79e4f',
+    arguments: [HEX64],
   });
 });
 
@@ -277,13 +279,9 @@ test('decodeData.constructor', () => {
   const result = contract.abi.decodeData(data);
   expect(result).toEqual({
     name: 'constructor',
-    fullName: 'constructor(uint256 num)',
     type: 'constructor(uint256)',
     signature: '',
-    array: [JSBI.BigInt(50)],
-    object: {
-      num: JSBI.BigInt(50),
-    },
+    arguments: [JSBI.BigInt(50)],
   });
 });
 
@@ -293,13 +291,9 @@ test('decodeData.function', () => {
   const result = contract.abi.decodeData(data);
   expect(result).toEqual({
     name: 'inc',
-    fullName: 'inc(uint256 num)',
     type: 'inc(uint256)',
     signature: '0x812600df',
-    array: [JSBI.BigInt(100)],
-    object: {
-      num: JSBI.BigInt(100),
-    },
+    arguments: [JSBI.BigInt(100)],
   });
 
   expect(contract.abi.decodeData('0x')).toEqual(undefined);
@@ -325,14 +319,12 @@ test('decodeLog', () => {
   const result = contract.abi.decodeLog(log);
   expect(result).toEqual({
     name: 'SelfEvent',
-    fullName: 'SelfEvent(address indexed sender, uint256 current)',
     type: 'SelfEvent(address,uint256)',
     signature: '0xc4c01f6de493c58245fb681341f3a76bba9551ce81b11cbbb5d6d297844594df',
-    array: ['0xa000000000000000000000000000000000000001', JSBI.BigInt(100)],
-    object: {
-      sender: '0xa000000000000000000000000000000000000001',
-      current: JSBI.BigInt(100),
-    },
+    arguments: [
+      '0xa000000000000000000000000000000000000001',
+      JSBI.BigInt(100),
+    ],
   });
 
   expect(contract.abi.decodeLog({ topics: [] })).toEqual(undefined);

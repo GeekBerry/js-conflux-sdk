@@ -219,7 +219,7 @@ test('estimateGas', async () => {
 
 test('getLogs', async () => {
   await expect(client.getLogs()).rejects.toThrow('got undefined');
-  await expect(client.getLogs({ topics: [[null]] })).rejects.toThrow('not match "hex"');
+  await expect(client.getLogs({ topics: [[undefined]] })).rejects.toThrow('not match "hex"');
 
   const call = jest.spyOn(client.provider, 'call');
 

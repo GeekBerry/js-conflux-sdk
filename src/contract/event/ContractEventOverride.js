@@ -1,12 +1,13 @@
 const lodash = require('lodash');
 const callable = require('../../util/callable');
 
-// FIXME: to extend `EventCoder`
 class ContractEventOverride {
   constructor(events, contract, client) {
-    this.signatureToEvent = lodash.keyBy(events, 'signature');
+    this.events = events;
     this.contract = contract;
     this.client = client;
+    this.name = lodash.first(events).name;
+    // XXX: assert all of event should have same name
 
     return callable(this, this.call.bind(this));
   }
@@ -16,7 +17,7 @@ class ContractEventOverride {
     const rejectArray = [];
 
     let filter;
-    for (const event of Object.values(this.signatureToEvent)) {
+    for (const event of this.events) {
       try {
         filter = event(...args);
         acceptArray.push(event.type);
@@ -36,8 +37,10 @@ class ContractEventOverride {
   }
 
   decodeLog(log) {
-    const topic = log.topics[0];
-    const event = this.signatureToEvent[topic];
+    const signatureToEvent = lodash.keyBy(this.events, 'signature');
+
+    const signature = log.topics[0];
+    const event = signatureToEvent[signature];
     return event.decodeLog(log);
   }
 }

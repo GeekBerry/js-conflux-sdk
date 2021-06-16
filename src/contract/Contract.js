@@ -5,6 +5,7 @@ const ContractMethod = require('./method/ContractMethod');
 const ContractMethodOverride = require('./method/ContractMethodOverride');
 const ContractEvent = require('./event/ContractEvent');
 const ContractEventOverride = require('./event/ContractEventOverride');
+const ContractEventSignatureOverride = require('./event/ContractEventSignatureOverride');
 
 /**
  * Contract with all its methods and events defined in its abi.
@@ -142,17 +143,30 @@ class Contract {
 
       array.forEach(method => {
         this[method.type] = method;
+
         this[method.signature] = method; // signature for contract abi decoder to decode
       });
     });
 
     // event
     const eventArray = lodash.map(abiTable.event, fragment => new ContractEvent(fragment, this, client));
-    lodash.forEach(lodash.groupBy(eventArray, 'name'), (array, name) => {
+    const eventGroupArray = lodash.map(lodash.groupBy(eventArray, 'signature'), array => {
+      return array.length === 1 ? lodash.first(array) : new ContractEventSignatureOverride(array, this, client);
+    });
+    lodash.forEach(lodash.groupBy(eventGroupArray, 'name'), (array, name) => {
       this[name] = array.length === 1 ? lodash.first(array) : new ContractEventOverride(array, this, client);
 
       array.forEach(event => {
         this[event.type] = event;
+
+        if (event instanceof ContractEventSignatureOverride) {
+          lodash.forEach(event.events, subEvent => {
+            this[subEvent.fullType] = subEvent;
+          });
+        } else {
+          this[event.fullType] = event;
+        }
+
         this[event.signature] = event; // signature for contract abi decoder to decode
       });
     });

@@ -2,7 +2,7 @@ const { assert } = require('../../util');
 const format = require('../../util/format');
 const HexStream = require('../../util/HexStream');
 const namedTuple = require('../../util/namedTuple');
-const { formatType, formatFullName, valueCoder } = require('../abi');
+const { formatType, valueCoder } = require('../abi');
 
 class EventCoder {
   /**
@@ -45,8 +45,9 @@ class EventCoder {
   constructor({ anonymous, name, inputs = [] }) {
     this.anonymous = anonymous;
     this.name = name; // example: "Event"
-    this.fullName = formatFullName({ name, inputs }); // example: "Event(address indexed account)"
+    this.fullName = formatType({ name, inputs }, { indexed: true, name: true }); // example: "Event(address indexed account)"
     this.type = formatType({ name, inputs }); // example: "Event(address)"
+    this.fullType = formatType({ name, inputs }, { indexed: true, name: false }); // example: "Event(address indexed)"
     this.signature = format.keccak256(this.type); // example: "0x50d7c806d0f7913f321946784dee176a42aa55b5dd83371fc57dcedf659085e0"
 
     this.inputs = inputs;

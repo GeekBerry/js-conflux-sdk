@@ -38,14 +38,15 @@ class ContractConstructor extends ContractMethod {
    * @return {array} NamedTuple
    */
   decodeData(hex) {
+    let error = new Error('ContractConstructor.decodeData failed');
     for (let index = WORD_CHARS; index <= hex.length; index += WORD_CHARS) {
       try {
         return super.decodeData(hex.slice(-index));
       } catch (e) {
-        // pass
+        error = e;
       }
     }
-    return undefined;
+    throw error;
   }
 }
 

@@ -43,16 +43,22 @@ function valueCoder(component) {
   return coder;
 }
 
-function formatType({ name, inputs }) {
-  return `${name}(${inputs.map(param => valueCoder(param).type).join(',')})`;
+function formatParam(param, { indexed = false, name = false } = {}) {
+  const array = [valueCoder(param).type];
+  if (indexed && param.indexed) {
+    array.push('indexed');
+  }
+  if (name && param.name) {
+    array.push(param.name);
+  }
+  return array.join(' ');
 }
 
-function formatFullName({ name, inputs }) {
-  return `${name}(${inputs.map(param => `${valueCoder(param).type} ${param.indexed ? 'indexed ' : ''}${param.name}`).join(', ')})`;
+function formatType({ name, inputs }, options) {
+  return `${name}(${inputs.map(param => formatParam(param, options)).join(',')})`;
 }
 
 module.exports = {
   valueCoder,
   formatType,
-  formatFullName,
 };

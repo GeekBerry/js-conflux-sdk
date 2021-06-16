@@ -1,7 +1,7 @@
 const { assert } = require('../../util');
 const format = require('../../util/format');
 const HexStream = require('../../util/HexStream');
-const { formatType, formatFullName, valueCoder } = require('../abi');
+const { formatType, valueCoder } = require('../abi');
 
 class FunctionCoder {
   /**
@@ -25,7 +25,7 @@ class FunctionCoder {
    */
   constructor({ name, inputs = [], outputs = [], stateMutability = 'nonpayable' }) {
     this.name = name; // example: "add"
-    this.fullName = formatFullName({ name, inputs }); // example: "add(uint number, uint count)"
+    this.fullName = formatType({ name, inputs }, { name: true }); // example: "add(uint number, uint count)"
     this.type = formatType({ name, inputs }); // example: "add(uint,uint)"
     this.signature = format.keccak256(this.type).slice(0, 10); // example: "0xb8966352"
     this.stateMutability = stateMutability;

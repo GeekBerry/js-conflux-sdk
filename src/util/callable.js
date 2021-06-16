@@ -6,20 +6,19 @@ function callable(object, func) {
   }
 
   return new Proxy(func, {
-    getPrototypeOf: () => Reflect.getPrototypeOf(object),
-    // setPrototypeOf
-    // isExtensible
-    // preventExtensions
-    getOwnPropertyDescriptor: (_, key) => Reflect.getOwnPropertyDescriptor(object, key),
-    has: (_, key, receiver) => Reflect.has(object, key, receiver),
-    get: (_, key, receiver) => Reflect.get(object, key, receiver),
-    set: (_, key, value, receiver) => Reflect.set(object, key, value, receiver),
-    deleteProperty: (_, key) => Reflect.deleteProperty(object, key),
-    defineProperty: (_, key, attributes) => Reflect.defineProperty(object, key, attributes),
-    enumerate: () => Reflect.enumerate(object),
-    ownKeys: () => Reflect.ownKeys(object),
-    // apply
-    // construct
+    getPrototypeOf: (_, ...args) => Reflect.getPrototypeOf(object, ...args),
+    setPrototypeOf: (_, ...args) => Reflect.setPrototypeOf(object, ...args),
+    isExtensible: (_, ...args) => Reflect.isExtensible(object, ...args),
+    preventExtensions: (_, ...args) => Reflect.preventExtensions(object, ...args),
+    getOwnPropertyDescriptor: (_, ...args) => Reflect.getOwnPropertyDescriptor(object, ...args),
+    has: (_, ...args) => Reflect.has(object, ...args),
+    get: (_, ...args) => Reflect.get(object, ...args),
+    set: (_, ...args) => Reflect.set(object, ...args),
+    deleteProperty: (_, ...args) => Reflect.deleteProperty(object, ...args),
+    defineProperty: (_, ...args) => Reflect.defineProperty(object, ...args),
+    ownKeys: (_, ...args) => Reflect.ownKeys(object, ...args),
+    // apply: (_, ...args) => Reflect.apply(object, ...args),
+    // construct: (_, ...args) => Reflect.construct(object, ...args),
   });
 }
 

@@ -380,11 +380,13 @@ format.boolean = format.any.$validate(lodash.isBoolean, 'boolean');
 format.keccak256 = format.bytes.$after(sign.keccak256).$after(format.hex);
 
 // -------------------------- format method arguments -------------------------
+format.topic = (format.hex64).$or(null);
+
 format.getLogs = format({
   fromBlock: format.blockNumber,
   toBlock: format.blockNumber,
   address: format.address.$or([format.address]),
-  topics: format([format.hex64.$or([format.hex64]).$or(null)]),
+  topics: [format.topic.$or([format.topic])],
   blockHash: format.blockHash,
 }, { pick: true });
 
