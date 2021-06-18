@@ -1,7 +1,7 @@
 {
   "name": "@geekberry/js-ethereum-sdk",
   "description": "JavaScript Ethereum Software Development Kit",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "license": "LGPL-3.0",
   "author": "geekberry@qq.com",
   "repository": "https://github.com/GeekBerry/js-conflux-sdk.git",
